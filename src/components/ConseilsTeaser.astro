@@ -1,0 +1,59 @@
+---
+import Icon from './Icon.astro';
+import ArticleCard from './ArticleCard.astro';
+import { getConseils } from '../utils/conseils';
+
+const latest = (await getConseils()).slice(0, 3);
+---
+
+{
+  latest.length > 0 && (
+    <section id="conseils" class="section teaser">
+      <div class="container">
+        <header class="section-head" data-reveal>
+          <p class="eyebrow">Conseils</p>
+          <h2 class="h2">
+            Des repères concrets pour mieux <em>gérer</em>
+          </h2>
+          <p>Trésorerie, administratif, RH, pilotage : des conseils pratiques, issus du terrain.</p>
+        </header>
+        <div class="t-grid">
+          {latest.map((a, i) => (
+            <ArticleCard entry={a} delay={i} headingLevel="h3" />
+          ))}
+        </div>
+        <div class="t-cta" data-reveal>
+          <a href="/conseils.html" class="btn btn--ghost">
+            Tous les conseils <Icon name="arrowRight" size={18} class="i-arrow" />
+          </a>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .teaser {
+    background: linear-gradient(180deg, var(--white), var(--cream));
+  }
+  .t-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+  .t-cta {
+    display: flex;
+    justify-content: center;
+    margin-top: 2.25rem;
+  }
+  @media (max-width: 1023px) {
+    .t-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 680px) {
+    .t-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

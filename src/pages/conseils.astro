@@ -1,0 +1,183 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import Icon from '../components/Icon.astro';
+import { site } from '../data/site';
+import { articleUrl, categoryIcon, getConseils } from '../utils/conseils';
+
+const articles = await getConseils();
+const categories = [...new Set(articles.map((a) => a.data.category))];
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'CollectionPage',
+      name: `Conseils de gestion pour TPE et artisans — ${site.name}`,
+      url: `${site.url}/conseils.html`,
+      inLanguage: 'fr-FR',
+      hasPart: articles.map((a) => ({
+        '@type': 'BlogPosting',
+        headline: a.data.title,
+        url: `${site.url}${articleUrl(a)}`,
+        datePublished: a.data.date.toISOString(),
+      })),
+    },
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Accueil', item: `${site.url}/` },
+        { '@type': 'ListItem', position: 2, name: 'Conseils', item: `${site.url}/conseils.html` },
+      ],
+    },
+  ],
+};
+---
+
+<BaseLayout
+  title={`Conseils de gestion pour TPE, artisans et professions libérales | ${site.name}`}
+  description="Trésorerie, relances, situations de travaux, embauche, tableaux de bord : des conseils pratiques pour mieux gérer votre TPE, par une consultante en gestion en Normandie (27, 76)."
+  jsonLd={jsonLd}
+>
+  <PageHero eyebrow="Conseils" title="Des conseils concrets pour mieux <em>gérer</em> votre entreprise" crumb="Conseils">
+    <p class="page-intro">
+      Trésorerie, administratif, ressources humaines, pilotage : des repères pratiques, issus du terrain, pour les
+      dirigeants de TPE, artisans et professions libérales.
+    </p>
+  </PageHero>
+
+  <section class="section conseils">
+    <div class="container">
+      {
+        categories.length > 1 && (
+          <div class="filters" role="group" aria-label="Filtrer par thème" data-reveal>
+            <button type="button" class="filter is-active" data-filter="all" aria-pressed="true">
+              Tous les conseils
+            </button>
+            {categories.map((c) => (
+              <button type="button" class="filter" data-filter={c} aria-pressed="false">
+                <Icon name={categoryIcon[c] ?? 'book'} size={15} />
+                {c}
+              </button>
+            ))}
+          </div>
+        )
+      }
+
+      <div class="a-grid" data-articles>
+        {articles.map((a, i) => <ArticleCard entry={a} delay={i % 3} />)}
+      </div>
+
+      <aside class="cta" data-reveal>
+        <span class="icon-tile icon-tile--terra"><Icon name="message" /></span>
+        <div>
+          <h2>Besoin d’un regard sur votre situation ?</h2>
+          <p>
+            Chaque entreprise est différente. Parlons de la vôtre lors d’un <strong>échange gratuit de 30 minutes</strong>,
+            sans engagement.
+          </p>
+        </div>
+        <a href="/#rendez-vous" class="btn">
+          Réserver un échange <Icon name="arrowRight" size={18} class="i-arrow" />
+        </a>
+      </aside>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  // Filtre des articles par thème
+  const buttons = [...document.querySelectorAll<HTMLButtonElement>('[data-filter]')];
+  const cards = [...document.querySelectorAll<HTMLElement>('[data-articles] [data-category]')];
+  buttons.forEach((btn) =>
+    btn.addEventListener('click', () => {
+      const value = btn.dataset.filter;
+      buttons.forEach((b) => {
+        const active = b === btn;
+        b.classList.toggle('is-active', active);
+        b.setAttribute('aria-pressed', String(active));
+      });
+      cards.forEach((card) => {
+        card.hidden = value !== 'all' && card.dataset.category !== value;
+      });
+    }),
+  );
+</script>
+
+<style>
+  .conseils {
+    padding-top: clamp(3rem, 6vw, 4.5rem);
+    background: var(--white);
+  }
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 2.5rem;
+  }
+  .filter {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.6rem 1.1rem;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text);
+    background: var(--cream);
+    border: 1px solid var(--line);
+    transition:
+      background 0.3s,
+      color 0.3s,
+      border-color 0.3s;
+  }
+  .filter:hover {
+    border-color: var(--blue-300);
+    color: var(--blue-700);
+  }
+  .filter.is-active {
+    color: #fff;
+    background: var(--blue-700);
+    border-color: var(--blue-700);
+  }
+  .a-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+  .a-grid :global([hidden]) {
+    display: none !important;
+  }
+  .cta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.1rem;
+    max-width: 52rem;
+    margin: clamp(3rem, 6vw, 4.5rem) auto 0;
+    padding: clamp(1.8rem, 4vw, 2.6rem);
+    text-align: center;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(120deg, var(--sand), var(--terra-100));
+    border: 1px solid rgb(178 83 31 / 0.12);
+  }
+  .cta h2 {
+    font-size: clamp(1.5rem, 2.6vw, 1.9rem);
+    margin-bottom: 0.5rem;
+  }
+  .cta p {
+    color: var(--text);
+  }
+  @media (max-width: 1023px) {
+    .a-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 680px) {
+    .a-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

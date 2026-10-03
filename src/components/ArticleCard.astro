@@ -1,0 +1,83 @@
+---
+import Icon from './Icon.astro';
+import { articleUrl, categoryIcon, formatDate, readingTime, type Conseil } from '../utils/conseils';
+
+interface Props {
+  entry: Conseil;
+  delay?: number;
+  headingLevel?: 'h2' | 'h3';
+}
+const { entry, delay = 0, headingLevel = 'h2' } = Astro.props;
+const Heading = headingLevel;
+const { title, description, category, date } = entry.data;
+---
+
+<article class="card article" data-reveal style={`--d:${delay}`} data-category={category}>
+  <span class="tag">
+    <Icon name={categoryIcon[category] ?? 'book'} size={14} strokeWidth={2} />
+    {category}
+  </span>
+  <Heading class="a-title">
+    <a href={articleUrl(entry)}>{title}</a>
+  </Heading>
+  <p class="a-desc">{description}</p>
+  <p class="a-meta">
+    <time datetime={date.toISOString()}>{formatDate(date)}</time>
+    <span aria-hidden="true">·</span>
+    {readingTime(entry.body)} min de lecture
+  </p>
+  <span class="a-more" aria-hidden="true">Lire l’article <Icon name="arrowRight" size={16} /></span>
+</article>
+
+<style>
+  .article {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.9rem;
+    text-align: center;
+  }
+  .a-title {
+    font-size: 1.35rem;
+    line-height: 1.25;
+  }
+  /* Toute la carte est cliquable */
+  .a-title a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+  .a-title a:focus-visible {
+    outline: none;
+  }
+  .article:has(.a-title a:focus-visible) {
+    outline: 2.5px solid var(--blue-600);
+    outline-offset: 3px;
+  }
+  .a-desc {
+    flex: 1;
+    font-size: 0.95rem;
+    color: var(--muted);
+  }
+  .a-meta {
+    display: flex;
+    gap: 0.5rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .a-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-weight: 700;
+    color: var(--blue-700);
+  }
+  .a-more :global(svg) {
+    transition: transform 0.4s var(--ease-out);
+  }
+  .article:hover .a-more :global(svg) {
+    transform: translateX(4px);
+  }
+</style>
