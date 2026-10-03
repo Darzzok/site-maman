@@ -1,10 +1,34 @@
 ---
+import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHero from '../components/PageHero.astro';
 import Icon from '../components/Icon.astro';
-import { faqs, site } from '../data/site';
+import nadege from '../assets/images/nadege.jpg';
+import { faqs, faqCategories, site } from '../data/site';
 
 const stripTags = (html: string) => html.replace(/<[^>]+>/g, '');
+// Texte sans accents ni majuscules, pour la recherche et les ancres
+const normalize = (s: string) =>
+  s
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase();
+const slug = (s: string) =>
+  normalize(s)
+    .replace(/[’']/g, '-')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 70);
+
+const groups = faqCategories.map((c) => ({ ...c, items: faqs.filter((f) => f.cat === c.id) }));
+
+const facts = [
+  { icon: 'calendar', title: '30 min offertes', text: 'Un premier échange gratuit et sans engagement' },
+  { icon: 'mapPin', title: 'Eure & Seine-Maritime', text: 'Sur site, à distance, ou les deux' },
+  { icon: 'file', title: 'Devis sur mesure', text: 'Établi après notre premier échange' },
+  { icon: 'lock', title: 'Confidentialité', text: 'Vos données protégées, dans le respect du RGPD' },
+];
+
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
@@ -18,111 +42,647 @@ const jsonLd = {
 
 <BaseLayout
   title={`Questions fréquentes (FAQ) — ${site.name}`}
-  description={`Tarifs, zone d’intervention, confidentialité, engagement… Les réponses aux questions les plus fréquentes sur l’accompagnement en gestion administrative de ${site.name}.`}
+  description={`Tarifs, zone d’intervention, paie, relances, confidentialité… ${faqs.length} réponses claires sur l’accompagnement en gestion administrative de ${site.name}, en Normandie (27, 76).`}
   jsonLd={jsonLd}
 >
-  <PageHero eyebrow="Questions fréquentes" title="Vous avez des <em>questions</em> ?" crumb="FAQ">
+  <PageHero eyebrow="Questions fréquentes" title="Toutes les réponses à vos <em>questions</em>" crumb="FAQ">
     <p class="page-intro">
-      Voici les réponses aux questions les plus fréquemment posées avant de démarrer un accompagnement. Si la vôtre n’y
-      figure pas, n’hésitez pas à me la poser directement.
+      Tout ce qu’il faut savoir avant de démarrer un accompagnement : méthode, tarifs, organisation, confidentialité.
+      Une question reste sans réponse ? Posez-la-moi directement.
     </p>
+    <div class="search" role="search">
+      <Icon name="search" size={20} class="search-ic" />
+      <label for="faq-search" class="sr-only">Rechercher une question</label>
+      <input
+        id="faq-search"
+        type="search"
+        placeholder="Rechercher : tarif, paie, relances, zone…"
+        autocomplete="off"
+        enterkeyhint="search"
+        data-faq-search
+      />
+      <button type="button" class="search-clear" data-faq-clear aria-label="Effacer la recherche" hidden>
+        <Icon name="x" size={18} />
+      </button>
+    </div>
+    <ul class="stats">
+      <li><Icon name="help" size={16} /> <strong>{faqs.length}</strong> questions</li>
+      <li><Icon name="sparkles" size={16} /> <strong>{faqCategories.length}</strong> thèmes</li>
+      <li><Icon name="clock" size={16} /> Réponse sous 24 h</li>
+    </ul>
   </PageHero>
 
-  <section class="section faq">
-    <div class="container faq-grid">
-      <div class="faq-list">
+  <!-- L'essentiel en un coup d'œil -->
+  <section class="facts" aria-label="L’essentiel en un coup d’œil">
+    <div class="container">
+      <ul class="facts-grid">
         {
-          faqs.map((f, i) => (
-            <details class="faq-item" data-reveal style={`--d:${i % 4}`} name="faq" open={i === 0}>
-              <summary>
-                <span class="q-text">{f.q}</span>
-                <span class="q-toggle" aria-hidden="true">
-                  <span />
-                  <span />
-                </span>
-              </summary>
-              <div class="answer">
-                <p set:html={f.a} />
-              </div>
-            </details>
+          facts.map((f, i) => (
+            <li class="fact" data-reveal style={`--d:${i}`}>
+              <span class="fact-ic">
+                <Icon name={f.icon} size={22} />
+              </span>
+              <strong>{f.title}</strong>
+              <span>{f.text}</span>
+            </li>
           ))
         }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section faq" aria-label="Questions et réponses">
+    <div class="container">
+      <!-- Filtres par thème -->
+      <div class="toolbar">
+        <div class="filters" role="toolbar" aria-label="Filtrer les questions par thème">
+          <button type="button" class="filter is-active" data-faq-filter="all" aria-pressed="true">
+            Toutes <span class="count">{faqs.length}</span>
+          </button>
+          {
+            groups.map((g) => (
+              <button type="button" class="filter" data-faq-filter={g.id} aria-pressed="false">
+                <Icon name={g.icon} size={16} />
+                {g.short} <span class="count">{g.items.length}</span>
+              </button>
+            ))
+          }
+        </div>
       </div>
 
-      <aside class="faq-aside" data-reveal="right">
-        <div class="aside-card">
-          <span class="aside-ic"><Icon name="message" size={26} /></span>
-          <p class="aside-kicker">Une autre question ?</p>
-          <h2>Parlons-en directement</h2>
-          <p>N’hésitez pas à me contacter directement, je vous répondrai rapidement.</p>
-          <a href="/#contact" class="btn btn--soft">
-            Me poser une question <Icon name="arrowRight" size={18} class="i-arrow" />
-          </a>
-          <ul class="aside-links">
-            <li>
-              <a href={`mailto:${site.email}`}><Icon name="mail" size={17} />{site.emailLabel}</a>
-            </li>
-            <li>
-              <a href={`tel:${site.phone}`}><Icon name="phone" size={17} />{site.phoneLabel}</a>
-            </li>
-            <li>
-              <a href="/#rendez-vous"><Icon name="calendar" size={17} />Échange gratuit de 30 min</a>
-            </li>
-          </ul>
+      <div class="list-head">
+        <p class="results" data-faq-results aria-live="polite"></p>
+        <button type="button" class="expand" data-faq-expand aria-pressed="false">
+          <Icon name="chevronDown" size={16} class="expand-ic" />
+          <span data-faq-expand-label>Tout déplier</span>
+        </button>
+      </div>
+
+      {
+        groups.map((g, gi) => (
+          <section class="group" data-faq-group={g.id} aria-labelledby={`theme-${g.id}`}>
+            <header class="group-head" data-reveal>
+              <span class="group-ic">
+                <Icon name={g.icon} size={24} />
+              </span>
+              <h2 id={`theme-${g.id}`}>{g.label}</h2>
+              <p>{g.intro}</p>
+            </header>
+            <div class="items">
+              {g.items.map((f, i) => (
+                <details
+                  class="faq-item"
+                  id={slug(f.q)}
+                  data-faq-item
+                  data-search={normalize(`${f.q} ${stripTags(f.a)} ${g.label}`)}
+                  data-reveal
+                  style={`--d:${i % 4}`}
+                  open={gi === 0 && i === 0}
+                >
+                  <summary>
+                    <span class="q-text" data-q={f.q}>
+                      {f.q}
+                    </span>
+                    <span class="q-toggle" aria-hidden="true">
+                      <span />
+                      <span />
+                    </span>
+                  </summary>
+                  <div class="answer">
+                    <p set:html={f.a} />
+                    <div class="answer-foot">
+                      <button type="button" class="copy" data-faq-copy>
+                        <Icon name="link" size={15} />
+                        <span>Copier le lien de la réponse</span>
+                      </button>
+                    </div>
+                  </div>
+                </details>
+              ))}
+            </div>
+          </section>
+        ))
+      }
+
+      <!-- Aucun résultat -->
+      <div class="empty" data-faq-empty hidden>
+        <span class="empty-ic"><Icon name="search" size={26} /></span>
+        <h2>Aucune réponse trouvée</h2>
+        <p>Essayez un autre mot-clé, ou posez-moi directement votre question : je vous réponds sous 24 h.</p>
+        <div class="empty-actions">
+          <button type="button" class="btn btn--ghost" data-faq-reset>Voir toutes les questions</button>
+          <a href="/#contact" class="btn">Poser ma question <Icon name="arrowRight" size={18} class="i-arrow" /></a>
         </div>
-      </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- Question non trouvée -->
+  <section class="ask">
+    <div class="container">
+      <div class="ask-card" data-reveal>
+        <div class="ask-glow" aria-hidden="true"></div>
+        <Image src={nadege} alt={site.owner} width={176} height={176} class="ask-photo" loading="lazy" />
+        <p class="eyebrow eyebrow--dark">Une autre question ?</p>
+        <h2>Parlons-en <em>directement</em></h2>
+        <p class="ask-text">
+          Chaque entreprise est unique. Expliquez-moi votre situation lors d’un échange gratuit de 30 minutes, ou
+          écrivez-moi : je vous réponds personnellement sous 24 h.
+        </p>
+        <div class="ask-actions">
+          <a href="/#rendez-vous" class="btn btn--soft">
+            Réserver un échange gratuit <Icon name="arrowRight" size={18} class="i-arrow" />
+          </a>
+          <a href="/#contact" class="btn-outline">
+            <Icon name="message" size={18} /> Me poser une question
+          </a>
+        </div>
+        <ul class="ask-links">
+          <li>
+            <a href={`mailto:${site.email}`}><Icon name="mail" size={17} />{site.emailLabel}</a>
+          </li>
+          <li>
+            <a href={`tel:${site.phone}`}><Icon name="phone" size={17} />{site.phoneLabel}</a>
+          </li>
+        </ul>
+      </div>
     </div>
   </section>
 </BaseLayout>
 
+<script>
+  const items = [...document.querySelectorAll<HTMLDetailsElement>('[data-faq-item]')];
+  const groups = [...document.querySelectorAll<HTMLElement>('[data-faq-group]')];
+  const filters = [...document.querySelectorAll<HTMLButtonElement>('[data-faq-filter]')];
+  const input = document.querySelector<HTMLInputElement>('[data-faq-search]')!;
+  const clear = document.querySelector<HTMLButtonElement>('[data-faq-clear]')!;
+  const results = document.querySelector<HTMLElement>('[data-faq-results]')!;
+  const empty = document.querySelector<HTMLElement>('[data-faq-empty]')!;
+  const expand = document.querySelector<HTMLButtonElement>('[data-faq-expand]')!;
+  const expandLabel = document.querySelector<HTMLElement>('[data-faq-expand-label]')!;
+
+  const normalize = (s: string) =>
+    s
+      .normalize('NFD')
+      .replace(/[̀-ͯ]/g, '')
+      .toLowerCase();
+  const escapeHtml = (s: string) => s.replace(/[&<>"]/g, (c) => `&#${c.charCodeAt(0)};`);
+  let theme = 'all';
+
+  /** Surligne les mots recherchés dans le texte de la question */
+  function highlight(el: HTMLElement, words: string[]) {
+    const text = el.dataset.q ?? '';
+    if (!words.length) {
+      el.textContent = text;
+      return;
+    }
+    const plain = normalize(text);
+    const marks = new Array(text.length).fill(false);
+    for (const w of words) {
+      let i = plain.indexOf(w);
+      while (i !== -1) {
+        for (let k = i; k < i + w.length; k++) marks[k] = true;
+        i = plain.indexOf(w, i + w.length);
+      }
+    }
+    let html = '';
+    let open = false;
+    [...text].forEach((ch, i) => {
+      if (marks[i] && !open) (html += '<mark>'), (open = true);
+      if (!marks[i] && open) (html += '</mark>'), (open = false);
+      html += escapeHtml(ch);
+    });
+    el.innerHTML = html + (open ? '</mark>' : '');
+  }
+
+  function apply() {
+    const words = normalize(input.value.trim()).split(/\s+/).filter(Boolean);
+    let visible = 0;
+    const shown: HTMLDetailsElement[] = [];
+
+    items.forEach((item) => {
+      const group = item.closest<HTMLElement>('[data-faq-group]')!;
+      const match =
+        (theme === 'all' || group.dataset.faqGroup === theme) &&
+        words.every((w) => (item.dataset.search ?? '').includes(w));
+      item.hidden = !match;
+      if (match) {
+        visible++;
+        shown.push(item);
+        item.classList.add('is-in');
+      }
+      highlight(item.querySelector<HTMLElement>('.q-text')!, words);
+    });
+    groups.forEach((g) => (g.hidden = !g.querySelector('[data-faq-item]:not([hidden])')));
+
+    // Peu de résultats : on les ouvre directement
+    if (words.length && shown.length <= 3) shown.forEach((i) => (i.open = true));
+
+    const filtering = theme !== 'all' || words.length > 0;
+    results.textContent = filtering
+      ? `${visible} question${visible > 1 ? 's' : ''} trouvée${visible > 1 ? 's' : ''}`
+      : `${items.length} questions, ${groups.length} thèmes`;
+    empty.hidden = visible > 0;
+    expand.hidden = visible === 0;
+    clear.hidden = input.value.length === 0;
+    filters.forEach((f) => {
+      const active = f.dataset.faqFilter === theme;
+      f.classList.toggle('is-active', active);
+      f.setAttribute('aria-pressed', String(active));
+    });
+    syncExpand();
+  }
+
+  /** Bouton "Tout déplier / Tout replier" */
+  function syncExpand() {
+    const visibleItems = items.filter((i) => !i.hidden);
+    const allOpen = visibleItems.length > 0 && visibleItems.every((i) => i.open);
+    expand.setAttribute('aria-pressed', String(allOpen));
+    expand.classList.toggle('is-open', allOpen);
+    expandLabel.textContent = allOpen ? 'Tout replier' : 'Tout déplier';
+  }
+  expand.addEventListener('click', () => {
+    const open = expand.getAttribute('aria-pressed') !== 'true';
+    items.filter((i) => !i.hidden).forEach((i) => (i.open = open));
+    syncExpand();
+  });
+  items.forEach((i) => i.addEventListener('toggle', syncExpand));
+
+  filters.forEach((f) =>
+    f.addEventListener('click', () => {
+      theme = f.dataset.faqFilter ?? 'all';
+      apply();
+    }),
+  );
+  input.addEventListener('input', apply);
+  clear.addEventListener('click', () => {
+    input.value = '';
+    apply();
+    input.focus();
+  });
+  document.querySelector('[data-faq-reset]')?.addEventListener('click', () => {
+    input.value = '';
+    theme = 'all';
+    apply();
+  });
+
+  // Copier le lien direct d'une réponse
+  document.querySelectorAll<HTMLButtonElement>('[data-faq-copy]').forEach((btn) =>
+    btn.addEventListener('click', async () => {
+      const id = btn.closest('details')?.id;
+      if (!id) return;
+      const url = `${location.origin}${location.pathname}#${id}`;
+      history.replaceState(null, '', `#${id}`);
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        /* presse-papiers indisponible : l'adresse reste à jour dans la barre */
+      }
+      const label = btn.querySelector('span')!;
+      const initial = label.textContent;
+      btn.classList.add('is-done');
+      label.textContent = 'Lien copié !';
+      window.setTimeout(() => {
+        btn.classList.remove('is-done');
+        label.textContent = initial;
+      }, 2200);
+    }),
+  );
+
+  // Arrivée sur une question précise (lien partagé)
+  function openFromHash() {
+    const target = location.hash ? document.getElementById(decodeURIComponent(location.hash.slice(1))) : null;
+    if (!(target instanceof HTMLDetailsElement)) return;
+    target.open = true;
+    target.classList.add('is-in', 'is-flash');
+    requestAnimationFrame(() => target.scrollIntoView({ block: 'center' }));
+    window.setTimeout(() => target.classList.remove('is-flash'), 2400);
+  }
+  window.addEventListener('hashchange', openFromHash);
+
+  apply();
+  openFromHash();
+</script>
+
 <style>
+  /* ============ En-tête : recherche ============ */
+  .search {
+    position: relative;
+    width: min(100%, 600px);
+    margin: 2rem auto 0;
+  }
+  .search :global(.search-ic) {
+    position: absolute;
+    left: 1.25rem;
+    top: 50%;
+    translate: 0 -50%;
+    color: var(--blue-700);
+    pointer-events: none;
+  }
+  .search input {
+    width: 100%;
+    padding: 1.1rem 3.4rem 1.1rem 3.3rem;
+    border-radius: 999px;
+    border: 1.5px solid var(--line);
+    background: #fff;
+    font-size: 1.02rem;
+    color: var(--ink);
+    box-shadow: 0 18px 40px -24px rgb(42 9 22 / 0.35);
+    outline: none;
+    transition:
+      border-color 0.3s,
+      box-shadow 0.3s;
+  }
+  .search input::-webkit-search-cancel-button {
+    display: none;
+  }
+  .search input::placeholder {
+    color: #6b6b6b;
+  }
+  .search input:focus {
+    border-color: var(--blue-600);
+    box-shadow:
+      0 0 0 4px rgb(123 37 80 / 0.12),
+      0 18px 40px -24px rgb(42 9 22 / 0.35);
+  }
+  .search-clear {
+    position: absolute;
+    right: 0.6rem;
+    top: 50%;
+    translate: 0 -50%;
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    color: var(--muted);
+    transition: background 0.2s;
+  }
+  .search-clear:hover {
+    background: var(--cream);
+  }
+  .search-clear[hidden] {
+    display: none;
+  }
+  .stats {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem 1.6rem;
+    margin-top: 1.4rem;
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+  .stats li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .stats :global(svg) {
+    color: var(--blue-600);
+  }
+
+  /* ============ L'essentiel ============ */
+  .facts {
+    position: relative;
+    z-index: 2;
+    margin-top: -2.4rem;
+  }
+  .facts-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+  }
+  .fact {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 1.5rem 1.2rem 1.4rem;
+    text-align: center;
+    border-radius: var(--radius-lg);
+    background: #fff;
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-md);
+    transition:
+      transform 0.5s var(--ease-out),
+      box-shadow 0.5s;
+  }
+  .fact:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+  .fact-ic {
+    display: grid;
+    place-items: center;
+    width: 50px;
+    height: 50px;
+    margin-bottom: 0.5rem;
+    border-radius: 16px;
+    color: var(--blue-700);
+    background: var(--blue-50);
+    border: 1px solid var(--blue-100);
+  }
+  .fact strong {
+    font-size: 1rem;
+    line-height: 1.3;
+  }
+  .fact span:last-child {
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+
+  /* ============ Liste ============ */
   .faq {
     padding-top: clamp(3rem, 6vw, 4.5rem);
-    background: var(--white);
   }
-  .faq-grid {
+  .toolbar {
+    position: sticky;
+    top: 5.6rem;
+    z-index: 20;
+    display: flex;
+    justify-content: center;
+  }
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.3rem 0.4rem;
+    max-width: 100%;
+    padding: 0.4rem;
+    border-radius: 28px;
+    background: rgb(255 255 255 / 0.9);
+    border: 1px solid var(--line);
+    box-shadow: 0 14px 34px -22px rgb(42 9 22 / 0.4);
+    backdrop-filter: blur(14px);
+  }
+  .filters::-webkit-scrollbar {
+    display: none;
+  }
+  .filter {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex: none;
+    padding: 0.55rem 0.95rem;
+    border-radius: 999px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    white-space: nowrap;
+    color: var(--text);
+    transition:
+      background 0.3s,
+      color 0.3s;
+  }
+  .filter:hover {
+    color: var(--blue-700);
+    background: var(--blue-50);
+  }
+  .filter.is-active {
+    color: #fff;
+    background: var(--blue-700);
+  }
+  .count {
+    min-width: 1.4rem;
+    padding: 0.05rem 0.4rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--blue-700);
+    background: var(--blue-100);
+  }
+  .filter.is-active .count {
+    background: #fff;
+  }
+
+  .list-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem 1.2rem;
+    margin-top: 1.4rem;
+  }
+  .results {
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+  .expand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+    font-size: 0.86rem;
+    font-weight: 600;
+    color: var(--blue-700);
+    border: 1px solid var(--blue-100);
+    background: #fff;
+    transition: background 0.3s;
+  }
+  .expand:hover {
+    background: var(--blue-50);
+  }
+  .expand[hidden] {
+    display: none;
+  }
+  .expand :global(.expand-ic) {
+    transition: rotate 0.4s var(--ease-out);
+  }
+  .expand.is-open :global(.expand-ic) {
+    rotate: 180deg;
+  }
+
+  /* — Thèmes — */
+  .group {
+    max-width: 54rem;
+    margin: clamp(2.5rem, 5vw, 3.5rem) auto 0;
+  }
+  .group[hidden] {
+    display: none;
+  }
+  .group-head {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .group-ic {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 360px;
-    gap: clamp(2rem, 5vw, 3.5rem);
-    align-items: start;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 18px;
+    color: #fff;
+    background: linear-gradient(135deg, var(--blue-500), var(--blue-800));
+    box-shadow: 0 14px 28px -14px rgb(97 25 58 / 0.6);
   }
-  .faq-list {
+  .group-head h2 {
+    margin-top: 0.9rem;
+    font-size: clamp(1.55rem, 3vw, 2rem);
+  }
+  .group-head p {
+    margin-top: 0.35rem;
+    font-size: 0.96rem;
+    color: var(--muted);
+  }
+  .items {
     display: grid;
-    gap: 0.9rem;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
   }
+
+  /* — Questions — */
   .faq-item {
     border-radius: var(--radius);
-    background: var(--cream);
+    background: #fff;
     border: 1px solid var(--line);
+    box-shadow: var(--shadow-xs);
     transition:
-      background 0.4s,
-      border-color 0.4s,
-      box-shadow 0.4s;
+      border-color 0.35s,
+      box-shadow 0.35s,
+      transform 0.35s var(--ease-out);
+  }
+  .faq-item[hidden] {
+    display: none;
   }
   .faq-item:hover {
-    border-color: var(--sand-300);
+    border-color: var(--blue-200);
+    box-shadow: var(--shadow-sm);
   }
   .faq-item[open] {
-    background: #fff;
-    border-color: rgb(97 25 58 / 0.18);
-    box-shadow: var(--shadow-md);
+    border-color: var(--blue-200);
+    box-shadow:
+      0 0 0 4px rgb(123 37 80 / 0.05),
+      var(--shadow-md);
   }
-  /* Ouverture fluide (navigateurs récents) */
   .faq-item::details-content {
     block-size: 0;
     overflow: hidden;
     transition:
-      block-size 0.5s var(--ease-out),
-      content-visibility 0.5s allow-discrete;
+      block-size 0.45s var(--ease-out),
+      content-visibility 0.45s allow-discrete;
   }
   .faq-item[open]::details-content {
     block-size: auto;
+  }
+  .faq-item:global(.is-flash) {
+    animation: flash 2.2s var(--ease-out);
+  }
+  @keyframes flash {
+    0%,
+    40% {
+      box-shadow:
+        0 0 0 6px rgb(246 181 91 / 0.45),
+        var(--shadow-md);
+    }
   }
   summary {
     display: flex;
     align-items: center;
     gap: 1rem;
-    padding: 1.3rem 1.4rem;
+    padding: 1.2rem 1.3rem;
     cursor: pointer;
     list-style: none;
     border-radius: inherit;
@@ -130,26 +690,40 @@ const jsonLd = {
   summary::-webkit-details-marker {
     display: none;
   }
+  /* Espace symétrique au bouton +/- : la question reste parfaitement centrée */
+  summary::before {
+    content: '';
+    flex: none;
+    width: 38px;
+  }
   .q-text {
     flex: 1;
+    text-align: center;
     font-family: var(--font-display);
-    font-size: clamp(1.08rem, 1.6vw, 1.25rem);
+    font-size: clamp(1.06rem, 1.6vw, 1.2rem);
     font-weight: 500;
     line-height: 1.35;
     color: var(--ink);
     transition: color 0.3s;
   }
-  summary:hover .q-text {
+  summary:hover .q-text,
+  .faq-item[open] .q-text {
     color: var(--blue-700);
+  }
+  .q-text :global(mark) {
+    padding: 0 0.1em;
+    border-radius: 4px;
+    color: inherit;
+    background: rgb(246 181 91 / 0.38);
   }
   .q-toggle {
     position: relative;
     flex: none;
-    width: 36px;
-    height: 36px;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
-    background: #fff;
-    border: 1px solid var(--line);
+    background: var(--blue-50);
+    border: 1px solid var(--blue-100);
     transition:
       background 0.4s,
       border-color 0.4s,
@@ -159,14 +733,14 @@ const jsonLd = {
     position: absolute;
     left: 50%;
     top: 50%;
-    width: 12px;
+    width: 13px;
     height: 2px;
     border-radius: 2px;
     background: var(--blue-700);
     translate: -50% -50%;
     transition:
-      rotate 0.5s var(--ease-out),
-      background 0.3s;
+      rotate 0.4s var(--ease-out),
+      background 0.4s;
   }
   .q-toggle span:last-child {
     rotate: 90deg;
@@ -183,126 +757,220 @@ const jsonLd = {
     rotate: 0deg;
   }
   .answer {
-    padding: 0 1.4rem 1.4rem;
+    padding: 0 clamp(1.3rem, 4vw, 3.5rem) 1.3rem;
+    text-align: center;
   }
   .answer p {
-    font-size: 0.98rem;
+    font-size: 1rem;
+    line-height: 1.75;
     color: var(--text);
   }
   .answer :global(a) {
-    font-weight: 700;
+    font-weight: 600;
     color: var(--blue-700);
     text-decoration: underline;
     text-underline-offset: 3px;
   }
-  .faq-item[open] .answer p {
-    animation: reveal-up 0.6s var(--ease-out);
+  .answer-foot {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+    padding-top: 0.9rem;
+    border-top: 1px dashed var(--line);
   }
-
-  .faq-aside {
-    position: sticky;
-    top: calc(var(--header-h) + 1.5rem);
-  }
-  .aside-card {
-    position: relative;
-    overflow: hidden;
-    padding: 2rem;
-    border-radius: var(--radius-lg);
-    color: #fff;
-    background:
-      radial-gradient(80% 60% at 100% 0%, rgb(229 129 188 / 0.2), transparent 60%),
-      linear-gradient(150deg, var(--blue-700), var(--blue-900));
-    box-shadow: var(--shadow-lg);
-  }
-  .aside-ic {
-    display: grid;
-    place-items: center;
-    width: 56px;
-    height: 56px;
-    border-radius: 18px;
-    color: #fff;
-    background: rgb(255 255 255 / 0.12);
-    border: 1px solid rgb(255 255 255 / 0.2);
-  }
-  .aside-kicker {
-    margin-top: 1.4rem;
-    font-size: 0.72rem;
-    font-weight: 800;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--terra-400);
-  }
-  .aside-card h2 {
-    margin: 0.4rem 0 0.7rem;
-    font-size: 1.7rem;
-    color: #fff;
-  }
-  .aside-card > p {
-    font-size: 0.96rem;
-  }
-  .aside-card .btn {
-    width: 100%;
-    margin-top: 1.5rem;
-  }
-  .aside-links {
-    display: grid;
-    gap: 0.6rem;
-    margin-top: 1.5rem;
-    padding-top: 1.4rem;
-    border-top: 1px solid rgb(255 255 255 / 0.14);
-  }
-  .aside-links a {
+  .copy {
     display: inline-flex;
     align-items: center;
-    gap: 0.6rem;
-    font-size: 0.9rem;
+    gap: 0.4rem;
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--muted);
+    transition:
+      color 0.3s,
+      background 0.3s;
+  }
+  .copy:hover,
+  .copy:global(.is-done) {
+    color: var(--blue-700);
+    background: var(--blue-50);
+  }
+
+  /* — Aucun résultat — */
+  .empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 36rem;
+    margin: 2.5rem auto 0;
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+    border-radius: var(--radius-lg);
+    border: 1.5px dashed var(--blue-200);
+    background: var(--blue-50);
+  }
+  .empty[hidden] {
+    display: none;
+  }
+  .empty-ic {
+    display: grid;
+    place-items: center;
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    color: var(--blue-700);
+    background: #fff;
+  }
+  .empty h2 {
+    margin-top: 1rem;
+    font-size: 1.6rem;
+  }
+  .empty p {
+    margin-top: 0.5rem;
+    color: var(--muted);
+  }
+  .empty-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 1.4rem;
+  }
+
+  /* ============ Une autre question ============ */
+  .ask {
+    padding-bottom: clamp(4.5rem, 9vw, 7rem);
+  }
+  .ask-card {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 60rem;
+    margin-inline: auto;
+    padding: clamp(2.5rem, 6vw, 4rem) clamp(1.4rem, 5vw, 4rem);
+    text-align: center;
+    border-radius: 36px;
+    color: #fff;
+    background: linear-gradient(150deg, var(--blue-700), var(--blue-900) 70%);
+    box-shadow: var(--shadow-lg);
+  }
+  .ask-glow {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(50% 70% at 0% 0%, rgb(229 129 188 / 0.2), transparent 70%),
+      radial-gradient(45% 60% at 100% 100%, rgb(246 181 91 / 0.12), transparent 70%);
+  }
+  .ask-card :global(.ask-photo) {
+    width: 88px;
+    height: 88px;
+    margin-bottom: 1.2rem;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: 51% 28%;
+    border: 3px solid rgb(255 255 255 / 0.9);
+    box-shadow: 0 14px 30px -12px rgb(0 0 0 / 0.5);
+  }
+  .ask-card h2 {
+    margin-top: 1rem;
+    font-size: clamp(2rem, 4.2vw, 2.9rem);
+    color: #fff;
+  }
+  .ask-card h2 em {
+    color: var(--terra-300);
+  }
+  .ask-text {
+    max-width: 36rem;
+    margin-top: 1rem;
+    font-size: 1.04rem;
+    color: #fff;
+  }
+  .ask-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.8rem;
+    margin-top: 2rem;
+  }
+  .btn-outline {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.95rem 1.5rem;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #fff;
+    border: 1.5px solid rgb(255 255 255 / 0.45);
+    transition:
+      background 0.3s,
+      border-color 0.3s;
+  }
+  .btn-outline:hover {
+    background: rgb(255 255 255 / 0.1);
+    border-color: #fff;
+  }
+  .ask-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.6rem 1.8rem;
+    margin-top: 2rem;
+    padding-top: 1.6rem;
+    border-top: 1px solid rgb(255 255 255 / 0.14);
+  }
+  .ask-links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.92rem;
     font-weight: 600;
     color: #fff;
-    transition: color 0.3s;
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-underline-offset: 4px;
+    transition: text-decoration-color 0.3s;
   }
-  .aside-links a:hover {
-    color: var(--terra-400);
+  .ask-links a:hover {
+    text-decoration-color: var(--terra-300);
   }
 
+  /* ============ Adaptations ============ */
   @media (max-width: 960px) {
-    .faq-grid {
-      grid-template-columns: 1fr;
+    .facts-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-    .faq-aside {
+  }
+  @media (max-width: 680px) {
+    .toolbar {
       position: static;
     }
-  }
-  @media (max-width: 520px) {
-    .answer {
-      padding-left: 1.4rem;
+    .filters {
+      border-radius: 18px;
     }
     summary {
-      padding: 1.1rem 1.1rem;
-      gap: 0.75rem;
+      gap: 0.6rem;
+      padding: 1.05rem 0.9rem;
+    }
+    summary::before {
+      width: 34px;
+    }
+    .q-toggle {
+      width: 34px;
+      height: 34px;
     }
   }
-
-  /* ============ Centrage des textes ============ */
-  /* Un espace symétrique au bouton +/- garde la question parfaitement centrée */
-  summary::before {
-    content: '';
-    flex: none;
-    width: 36px;
-  }
-  .q-text,
-  .answer {
-    text-align: center;
-  }
-  .aside-card {
-    text-align: center;
-  }
-  .aside-ic {
-    margin-inline: auto;
-  }
-  .aside-kicker {
-    color: #fff;
-  }
-  .aside-links {
-    justify-items: center;
+  @media (max-width: 420px) {
+    .facts-grid {
+      gap: 0.6rem;
+    }
+    .fact {
+      padding: 1.2rem 0.8rem;
+    }
   }
 </style>

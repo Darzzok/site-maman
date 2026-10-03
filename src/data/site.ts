@@ -324,42 +324,141 @@ export const promise = {
   text: 'J’accompagne les dirigeants dans la gestion administrative, le suivi de leur activité et l’organisation de leur entreprise afin de leur faire gagner du temps et de la sérénité.',
 };
 
-/** Questions fréquentes (la réponse peut contenir un lien HTML) */
-export const faqs = [
+/** Thèmes de la FAQ (ordre d'affichage) */
+export const faqCategories = [
+  { id: 'demarrer', label: 'Bien démarrer', short: 'Démarrer', icon: 'rocket', intro: 'Le premier contact et le lancement d’une mission.' },
+  { id: 'services', label: 'Services & méthode', short: 'Services', icon: 'briefcase', intro: 'Ce que je prends en charge, et comment.' },
+  { id: 'tarifs', label: 'Tarifs & engagement', short: 'Tarifs', icon: 'wallet', intro: 'Devis, facturation et souplesse.' },
+  { id: 'organisation', label: 'Zone & organisation', short: 'Organisation', icon: 'mapPin', intro: 'Où, quand et comment nous travaillons ensemble.' },
+  { id: 'confiance', label: 'Confidentialité', short: 'Confidentialité', icon: 'lock', intro: 'La sécurité de vos données et de vos accès.' },
+] as const;
+
+export type FaqCategory = (typeof faqCategories)[number]['id'];
+
+/** Questions fréquentes (la réponse peut contenir des balises HTML simples et des liens) */
+export const faqs: { q: string; a: string; cat: FaqCategory }[] = [
+  /* — Bien démarrer — */
   {
+    cat: 'demarrer',
     q: 'Quels types d’entreprises accompagnez-vous ?',
-    a: 'J’accompagne les TPE, artisans et professions libérales, quel que soit leur secteur d’activité. Chaque intervention est adaptée à la réalité et aux besoins spécifiques de votre entreprise.',
+    a: 'J’accompagne les <strong>TPE, artisans et professions libérales</strong>, quel que soit leur secteur d’activité. Chaque intervention est adaptée à la réalité et aux besoins spécifiques de votre entreprise.',
   },
   {
+    cat: 'demarrer',
     q: 'Comment se déroule un premier échange ?',
-    a: 'Tout commence par un appel découverte gratuit de 30 minutes, en visioconférence ou par téléphone. Nous faisons le point sur votre organisation actuelle, vos besoins et vos objectifs, afin d’identifier ensemble les solutions les plus adaptées.',
+    a: 'Tout commence par un <strong>appel découverte gratuit de 30 minutes</strong>, en visioconférence ou par téléphone. Nous faisons le point sur votre organisation actuelle, vos besoins et vos objectifs, afin d’identifier ensemble les solutions les plus adaptées.',
   },
   {
-    q: 'Intervenez-vous à distance ou en présentiel ?',
-    a: 'Les deux sont possibles. Mon accompagnement s’adapte à votre rythme et à vos préférences : intervention ponctuelle sur site, suivi régulier à distance, ou une combinaison des deux.',
+    cat: 'demarrer',
+    q: 'Comment démarre concrètement une mission ?',
+    a: 'Après notre échange, je vous adresse un <strong>devis personnalisé</strong>. Une fois validé, nous commençons par un état des lieux : vos documents, vos outils, vos échéances. Nous fixons ensuite les priorités et un calendrier, pour que vous sachiez toujours ce qui est fait et quand.',
   },
   {
-    q: 'Où intervenez-vous ?',
-    a: 'J’interviens en Normandie, dans l’Eure (27) et en Seine-Maritime (76) : Rouen, Le Havre, Évreux, Dieppe, Vernon, Louviers et leurs environs. L’accompagnement peut aussi se faire à distance, ou en combinant les deux.',
+    cat: 'demarrer',
+    q: 'Que dois-je préparer avant notre premier rendez-vous ?',
+    a: 'Rien d’obligatoire : le premier échange sert justement à faire le point. Si vous le souhaitez, quelques éléments aident à aller plus vite : la liste des <strong>factures en attente</strong>, vos <strong>prochaines échéances</strong> (TVA, cotisations, salaires) et les outils que vous utilisez déjà.',
   },
   {
-    q: 'Combien coûte votre accompagnement ?',
-    a: 'Chaque mission étant différente, il n’y a pas de tarif fixe : je vous propose un devis personnalisé après notre premier échange, en fonction du volume de travail et de la régularité souhaitée.',
+    cat: 'demarrer',
+    q: 'Je viens de créer mon entreprise : pouvez-vous m’aider ?',
+    a: 'Oui, et c’est même le meilleur moment ! Mettre en place une <strong>organisation solide dès le départ</strong> (facturation, classement, suivi des échéances, tableau de bord simple) vous évite bien des rattrapages par la suite.',
+  },
+
+  /* — Services & méthode — */
+  {
+    cat: 'services',
+    q: 'Quelle est la différence avec un expert-comptable ?',
+    a: 'Nos rôles sont <strong>complémentaires</strong>. Votre expert-comptable tient votre comptabilité et établit vos comptes annuels et déclarations. Je m’occupe de la <strong>gestion administrative et financière du quotidien</strong> : factures, relances, trésorerie, organisation, préparation des éléments à lui transmettre. Je travaille volontiers en lien avec lui.',
   },
   {
-    q: 'Y a-t-il un engagement minimum ?',
-    a: 'Non. Mon accompagnement est sans engagement : ponctuel pour un besoin précis, ou régulier sur plusieurs mois, selon ce qui vous convient le mieux.',
+    cat: 'services',
+    q: 'Pouvez-vous gérer les relances de mes factures impayées ?',
+    a: 'Oui, c’est l’une de mes spécialités. Je mets en place un <strong>suivi des échéances</strong> et je relance vos clients de façon <strong>diplomatique</strong> (e-mail, téléphone, courrier), pour préserver la relation commerciale. Si un recouvrement judiciaire devient nécessaire, je vous oriente vers les bons professionnels.',
   },
   {
-    q: 'Mes données et documents sont-ils confidentiels ?',
-    a: 'Oui. Toutes les informations que vous me confiez sont traitées avec la plus stricte confidentialité, conformément à ma <a href="/confidentialite.html">politique de confidentialité</a> et au RGPD.',
+    cat: 'services',
+    q: 'Vous occupez-vous de la paie et des formalités RH ?',
+    a: 'Je prends en charge la <strong>gestion administrative du personnel</strong> : contrats de travail, DPAE, dossiers salariés, suivi des absences et préparation des <strong>éléments variables de paie</strong>, en lien avec votre gestionnaire de paie ou votre expert-comptable.',
   },
   {
+    cat: 'services',
+    q: 'Pouvez-vous m’aider à passer à la facturation électronique ?',
+    a: 'Oui. Je vous aide à <strong>choisir une plateforme agréée</strong>, à mettre à jour vos données clients et vos modèles de factures, et à adapter vos habitudes. Pour en savoir plus, consultez mon article <a href="/conseils/facturation-electronique-ce-qui-change-pour-les-tpe.html">Facturation électronique : ce qui change pour les TPE et les artisans</a>.',
+  },
+  {
+    cat: 'services',
+    q: 'Quels outils utilisez-vous ?',
+    a: 'Je m’adapte en priorité à <strong>vos outils existants</strong>. Si vous n’en avez pas encore, je vous propose des solutions simples et adaptées à votre taille : logiciel de facturation, tableau de suivi partagé, espace de stockage sécurisé. L’objectif est que vous restiez autonome.',
+  },
+  {
+    cat: 'services',
     q: 'Combien de temps avant de voir des résultats concrets ?',
-    a: 'Cela dépend de la nature de votre besoin. Certaines actions (relances, mise à jour d’un suivi) produisent un effet rapide, tandis qu’une réorganisation plus large se déploie sur plusieurs semaines. Nous en discutons ensemble dès le premier échange.',
+    a: 'Cela dépend de la nature de votre besoin. Certaines actions (relances, mise à jour d’un suivi) produisent un <strong>effet rapide</strong>, tandis qu’une réorganisation plus large se déploie sur plusieurs semaines. Nous en discutons ensemble dès le premier échange.',
+  },
+
+  /* — Tarifs & engagement — */
+  {
+    cat: 'tarifs',
+    q: 'Combien coûte votre accompagnement ?',
+    a: 'Chaque mission étant différente, il n’y a pas de tarif fixe : je vous propose un <strong>devis personnalisé</strong> après notre premier échange, en fonction du volume de travail et de la régularité souhaitée.',
   },
   {
+    cat: 'tarifs',
+    q: 'Le premier échange est-il vraiment gratuit ?',
+    a: 'Oui. L’appel découverte de 30 minutes est <strong>offert et sans engagement</strong> : vous repartez avec un regard extérieur sur votre situation, que vous décidiez ou non de poursuivre ensemble.',
+  },
+  {
+    cat: 'tarifs',
     q: 'Comment se passe la facturation ?',
-    a: 'La facturation est définie ensemble lors du devis : au forfait, à la mission, ou selon un rythme mensuel pour un suivi régulier.',
+    a: 'La facturation est définie ensemble lors du devis : <strong>au forfait</strong>, <strong>à la mission</strong>, ou selon un <strong>rythme mensuel</strong> pour un suivi régulier.',
+  },
+  {
+    cat: 'tarifs',
+    q: 'Y a-t-il un engagement minimum ?',
+    a: 'Non. Mon accompagnement est <strong>sans engagement</strong> : ponctuel pour un besoin précis, ou régulier sur plusieurs mois, selon ce qui vous convient le mieux.',
+  },
+  {
+    cat: 'tarifs',
+    q: 'Puis-je faire appel à vous pour une mission ponctuelle ?',
+    a: 'Bien sûr. Un retard de classement à rattraper, une vague de relances, la mise en place d’un tableau de bord, un renfort pendant une absence : une <strong>mission ciblée</strong>, au forfait, avec un effet rapide.',
+  },
+
+  /* — Zone & organisation — */
+  {
+    cat: 'organisation',
+    q: 'Où intervenez-vous ?',
+    a: 'J’interviens en <strong>Normandie</strong>, dans l’<strong>Eure (27)</strong> et en <strong>Seine-Maritime (76)</strong> : Rouen, Le Havre, Évreux, Dieppe, Vernon, Louviers et leurs environs. L’accompagnement peut aussi se faire à distance, ou en combinant les deux.',
+  },
+  {
+    cat: 'organisation',
+    q: 'Intervenez-vous à distance ou en présentiel ?',
+    a: 'Les deux sont possibles. Mon accompagnement s’adapte à votre rythme et à vos préférences : <strong>intervention sur site</strong>, <strong>suivi à distance</strong>, ou une combinaison des deux.',
+  },
+  {
+    cat: 'organisation',
+    q: 'Combien de temps devrai-je y consacrer de mon côté ?',
+    a: 'Très peu : l’objectif est justement de vous <strong>libérer du temps</strong>. En général, un court point régulier (par exemple chaque semaine ou chaque quinzaine) et la transmission de vos documents suffisent. Je vous sollicite uniquement pour les décisions qui vous reviennent.',
+  },
+  {
+    cat: 'organisation',
+    q: 'Comment échangeons-nous les documents ?',
+    a: 'Selon vos habitudes : un <strong>espace de partage sécurisé</strong>, l’e-mail, ou une récupération sur place lors de mes passages. Nous définissons ensemble une méthode simple, que vous pourrez conserver ensuite.',
+  },
+
+  /* — Confidentialité — */
+  {
+    cat: 'confiance',
+    q: 'Mes données et documents sont-ils confidentiels ?',
+    a: 'Oui. Toutes les informations que vous me confiez sont traitées avec la plus <strong>stricte confidentialité</strong>, conformément à ma <a href="/confidentialite.html">politique de confidentialité</a> et au RGPD.',
+  },
+  {
+    cat: 'confiance',
+    q: 'Aurez-vous accès à mes comptes bancaires ?',
+    a: 'Uniquement si vous le souhaitez, et de préférence en <strong>simple consultation</strong> pour suivre votre trésorerie. Aucun paiement n’est effectué sans votre <strong>validation</strong> : vous gardez toujours la main sur votre argent.',
+  },
+  {
+    cat: 'confiance',
+    q: 'Que se passe-t-il à la fin de notre collaboration ?',
+    a: 'Vous récupérez l’ensemble de vos <strong>documents et accès</strong>, et les outils mis en place restent les vôtres. Je vous remets un point d’étape clair pour que vous, ou la personne qui prendra le relais, puissiez <strong>poursuivre sans rupture</strong>.',
   },
 ];
