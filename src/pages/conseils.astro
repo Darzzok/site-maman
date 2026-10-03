@@ -1,13 +1,26 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import PageHero from '../components/PageHero.astro';
 import ArticleCard from '../components/ArticleCard.astro';
 import Icon from '../components/Icon.astro';
 import { site } from '../data/site';
-import { articleUrl, categoryIcon, getConseils } from '../utils/conseils';
+import { articleUrl, categories, getConseils, readingTime, type Category } from '../utils/conseils';
 
 const articles = await getConseils();
-const categories = [...new Set(articles.map((a) => a.data.category))];
+const featured = articles.find((a) => a.data.featured) ?? articles[0];
+
+// Thèmes, dans l'ordre des services, avec le nombre d'articles
+const themeText: Record<Category, string> = {
+  Trésorerie: 'Relances, impayés, prévisionnel : sécuriser votre cash.',
+  'Gestion administrative': 'Devis, factures, chantiers : un administratif qui tourne.',
+  'Ressources humaines': 'Embauche, paie, formalités : gérer votre équipe sereinement.',
+  Pilotage: 'Indicateurs, charges, rentabilité : décider en connaissance de cause.',
+};
+const themes = (Object.keys(categories) as Category[])
+  .map((name) => ({ name, ...categories[name], text: themeText[name], count: articles.filter((a) => a.data.category === name).length }))
+  .filter((t) => t.count > 0);
+
+const minutes = articles.map((a) => readingTime(a.body));
+const readRange = `${Math.min(...minutes)} à ${Math.max(...minutes)} min`;
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -37,146 +50,717 @@ const jsonLd = {
 
 <BaseLayout
   title={`Conseils de gestion pour TPE, artisans et professions libérales | ${site.name}`}
-  description="Trésorerie, relances, situations de travaux, embauche, tableaux de bord : des conseils pratiques pour mieux gérer votre TPE, par une consultante en gestion en Normandie (27, 76)."
+  description="Trésorerie, factures, facturation électronique, embauche, paie, tableaux de bord : des conseils pratiques pour mieux gérer votre TPE, par une consultante en gestion en Normandie (27, 76)."
   jsonLd={jsonLd}
 >
-  <PageHero eyebrow="Conseils" title="Des conseils concrets pour mieux <em>gérer</em> votre entreprise" crumb="Conseils">
-    <p class="page-intro">
-      Trésorerie, administratif, ressources humaines, pilotage : des repères pratiques, issus du terrain, pour les
-      dirigeants de TPE, artisans et professions libérales.
-    </p>
-  </PageHero>
+  <!-- ============ En-tête + recherche ============ -->
+  <section class="c-hero">
+    <div class="c-hero-bg" aria-hidden="true"><span></span><span></span></div>
+    <div class="container c-hero-inner">
+      <nav class="crumbs" aria-label="Fil d’Ariane">
+        <a href="/"><Icon name="arrowLeft" size={15} strokeWidth={2} /> Accueil</a>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page">Conseils</span>
+      </nav>
+      <p class="eyebrow">Conseils</p>
+      <h1>Des conseils concrets pour mieux <em>gérer</em> votre entreprise</h1>
+      <p class="c-intro">
+        Trésorerie, administratif, ressources humaines, pilotage : des repères pratiques, issus du terrain, pour les
+        dirigeants de TPE, artisans et professions libérales.
+      </p>
 
-  <section class="section conseils">
+      <form class="search" role="search" data-search-form onsubmit="return false">
+        <label for="search-input" class="sr-only">Rechercher un conseil</label>
+        <Icon name="search" size={20} class="search-ic" />
+        <input
+          id="search-input"
+          type="search"
+          placeholder="Rechercher : facture, trésorerie, embauche…"
+          autocomplete="off"
+          data-search-input
+        />
+        <kbd class="search-kbd" aria-hidden="true">/</kbd>
+        <button type="button" class="search-clear" aria-label="Effacer la recherche" data-search-clear hidden>
+          <Icon name="x" size={18} />
+        </button>
+      </form>
+
+      <ul class="c-stats">
+        <li><strong>{articles.length}</strong> articles</li>
+        <li><strong>{themes.length}</strong> thèmes</li>
+        <li><Icon name="clock" size={15} /> {readRange} de lecture</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section c-main">
     <div class="container">
+      <!-- ============ À la une ============ -->
       {
-        categories.length > 1 && (
-          <div class="filters" role="group" aria-label="Filtrer par thème" data-reveal>
-            <button type="button" class="filter is-active" data-filter="all" aria-pressed="true">
-              Tous les conseils
-            </button>
-            {categories.map((c) => (
-              <button type="button" class="filter" data-filter={c} aria-pressed="false">
-                <Icon name={categoryIcon[c] ?? 'book'} size={15} />
-                {c}
-              </button>
-            ))}
+        featured && (
+          <div class="featured" data-featured-block>
+            <ArticleCard entry={featured} featured />
           </div>
         )
       }
 
+      <!-- ============ Filtres ============ -->
+      <div class="toolbar" data-toolbar>
+        <div class="filters" role="group" aria-label="Filtrer par thème">
+          <button type="button" class="filter is-active" data-filter="all" aria-pressed="true">
+            Tous <span class="count">{articles.length}</span>
+          </button>
+          {
+            themes.map((t) => (
+              <button type="button" class="filter" data-filter={t.name} data-slug={t.slug} aria-pressed="false">
+                <Icon name={t.icon} size={15} />
+                {t.name}
+                <span class="count">{t.count}</span>
+              </button>
+            ))
+          }
+        </div>
+      </div>
+      <p class="results" aria-live="polite" data-results></p>
+
+      <!-- ============ Articles ============ -->
       <div class="a-grid" data-articles>
         {articles.map((a, i) => <ArticleCard entry={a} delay={i % 3} />)}
       </div>
 
+      <div class="empty" data-empty hidden>
+        <span class="empty-ic"><Icon name="search" size={28} /></span>
+        <p class="empty-title">Aucun conseil ne correspond à votre recherche</p>
+        <p>Essayez un autre mot-clé, ou posez-moi directement votre question.</p>
+        <div class="empty-actions">
+          <button type="button" class="btn btn--ghost btn--sm" data-reset>Voir tous les conseils</button>
+          <a href="/#contact" class="btn btn--sm">Poser ma question</a>
+        </div>
+      </div>
+
+      <!-- ============ Explorer par thème ============ -->
+      <div class="themes">
+        <h2 class="themes-title" data-reveal>Explorer par thème</h2>
+        <div class="t-grid">
+          {
+            themes.map((t, i) => (
+              <button type="button" class:list={['card', 'theme', `tone-${t.tone}`]} data-theme={t.name} data-reveal style={`--d:${i}`}>
+                <span class="theme-ic">
+                  <Icon name={t.icon} size={24} />
+                </span>
+                <span class="theme-name">{t.name}</span>
+                <span class="theme-text">{t.text}</span>
+                <span class="theme-count">
+                  {t.count} article{t.count > 1 ? 's' : ''} <Icon name="arrowRight" size={15} />
+                </span>
+              </button>
+            ))
+          }
+        </div>
+      </div>
+
+      <!-- ============ Appel à l'action ============ -->
       <aside class="cta" data-reveal>
-        <span class="icon-tile icon-tile--terra"><Icon name="message" /></span>
-        <div>
+        <div class="cta-photo" aria-hidden="true">
+          <img src="/images/logo-mark-white.png" alt="" width="262" height="204" loading="lazy" />
+        </div>
+        <div class="cta-text">
           <h2>Besoin d’un regard sur votre situation ?</h2>
           <p>
             Chaque entreprise est différente. Parlons de la vôtre lors d’un <strong>échange gratuit de 30 minutes</strong>,
             sans engagement.
           </p>
         </div>
-        <a href="/#rendez-vous" class="btn">
-          Réserver un échange <Icon name="arrowRight" size={18} class="i-arrow" />
-        </a>
+        <div class="cta-actions">
+          <a href="/#rendez-vous" class="btn">Réserver un échange <Icon name="arrowRight" size={18} class="i-arrow" /></a>
+          <a href="/#devis" class="cta-link">ou demander un devis</a>
+        </div>
       </aside>
     </div>
   </section>
 </BaseLayout>
 
 <script>
-  // Filtre des articles par thème
-  const buttons = [...document.querySelectorAll<HTMLButtonElement>('[data-filter]')];
-  const cards = [...document.querySelectorAll<HTMLElement>('[data-articles] [data-category]')];
-  buttons.forEach((btn) =>
-    btn.addEventListener('click', () => {
-      const value = btn.dataset.filter;
-      buttons.forEach((b) => {
-        const active = b === btn;
-        b.classList.toggle('is-active', active);
-        b.setAttribute('aria-pressed', String(active));
-      });
-      cards.forEach((card) => {
-        card.hidden = value !== 'all' && card.dataset.category !== value;
-      });
-    }),
+  /* Recherche instantanée + filtres par thème, avec l'état conservé dans l'adresse */
+  const input = document.querySelector<HTMLInputElement>('[data-search-input]')!;
+  const clear = document.querySelector<HTMLButtonElement>('[data-search-clear]')!;
+  const grid = document.querySelector<HTMLElement>('[data-articles]')!;
+  const cards = [...grid.querySelectorAll<HTMLElement>('[data-category]')];
+  const filters = [...document.querySelectorAll<HTMLButtonElement>('[data-filter]')];
+  const featuredBlock = document.querySelector<HTMLElement>('[data-featured-block]');
+  const results = document.querySelector<HTMLElement>('[data-results]')!;
+  const empty = document.querySelector<HTMLElement>('[data-empty]')!;
+  const toolbar = document.querySelector<HTMLElement>('[data-toolbar]')!;
+
+  const normalize = (s: string) =>
+    s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
+
+  let theme = 'all';
+
+  function apply(updateUrl = true) {
+    const q = normalize(input.value);
+    // Recherche tolérante : "factures" ou "facture" trouvent aussi "facturation"
+    const words = q
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((w) => (w.length > 4 ? w.replace(/(es|e|s)$/, '') : w));
+    const filtering = theme !== 'all' || words.length > 0;
+    let visible = 0;
+
+    cards.forEach((card) => {
+      const matchTheme = theme === 'all' || card.dataset.category === theme;
+      const matchText = words.every((w) => (card.dataset.search ?? '').includes(w));
+      // Sans filtre, l'article "à la une" est déjà affiché au-dessus
+      const show = matchTheme && matchText && (filtering || card.dataset.featured !== 'true');
+      card.hidden = !show;
+      if (show) {
+        visible++;
+        card.classList.add('is-in');
+      }
+    });
+
+    if (featuredBlock) featuredBlock.hidden = filtering;
+    const total = visible + (filtering || !featuredBlock ? 0 : 1);
+    results.textContent = filtering ? `${total} article${total > 1 ? 's' : ''} trouvé${total > 1 ? 's' : ''}` : '';
+    empty.hidden = total > 0;
+    clear.hidden = input.value.length === 0;
+
+    filters.forEach((f) => {
+      const active = f.dataset.filter === theme;
+      f.classList.toggle('is-active', active);
+      f.setAttribute('aria-pressed', String(active));
+    });
+
+    if (updateUrl) {
+      const url = new URL(location.href);
+      const slug = filters.find((f) => f.dataset.filter === theme)?.dataset.slug;
+      slug ? url.searchParams.set('theme', slug) : url.searchParams.delete('theme');
+      input.value ? url.searchParams.set('q', input.value) : url.searchParams.delete('q');
+      history.replaceState(null, '', url);
+    }
+  }
+
+  function setTheme(name: string, scroll = false) {
+    theme = name;
+    apply();
+    if (scroll) toolbar.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  filters.forEach((f) => f.addEventListener('click', () => setTheme(f.dataset.filter ?? 'all')));
+  document.querySelectorAll<HTMLButtonElement>('[data-theme]').forEach((b) =>
+    b.addEventListener('click', () => setTheme(b.dataset.theme ?? 'all', true)),
   );
+  input.addEventListener('input', () => apply());
+  clear.addEventListener('click', () => {
+    input.value = '';
+    apply();
+    input.focus();
+  });
+  document.querySelector('[data-reset]')?.addEventListener('click', () => {
+    input.value = '';
+    setTheme('all');
+  });
+
+  // Raccourci clavier "/" pour rechercher
+  document.addEventListener('keydown', (e) => {
+    const target = e.target as HTMLElement;
+    if (e.key === '/' && !['INPUT', 'TEXTAREA'].includes(target.tagName)) {
+      e.preventDefault();
+      input.focus();
+    }
+    if (e.key === 'Escape' && target === input && input.value) {
+      input.value = '';
+      apply();
+    }
+  });
+
+  // État initial depuis l'adresse (?theme=…&q=…)
+  const params = new URLSearchParams(location.search);
+  const fromSlug = filters.find((f) => f.dataset.slug === params.get('theme'))?.dataset.filter;
+  if (fromSlug) theme = fromSlug;
+  input.value = params.get('q') ?? '';
+  grid.classList.add('is-enhanced');
+  apply(false);
 </script>
 
 <style>
-  .conseils {
-    padding-top: clamp(3rem, 6vw, 4.5rem);
-    background: var(--white);
+  /* ============ En-tête ============ */
+  .c-hero {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    padding: calc(var(--header-h) + 3.5rem) 0 clamp(3rem, 6vw, 4.5rem);
+    text-align: center;
+    background: linear-gradient(180deg, var(--cream), var(--sand));
   }
-  .filters {
+  .c-hero-bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image:
+      linear-gradient(rgb(0 44 150 / 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(0 44 150 / 0.045) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(70% 80% at 50% 20%, #000, transparent 80%);
+  }
+  .c-hero-bg span {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(70px);
+    animation: drift 20s ease-in-out infinite alternate;
+  }
+  .c-hero-bg span:first-child {
+    width: 420px;
+    height: 420px;
+    top: -160px;
+    right: -80px;
+    background: rgb(226 137 90 / 0.35);
+  }
+  .c-hero-bg span:last-child {
+    width: 380px;
+    height: 380px;
+    bottom: -220px;
+    left: 5%;
+    background: rgb(58 98 211 / 0.22);
+    animation-delay: -8s;
+  }
+  @keyframes drift {
+    to {
+      transform: translate(60px, 40px) scale(1.12);
+    }
+  }
+  .c-hero-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 880px;
+    animation: rise 0.9s var(--ease-out) both;
+  }
+  @keyframes rise {
+    from {
+      opacity: 0;
+      translate: 0 20px;
+    }
+  }
+  .crumbs {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 1.4rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .crumbs a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--blue-700);
+  }
+  h1 {
+    margin-top: 1.1rem;
+    font-size: clamp(2.3rem, 5.2vw, 3.8rem);
+    letter-spacing: -0.03em;
+  }
+  .c-intro {
+    max-width: 40rem;
+    margin-top: 1.1rem;
+    font-size: 1.1rem;
+    color: var(--muted);
+  }
+
+  /* — Recherche — */
+  .search {
+    position: relative;
+    width: min(100%, 620px);
+    margin-top: 2rem;
+  }
+  .search :global(.search-ic) {
+    position: absolute;
+    left: 1.25rem;
+    top: 50%;
+    translate: 0 -50%;
+    color: var(--muted);
+    pointer-events: none;
+  }
+  .search input {
+    width: 100%;
+    padding: 1.1rem 3.5rem 1.1rem 3.3rem;
+    border-radius: 999px;
+    border: 1.5px solid var(--line);
+    background: #fff;
+    font-size: 1.02rem;
+    color: var(--ink);
+    box-shadow: 0 18px 40px -24px rgb(13 21 48 / 0.35);
+    outline: none;
+    transition:
+      border-color 0.3s,
+      box-shadow 0.3s;
+  }
+  .search input::-webkit-search-cancel-button {
+    display: none;
+  }
+  .search input::placeholder {
+    color: #9a9fb3;
+  }
+  .search input:focus {
+    border-color: var(--blue-600);
+    box-shadow:
+      0 0 0 4px rgb(29 67 181 / 0.12),
+      0 18px 40px -24px rgb(13 21 48 / 0.35);
+  }
+  .search-kbd {
+    position: absolute;
+    right: 1.2rem;
+    top: 50%;
+    translate: 0 -50%;
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 7px;
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--muted);
+    background: var(--cream);
+    border: 1px solid var(--line);
+    pointer-events: none;
+  }
+  .search input:focus ~ .search-kbd,
+  .search-clear:not([hidden]) ~ .search-kbd {
+    display: none;
+  }
+  .search:has(.search-clear:not([hidden])) .search-kbd {
+    display: none;
+  }
+  .search-clear {
+    position: absolute;
+    right: 0.6rem;
+    top: 50%;
+    translate: 0 -50%;
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    color: var(--muted);
+    transition:
+      background 0.2s,
+      color 0.2s;
+  }
+  .search-clear:hover {
+    color: var(--ink);
+    background: var(--cream);
+  }
+  .search-clear[hidden] {
+    display: none;
+  }
+  .c-stats {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 0.5rem;
-    margin-bottom: 2.5rem;
+    gap: 0.5rem 1.6rem;
+    margin-top: 1.4rem;
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+  .c-stats li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  /* ============ Contenu ============ */
+  .c-main {
+    padding-top: clamp(2.5rem, 5vw, 3.5rem);
+    background: var(--white);
+  }
+  .featured {
+    margin-bottom: clamp(2.5rem, 5vw, 3.5rem);
+  }
+  .featured[hidden] {
+    display: none;
+  }
+
+  /* — Barre de filtres (reste visible au défilement) — */
+  .toolbar {
+    position: sticky;
+    top: 5.6rem;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0 auto 0.75rem;
+    scroll-margin-top: 7rem;
+  }
+  .filters {
+    display: flex;
+    gap: 0.4rem;
+    max-width: 100%;
+    padding: 0.4rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.88);
+    border: 1px solid var(--line);
+    box-shadow: 0 14px 34px -22px rgb(13 21 48 / 0.4);
+    backdrop-filter: blur(14px);
+  }
+  .filters::-webkit-scrollbar {
+    display: none;
   }
   .filter {
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    padding: 0.6rem 1.1rem;
+    flex: none;
+    padding: 0.55rem 0.95rem;
     border-radius: 999px;
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     font-weight: 600;
+    white-space: nowrap;
     color: var(--text);
-    background: var(--cream);
-    border: 1px solid var(--line);
     transition:
       background 0.3s,
-      color 0.3s,
-      border-color 0.3s;
+      color 0.3s;
   }
   .filter:hover {
-    border-color: var(--blue-300);
     color: var(--blue-700);
+    background: var(--blue-50);
   }
   .filter.is-active {
     color: #fff;
     background: var(--blue-700);
-    border-color: var(--blue-700);
   }
+  .count {
+    min-width: 1.4rem;
+    padding: 0.05rem 0.4rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--blue-700);
+    background: var(--blue-100);
+  }
+  .filter.is-active .count {
+    color: var(--blue-700);
+    background: #fff;
+  }
+  .results {
+    min-height: 1.2em;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-size: 0.86rem;
+    font-weight: 600;
+    color: var(--muted);
+  }
+
+  /* — Grille — */
   .a-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 1.25rem;
   }
+  /* Sans JavaScript, l'article à la une n'est pas répété dans la grille */
+  .a-grid:not(:global(.is-enhanced)) :global([data-featured]) {
+    display: none;
+  }
   .a-grid :global([hidden]) {
     display: none !important;
   }
-  .cta {
+
+  /* — Aucun résultat — */
+  .empty {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1.1rem;
-    max-width: 52rem;
-    margin: clamp(3rem, 6vw, 4.5rem) auto 0;
-    padding: clamp(1.8rem, 4vw, 2.6rem);
+    gap: 0.6rem;
+    max-width: 30rem;
+    margin: 1rem auto 0;
+    padding: 2.5rem 1.5rem;
     text-align: center;
     border-radius: var(--radius-lg);
-    background: linear-gradient(120deg, var(--sand), var(--terra-100));
-    border: 1px solid rgb(178 83 31 / 0.12);
+    border: 1.5px dashed var(--sand-300);
+    background: var(--cream);
+    animation: rise 0.5s var(--ease-out);
+  }
+  .empty[hidden] {
+    display: none;
+  }
+  .empty-ic {
+    display: grid;
+    place-items: center;
+    width: 60px;
+    height: 60px;
+    border-radius: 18px;
+    color: var(--blue-700);
+    background: #fff;
+    box-shadow: var(--shadow-md);
+  }
+  .empty-title {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    color: var(--ink);
+  }
+  .empty p:not(.empty-title) {
+    color: var(--muted);
+  }
+  .empty-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.6rem;
+    margin-top: 0.6rem;
+  }
+
+  /* — Explorer par thème — */
+  .themes {
+    margin-top: clamp(4rem, 8vw, 5.5rem);
+  }
+  .themes-title {
+    margin-bottom: 1.75rem;
+    text-align: center;
+    font-size: clamp(1.7rem, 3vw, 2.2rem);
+  }
+  .t-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+  }
+  .theme {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1.6rem 1.25rem;
+    text-align: center;
+    cursor: pointer;
+    --tc: var(--blue-700);
+    --tb: var(--blue-50);
+  }
+  .theme.tone-terra {
+    --tc: var(--terra-600);
+    --tb: var(--terra-100);
+  }
+  .theme.tone-navy {
+    --tc: var(--blue-900);
+    --tb: var(--blue-100);
+  }
+  .theme.tone-sage {
+    --tc: #2f6b5c;
+    --tb: #e3f1ec;
+  }
+  .theme-ic {
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    color: var(--tc);
+    background: var(--tb);
+    transition:
+      transform 0.6s var(--ease-spring),
+      background 0.4s,
+      color 0.4s;
+  }
+  .theme:hover .theme-ic {
+    transform: rotate(-8deg) scale(1.08);
+    color: #fff;
+    background: var(--tc);
+  }
+  .theme-name {
+    margin-top: 0.4rem;
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    color: var(--ink);
+  }
+  .theme-text {
+    flex: 1;
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: var(--muted);
+  }
+  .theme-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-top: 0.4rem;
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: var(--tc);
+  }
+
+  /* — Appel à l'action — */
+  .cta {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 1.5rem 2rem;
+    margin-top: clamp(3.5rem, 7vw, 5rem);
+    padding: clamp(1.8rem, 4vw, 2.6rem);
+    border-radius: var(--radius-lg);
+    color: rgb(255 255 255 / 0.78);
+    background:
+      radial-gradient(80% 120% at 100% 0%, rgb(203 106 51 / 0.38), transparent 60%),
+      linear-gradient(140deg, var(--blue-700), var(--blue-900));
+  }
+  .cta-photo img {
+    width: auto;
+    height: 56px;
+    opacity: 0.9;
   }
   .cta h2 {
-    font-size: clamp(1.5rem, 2.6vw, 1.9rem);
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.4rem;
+    font-size: clamp(1.45rem, 2.6vw, 1.9rem);
+    color: #fff;
   }
-  .cta p {
-    color: var(--text);
+  .cta :global(strong) {
+    color: #fff;
   }
+  .cta-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .cta-link {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #fff;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
   @media (max-width: 1023px) {
     .a-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+    .t-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .cta {
+      grid-template-columns: 1fr;
+      justify-items: center;
+      text-align: center;
+    }
   }
   @media (max-width: 680px) {
     .a-grid {
+      grid-template-columns: 1fr;
+    }
+    .toolbar {
+      top: 4.6rem;
+    }
+    .filters {
+      border-radius: 18px;
+    }
+    .search-kbd {
+      display: none;
+    }
+  }
+  @media (max-width: 420px) {
+    .t-grid {
       grid-template-columns: 1fr;
     }
   }

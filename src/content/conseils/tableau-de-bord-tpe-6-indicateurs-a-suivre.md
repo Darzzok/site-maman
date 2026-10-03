@@ -3,6 +3,11 @@ title: 'Tableau de bord de TPE : les 6 indicateurs à suivre chaque mois'
 description: 'Chiffre d’affaires, marge, trésorerie, encours clients… Les indicateurs essentiels pour piloter une petite entreprise sans y passer des heures.'
 category: 'Pilotage'
 date: 2026-10-03
+keyPoints:
+  - "Six indicateurs suffisent : chiffre d’affaires, marge, trésorerie, encours clients, charges fixes, carnet de commandes."
+  - "Un indicateur n’a de sens que comparé : à l’objectif, au mois précédent, à l’année précédente."
+  - "Projeter sa trésorerie sur trois mois permet d’anticiper plutôt que de subir."
+  - "Un rendez-vous mensuel fixe et un simple tableur suffisent pour commencer."
 ---
 
 Beaucoup de dirigeants de TPE découvrent la santé réelle de leur entreprise une fois par an, au moment du bilan. C’est trop tard pour corriger le tir. Un **tableau de bord mensuel**, simple et régulier, permet au contraire d’anticiper et de prendre les bonnes décisions au bon moment.

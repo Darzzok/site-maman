@@ -3,6 +3,11 @@ title: 'Première embauche : les formalités à ne pas oublier'
 description: 'DPAE, contrat de travail, registre du personnel, visite médicale, mutuelle : la liste des démarches essentielles quand une TPE recrute son premier salarié.'
 category: 'Ressources humaines'
 date: 2026-10-03
+keyPoints:
+  - "Vérifier la convention collective applicable avant de rédiger le contrat."
+  - "Effectuer la DPAE au plus tard au moment de l’embauche."
+  - "Tenir le registre unique du personnel dès le premier salarié."
+  - "Organiser la visite d’information et de prévention et proposer la mutuelle d’entreprise."
 ---
 
 Recruter son premier salarié est une étape importante pour une TPE ou un artisan. C’est aussi le moment où l’on découvre une série de **formalités administratives** à réaliser dans les bons délais. Voici les principales, pour aborder cette embauche sereinement.
@@ -42,6 +47,8 @@ Une **complémentaire santé collective** doit être proposée à tous les salar
 - **Préparer la paie** : bulletin de salaire mensuel et **déclaration sociale nominative (DSN)**, qui transmet chaque mois les données de paie aux organismes sociaux.
 - **Réaliser les affichages obligatoires** dans les locaux (horaires, coordonnées de l’inspection du travail, de la médecine du travail, etc.).
 - **Évaluer les risques professionnels** et les consigner dans le document unique d’évaluation des risques.
+
+> **Bon à savoir** — Ces formalités évoluent régulièrement : en cas de doute sur un point juridique précis, rapprochez-vous de votre expert-comptable ou d’un conseil en droit social.
 
 ## Le conseil pratique
 

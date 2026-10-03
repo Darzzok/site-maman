@@ -3,6 +3,11 @@ title: 'BTP : bien suivre ses situations de travaux pour protéger sa trésoreri
 description: 'Situations de travaux, retenue de garantie, sous-traitance : les points de vigilance pour les artisans et entreprises du bâtiment qui veulent être payés à temps.'
 category: 'Gestion administrative'
 date: 2026-10-03
+keyPoints:
+  - "Prévoir le rythme de facturation et la mesure de l’avancement dès le devis."
+  - "Envoyer les situations à date fixe, avec un récapitulatif clair et justifié."
+  - "Suivre la retenue de garantie (5 % maximum) et la réclamer au bon moment."
+  - "En sous-traitance : contrat écrit, attestations de vigilance et autoliquidation de la TVA."
 ---
 
 Dans le bâtiment, la trésorerie se joue souvent sur un document : la **situation de travaux**. Envoyée en retard, mal justifiée ou oubliée, elle décale tous les encaissements… alors que les fournisseurs, les salariés et les sous-traitants, eux, doivent être payés.

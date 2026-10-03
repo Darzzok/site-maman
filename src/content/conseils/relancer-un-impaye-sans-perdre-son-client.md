@@ -3,6 +3,11 @@ title: 'Relancer un impayé sans perdre son client : la méthode en 5 étapes'
 description: 'Factures en retard, clients qui ne répondent plus : une méthode progressive et courtoise pour récupérer votre argent tout en préservant la relation commerciale.'
 category: 'Trésorerie'
 date: 2026-10-03
+keyPoints:
+  - "Le recouvrement commence dès le devis : échéance, pénalités et acompte clairement indiqués."
+  - "Une relance progressive : rappel amical, relance écrite, appel, relance ferme, mise en demeure."
+  - "Entre professionnels, le délai de paiement est plafonné à 60 jours (ou 45 jours fin de mois)."
+  - "Un tableau de suivi et un créneau fixe chaque semaine suffisent à changer la donne."
 ---
 
 Une facture impayée, ce n’est pas seulement de l’argent en moins sur le compte : c’est du temps passé à relancer, de la trésorerie sous tension et, souvent, une gêne à aborder le sujet avec un client que l’on apprécie. Pour une TPE ou un artisan, quelques factures en retard suffisent à créer un **trou de trésorerie** en fin de mois.
@@ -19,6 +24,8 @@ Le recouvrement commence dès le devis. Plus vos conditions sont claires, plus l
 - **Facturez rapidement** : une facture envoyée trois semaines après la fin de la prestation sera payée trois semaines plus tard.
 
 Pour rappel, entre professionnels, le délai de paiement ne peut pas dépasser **60 jours à compter de la date d’émission de la facture**, ou **45 jours fin de mois** si cette option est prévue au contrat.
+
+> **Bon à savoir** — L’indemnité forfaitaire de 40 € pour frais de recouvrement s’applique uniquement entre professionnels. Elle ne concerne pas vos clients particuliers.
 
 ## Étape 1 : le rappel amical avant l’échéance
 

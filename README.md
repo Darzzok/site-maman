@@ -28,9 +28,12 @@ Chaque article est un fichier Markdown dans **`src/content/conseils/`**.
   devient l'adresse de la page), puis modifier l'en-tête entre les `---` :
   `title`, `description` (affichée dans Google), `category` (Trésorerie,
   Gestion administrative, Ressources humaines ou Pilotage) et `date`.
+- **L'essentiel en 30 secondes** : la liste `keyPoints` de l'en-tête (3 à 4 phrases).
+- **Mettre un article à la une** de la page Conseils : `featured: true` (un seul à la fois).
 - **Masquer un article** sans le supprimer : ajouter `draft: true` dans l'en-tête.
-- Dans le texte : `## Titre` pour un intertitre, `**mot**` pour mettre en gras,
-  `- ` en début de ligne pour une liste.
+- Dans le texte : `## Titre` pour un intertitre (il apparaît dans le sommaire),
+  `**mot**` pour mettre en gras, `- ` pour une liste à puces, `1. ` pour une liste numérotée,
+  et une ligne commençant par `> **Bon à savoir** — …` pour un encadré d'astuce.
 
 La page `/conseils.html`, l'aperçu sur l'accueil, les articles associés et le
 plan du site (sitemap) se mettent à jour automatiquement.

@@ -1,52 +1,113 @@
 ---
 import Icon from './Icon.astro';
-import { articleUrl, categoryIcon, formatDate, readingTime, type Conseil } from '../utils/conseils';
+import ArticleCover from './ArticleCover.astro';
+import { articleUrl, readingTime, type Conseil } from '../utils/conseils';
 
 interface Props {
   entry: Conseil;
   delay?: number;
   headingLevel?: 'h2' | 'h3';
+  /** Carte "à la une" : couverture à gauche, plus grande */
+  featured?: boolean;
 }
-const { entry, delay = 0, headingLevel = 'h2' } = Astro.props;
+const { entry, delay = 0, headingLevel = 'h2', featured = false } = Astro.props;
 const Heading = headingLevel;
-const { title, description, category, date } = entry.data;
+const { title, description, category } = entry.data;
+const minutes = readingTime(entry.body);
+
+// Texte de recherche normalisé (sans accents) pour le filtre de la page Conseils
+const searchText = `${title} ${description} ${category}`
+  .toLowerCase()
+  .normalize('NFD')
+  .replace(/[̀-ͯ]/g, '');
 ---
 
-<article class="card article" data-reveal style={`--d:${delay}`} data-category={category}>
-  <span class="tag">
-    <Icon name={categoryIcon[category] ?? 'book'} size={14} strokeWidth={2} />
-    {category}
-  </span>
-  <Heading class="a-title">
-    <a href={articleUrl(entry)}>{title}</a>
-  </Heading>
-  <p class="a-desc">{description}</p>
-  <p class="a-meta">
-    <time datetime={date.toISOString()}>{formatDate(date)}</time>
-    <span aria-hidden="true">·</span>
-    {readingTime(entry.body)} min de lecture
-  </p>
-  <span class="a-more" aria-hidden="true">Lire l’article <Icon name="arrowRight" size={16} /></span>
+<article
+  class:list={['card', 'article', { 'article--featured': featured }]}
+  data-reveal
+  style={`--d:${delay}`}
+  data-category={category}
+  data-search={searchText}
+  data-featured={entry.data.featured ? 'true' : undefined}
+>
+  <ArticleCover category={category} size={featured ? 'lg' : 'sm'} class="a-cover" />
+  <div class="a-body">
+    <p class="a-top">
+      {featured && <span class="a-flag"><Icon name="sparkles" size={13} strokeWidth={2} />À la une</span>}
+      <span class="a-cat">{category}</span>
+    </p>
+    <Heading class="a-title">
+      <a href={articleUrl(entry)}>{title}</a>
+    </Heading>
+    <p class="a-desc">{description}</p>
+    <p class="a-foot">
+      <span class="a-time"><Icon name="clock" size={15} />{minutes} min de lecture</span>
+      <span class="a-more" aria-hidden="true">Lire <Icon name="arrowRight" size={16} /></span>
+    </p>
+  </div>
 </article>
 
 <style>
   .article {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 0.9rem;
+    padding: 0;
     text-align: center;
   }
+  .article :global(.a-cover) {
+    height: 150px;
+    flex: none;
+  }
+  .a-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    gap: 0.75rem;
+    padding: 1.4rem 1.5rem 1.5rem;
+  }
+  .a-top {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+  .a-cat {
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--terra-600);
+  }
+  .a-flag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #fff;
+    background: linear-gradient(135deg, var(--terra-400), var(--terra-600));
+  }
   .a-title {
-    font-size: 1.35rem;
+    font-size: 1.28rem;
     line-height: 1.25;
+  }
+  .a-title a {
+    transition: color 0.3s;
+  }
+  .article:hover .a-title a {
+    color: var(--blue-700);
   }
   /* Toute la carte est cliquable */
   .a-title a::after {
     content: '';
     position: absolute;
     inset: 0;
-    z-index: 1;
+    z-index: 2;
   }
   .a-title a:focus-visible {
     outline: none;
@@ -57,20 +118,31 @@ const { title, description, category, date } = entry.data;
   }
   .a-desc {
     flex: 1;
-    font-size: 0.95rem;
+    font-size: 0.93rem;
+    line-height: 1.6;
     color: var(--muted);
   }
-  .a-meta {
+  .a-foot {
     display: flex;
-    gap: 0.5rem;
-    font-size: 0.82rem;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 0.4rem;
+    padding-top: 0.9rem;
+    border-top: 1px solid var(--line-soft);
+    font-size: 0.84rem;
     font-weight: 600;
+  }
+  .a-time {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
     color: var(--muted);
   }
   .a-more {
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.3rem;
     font-weight: 700;
     color: var(--blue-700);
   }
@@ -79,5 +151,35 @@ const { title, description, category, date } = entry.data;
   }
   .article:hover .a-more :global(svg) {
     transform: translateX(4px);
+  }
+
+  /* — Carte à la une — */
+  .article--featured {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .article--featured :global(.a-cover) {
+    height: auto;
+    min-height: 300px;
+  }
+  .article--featured .a-body {
+    justify-content: center;
+    gap: 1rem;
+    padding: clamp(1.75rem, 4vw, 2.75rem);
+  }
+  .article--featured .a-title {
+    font-size: clamp(1.6rem, 2.8vw, 2.2rem);
+  }
+  .article--featured .a-desc {
+    flex: none;
+    font-size: 1.02rem;
+  }
+  @media (max-width: 860px) {
+    .article--featured {
+      grid-template-columns: 1fr;
+    }
+    .article--featured :global(.a-cover) {
+      min-height: 190px;
+    }
   }
 </style>

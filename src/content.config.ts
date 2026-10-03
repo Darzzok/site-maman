@@ -15,6 +15,10 @@ const conseils = defineCollection({
     category: z.enum(['Trésorerie', 'Gestion administrative', 'Ressources humaines', 'Pilotage']),
     date: z.coerce.date(),
     updated: z.coerce.date().optional(),
+    // "L'essentiel en 30 secondes" affiché en haut de l'article (3 à 4 points)
+    keyPoints: z.array(z.string()).default([]),
+    // Article mis en avant en haut de la page Conseils
+    featured: z.boolean().default(false),
     // Mettre "true" pour masquer un article sans le supprimer
     draft: z.boolean().default(false),
   }),
