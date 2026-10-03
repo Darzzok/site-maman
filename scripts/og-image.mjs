@@ -32,7 +32,7 @@ const subtitle = await text(
   'Garet 23',
   640,
 );
-const badgeText = await text('<span foreground="#ffffff">Normandie · Eure (27) · Seine-Maritime (76)</span>', GARET_HEAVY, 'Garet Heavy 19', 600);
+const badgeText = await text('<span foreground="#3d0f23">Normandie · Eure (27) · Seine-Maritime (76)</span>', GARET_HEAVY, 'Garet Heavy 19', 600);
 const badgeMeta = await sharp(badgeText).metadata();
 
 const background = Buffer.from(`
@@ -59,7 +59,7 @@ const fade = Buffer.from(
 );
 const badgeW = (badgeMeta.width ?? 400) + 56;
 const badge = Buffer.from(
-  `<svg xmlns="http://www.w3.org/2000/svg" width="${badgeW}" height="52"><rect width="${badgeW}" height="52" rx="26" fill="#e97e0d"/></svg>`,
+  `<svg xmlns="http://www.w3.org/2000/svg" width="${badgeW}" height="52"><rect width="${badgeW}" height="52" rx="26" fill="#f6b55b"/></svg>`,
 );
 
 await sharp(background)

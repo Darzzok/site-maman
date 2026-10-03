@@ -156,14 +156,14 @@ const bars = [38, 52, 44, 63, 58, 76, 88];
     height: 46vw;
     top: -16vw;
     right: -10vw;
-    background: radial-gradient(circle, rgb(246 181 91 / 0.45), transparent 65%);
+    background: radial-gradient(circle, rgb(246 181 91 / 0.22), transparent 65%);
   }
   .orb-2 {
     width: 40vw;
     height: 40vw;
     bottom: -18vw;
     left: -12vw;
-    background: radial-gradient(circle, rgb(229 129 188 / 0.3), transparent 65%);
+    background: radial-gradient(circle, rgb(229 129 188 / 0.16), transparent 65%);
     animation-duration: 26s;
     animation-delay: -6s;
   }
@@ -172,7 +172,7 @@ const bars = [38, 52, 44, 63, 58, 76, 88];
     height: 28vw;
     top: 30%;
     left: 38%;
-    background: radial-gradient(circle, rgb(246 181 91 / 0.35), transparent 65%);
+    background: radial-gradient(circle, rgb(229 129 188 / 0.12), transparent 65%);
     animation-duration: 30s;
     animation-delay: -12s;
   }
@@ -322,7 +322,7 @@ const bars = [38, 52, 44, 63, 58, 76, 88];
     position: absolute;
     inset: 8% -6%;
     border-radius: 40px;
-    background: linear-gradient(140deg, rgb(97 25 58 / 0.14), rgb(233 126 13 / 0.16));
+    background: linear-gradient(140deg, rgb(97 25 58 / 0.12), rgb(229 129 188 / 0.12));
     filter: blur(30px);
     animation: enter 1.4s var(--ease-out) 0.4s both;
   }
@@ -444,7 +444,7 @@ const bars = [38, 52, 44, 63, 58, 76, 88];
     animation-delay: calc(0.9s + var(--b) * 0.08s);
   }
   .bars span:last-child {
-    background: linear-gradient(180deg, var(--terra-400), var(--terra-600));
+    background: linear-gradient(180deg, var(--terra-300), var(--terra-400));
   }
   @keyframes bar-grow {
     from {
@@ -467,7 +467,7 @@ const bars = [38, 52, 44, 63, 58, 76, 88];
     stroke-linecap: round;
     stroke-dasharray: 1;
     stroke-dashoffset: 1;
-    filter: drop-shadow(0 4px 6px rgb(233 126 13 / 0.4));
+    filter: drop-shadow(0 4px 6px rgb(97 25 58 / 0.25));
     animation: draw 1.6s var(--ease-in-out) 1.5s forwards;
     vector-effect: non-scaling-stroke;
   }
@@ -573,7 +573,7 @@ const bars = [38, 52, 44, 63, 58, 76, 88];
     color: #fff;
   }
   .chip-ic.terra {
-    background: linear-gradient(135deg, var(--terra-400), var(--terra-600));
+    background: linear-gradient(135deg, var(--blue-500), var(--blue-700));
   }
   .chip-ic.blue {
     background: linear-gradient(135deg, var(--blue-500), var(--blue-700));
