@@ -29,6 +29,11 @@ node scripts/og-image.mjs    # régénère l'image de partage (réseaux sociaux)
 - ⚠️ **Licence MADE Mirage** : les fichiers fournis sont marqués « PERSONAL USE ».
   Une licence commerciale doit être achetée auprès de MADE Type avant la mise en ligne.
   Vérifier aussi les conditions d'utilisation de Garet.
+- **Les fichiers de polices ne sont pas dans le dépôt Git** (dépôt public, licence non redistribuable).
+  Après avoir récupéré le projet, copier les polices dans :
+  `public/fonts/` (`mirage-regular.woff2`, `mirage-medium.woff2`, `mirage-bold.woff2`, `garet-book.woff2`,
+  `garet-heavy.woff2`) et `scripts/fonts/` (`mirage-regular.otf`, `garet-book.otf`, `garet-heavy.otf`,
+  utilisés pour l'image de partage). Sans elles, le site s'affiche avec des polices de secours.
 
 ## Modifier un texte, un numéro, un lien
 
