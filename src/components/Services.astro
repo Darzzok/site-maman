@@ -1,6 +1,5 @@
 ---
 import Icon from './Icon.astro';
-import CollapseToggle from './CollapseToggle.astro';
 import { services } from '../data/site';
 ---
 
@@ -11,7 +10,7 @@ import { services } from '../data/site';
       <h2 class="h2">Des prestations pensées pour la <em>réalité</em> de votre entreprise</h2>
     </header>
 
-    <div class="bento" id="services-list" data-collapsible>
+    <div class="bento" id="services-list" data-carousel>
       {
         services.map((s, i) => {
           const featured = i === 0;
@@ -65,9 +64,6 @@ import { services } from '../data/site';
         })
       }
     </div>
-
-    <CollapseToggle controls="services-list" total={services.length} more="Voir toutes les prestations" />
-
     <p class="by-metier" data-reveal>
       <a href="/metiers.html">Découvrir l’accompagnement adapté à votre métier <Icon name="arrowRight" size={16} /></a>
     </p>

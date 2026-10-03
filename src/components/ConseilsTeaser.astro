@@ -17,7 +17,7 @@ const latest = (await getConseils()).slice(0, 3);
           </h2>
           <p>Trésorerie, administratif, RH, pilotage : des conseils pratiques, issus du terrain.</p>
         </header>
-        <div class="t-grid">
+        <div class="t-grid" data-carousel>
           {latest.map((a, i) => (
             <ArticleCard entry={a} delay={i} headingLevel="h3" />
           ))}

@@ -19,7 +19,18 @@ const chips = [
       <p>Deux options s’offrent à vous pour lancer notre échange.</p>
     </header>
 
-    <div class="contact-grid">
+    <!-- Mobile : une option à la fois -->
+    <div class="c-tabs" role="tablist" aria-label="Choisissez comment me contacter">
+      <span class="c-tabs-thumb" aria-hidden="true"></span>
+      <button type="button" role="tab" id="tab-devis" aria-selected="true" aria-controls="devis" data-ctab="devis">
+        <Icon name="file" size={17} /> Devis
+      </button>
+      <button type="button" role="tab" id="tab-rdv" aria-selected="false" aria-controls="rendez-vous" data-ctab="rendez-vous">
+        <Icon name="calendar" size={17} /> Rendez-vous
+      </button>
+    </div>
+
+    <div class="contact-grid" data-ctab-active="devis">
       <!-- Carte 1 : demande de devis -->
       <article id="devis" class="card contact-card" data-reveal style="--d:0">
         <div class="cc-top">
@@ -89,6 +100,36 @@ const chips = [
 
 <script>
   import { site } from '../data/site';
+
+  /* ---------------------------------------------------------------
+     Mobile : onglets Devis / Rendez-vous
+     --------------------------------------------------------------- */
+  const grid = document.querySelector<HTMLElement>('.contact-grid');
+  const tabs = [...document.querySelectorAll<HTMLButtonElement>('[data-ctab]')];
+  function selectTab(id: string) {
+    if (!grid || !tabs.some((t) => t.dataset.ctab === id)) return;
+    grid.dataset.ctabActive = id;
+    tabs.forEach((t) => t.setAttribute('aria-selected', String(t.dataset.ctab === id)));
+    document.querySelector('.c-tabs')?.setAttribute('data-active', id);
+  }
+  tabs.forEach((t) => t.addEventListener('click', () => selectTab(t.dataset.ctab!)));
+  // Flèches gauche / droite entre les onglets
+  document.querySelector('.c-tabs')?.addEventListener('keydown', (e) => {
+    const key = (e as KeyboardEvent).key;
+    if (key !== 'ArrowLeft' && key !== 'ArrowRight') return;
+    const i = tabs.findIndex((t) => t.getAttribute('aria-selected') === 'true');
+    const next = tabs[(i + (key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length];
+    selectTab(next.dataset.ctab!);
+    next.focus();
+  });
+  // Un lien vers #devis ou #rendez-vous ouvre le bon onglet
+  const fromHash = () => selectTab(location.hash.slice(1));
+  window.addEventListener('hashchange', fromHash);
+  document.addEventListener('click', (e) => {
+    const a = (e.target as HTMLElement).closest<HTMLAnchorElement>('a[href*="#devis"], a[href*="#rendez-vous"]');
+    if (a) selectTab(a.hash.slice(1));
+  });
+  fromHash();
 
   /* ---------------------------------------------------------------
      Réservation Calendly : widget officiel chargé en différé,
@@ -355,6 +396,72 @@ const chips = [
     }
     .chips li {
       width: 100%;
+    }
+  }
+
+  /* ============ Mobile : onglets Devis / Rendez-vous ============ */
+  .c-tabs {
+    display: none;
+  }
+  @media (max-width: 760px) {
+    :global(html.js) .c-tabs {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      max-width: 22rem;
+      margin: 0 auto 1.2rem;
+      padding: 0.3rem;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-sm);
+    }
+    .c-tabs button {
+      position: relative;
+      z-index: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      min-height: 44px;
+      border-radius: 999px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--blue-700);
+      transition: color 0.35s;
+    }
+    .c-tabs button[aria-selected='true'] {
+      color: #fff;
+    }
+    .c-tabs-thumb {
+      position: absolute;
+      top: 0.3rem;
+      bottom: 0.3rem;
+      left: 0.3rem;
+      width: calc(50% - 0.3rem);
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--blue-600), var(--blue-800));
+      transition: translate 0.45s var(--ease-out);
+    }
+    .c-tabs[data-active='rendez-vous'] .c-tabs-thumb {
+      translate: 100% 0;
+    }
+    :global(html.js) .contact-grid[data-ctab-active='devis'] #rendez-vous,
+    :global(html.js) .contact-grid[data-ctab-active='rendez-vous'] #devis {
+      display: none;
+    }
+    :global(html.js) .contact-grid .contact-card {
+      animation: tab-in 0.45s var(--ease-out);
+    }
+    @keyframes tab-in {
+      from {
+        opacity: 0;
+        translate: 0 10px;
+      }
+    }
+    .calendly-box,
+    .calendly-inline-widget {
+      min-height: 520px;
     }
   }
 </style>

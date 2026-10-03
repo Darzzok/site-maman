@@ -1,6 +1,5 @@
 ---
 import Icon from './Icon.astro';
-import CollapseToggle from './CollapseToggle.astro';
 import { cases } from '../data/site';
 import { getMetiers, metierUrl } from '../utils/landings';
 
@@ -15,7 +14,7 @@ const metierNames = Object.fromEntries((await getMetiers()).map((m) => [m.id, m.
       <h2 class="h2">Des résultats <em>concrets</em>, au service de mes clients</h2>
     </header>
 
-    <div class="case-grid" id="cases-list" data-collapsible>
+    <div class="case-grid" id="cases-list" data-carousel>
       {
         cases.map((c, i) => (
           <article class="card case" data-reveal style={`--d:${i % 3}`}>
@@ -49,9 +48,6 @@ const metierNames = Object.fromEntries((await getMetiers()).map((m) => [m.id, m.
         ))
       }
     </div>
-
-    <CollapseToggle controls="cases-list" total={cases.length} more="Voir tous les cas clients" />
-
     <div class="cases-cta" data-reveal>
       <a href="#rendez-vous" class="btn">
         Prendre rendez-vous <Icon name="arrowRight" size={18} class="i-arrow" />

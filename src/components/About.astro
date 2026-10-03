@@ -39,8 +39,10 @@ import { about, site } from '../data/site';
       <h2 class="h2">{site.owner}</h2>
       <p class="role">{about.role}</p>
 
-      <p class="intro" set:html={about.intro} />
-      {about.paragraphs.map((p) => <p class="para" set:html={p} />)}
+      <div class="about-text" data-readmore="230">
+        <p class="intro" set:html={about.intro} />
+        {about.paragraphs.map((p) => <p class="para" set:html={p} />)}
+      </div>
 
       <ul class="highlights">
         {
@@ -296,6 +298,32 @@ import { about, site } from '../data/site';
       width: 54px;
       height: 54px;
       left: 0;
+    }
+  }
+
+  /* ============ Mobile : présentation plus compacte ============ */
+  @media (max-width: 640px) {
+    .about-grid {
+      gap: 2rem;
+    }
+    .about-media {
+      max-width: 250px;
+    }
+    .photo {
+      aspect-ratio: 1 / 1;
+      border-radius: 50%;
+    }
+    .corner {
+      display: none;
+    }
+    .float-badge {
+      display: none;
+    }
+    .float-card {
+      right: 50%;
+      translate: 50% 0;
+      bottom: -1rem;
+      white-space: nowrap;
     }
   }
 </style>

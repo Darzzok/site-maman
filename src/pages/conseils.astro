@@ -159,7 +159,7 @@ const jsonLd = {
       <!-- ============ Explorer par thème ============ -->
       <div class="themes">
         <h2 class="themes-title" data-reveal>Explorer par thème</h2>
-        <div class="t-grid">
+        <div class="t-grid" data-carousel>
           {
             themes.map((t, i) => (
               <button type="button" class:list={['card', 'theme', `tone-${t.tone}`]} data-theme={t.name} data-reveal style={`--d:${i}`}>
@@ -901,5 +901,50 @@ const jsonLd = {
   }
   .cta-link {
     color: var(--blue-700);
+  }
+
+  /* ============ Mobile : liste d'articles compacte (vignette + titre) ============ */
+  @media (max-width: 680px) {
+    .a-grid {
+      gap: 0.7rem;
+    }
+    .a-grid :global(.article:not([hidden])) {
+      display: grid;
+      grid-template-columns: 96px minmax(0, 1fr);
+      align-items: stretch;
+      min-height: 112px;
+    }
+    .a-grid :global(.article .a-media) {
+      height: 100%;
+      aspect-ratio: auto;
+    }
+    .a-grid :global(.article .a-media img),
+    .a-grid :global(.article .a-media picture),
+    .a-grid :global(.article .a-img) {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .a-grid :global(.article .a-chip),
+    .a-grid :global(.article .a-desc),
+    .a-grid :global(.article .a-more) {
+      display: none;
+    }
+    .a-grid :global(.article .a-body) {
+      justify-content: center;
+      gap: 0.35rem;
+      padding: 0.8rem 0.95rem;
+    }
+    .a-grid :global(.article .a-title) {
+      font-size: 1.02rem;
+      line-height: 1.3;
+    }
+    .a-grid :global(.article .a-foot) {
+      justify-content: center;
+      margin-top: 0;
+      padding-top: 0;
+      border: 0;
+      font-size: 0.78rem;
+    }
   }
 </style>

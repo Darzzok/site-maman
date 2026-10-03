@@ -64,6 +64,19 @@ Chaque article est un fichier Markdown dans **`src/content/conseils/`**.
 La page `/conseils.html`, l'aperçu sur l'accueil, les articles associés et le
 plan du site (sitemap) se mettent à jour automatiquement.
 
+## Expérience mobile
+
+Sur téléphone, le site est pensé pour un défilement court et une navigation au pouce :
+
+- **Carrousels glissables** : ajouter l’attribut `data-carousel` à une grille de cartes suffit (points de navigation
+  ajoutés automatiquement, sans effet sur ordinateur).
+- **« Lire la suite »** : `data-readmore="420"` replie un long texte au-delà de 420 px sur mobile (le texte reste
+  lisible par Google).
+- **Barre d’actions** en bas d’écran (Devis gratuit / Rendez-vous), masquée en haut de page, près du formulaire et
+  sur les articles (`mobileBar={false}` dans `BaseLayout`).
+- **Onglets Devis / Rendez-vous** dans la section Contact, frise compacte, pied de page en volets dépliables,
+  liste d’articles compacte sur la page Conseils.
+
 ## Demande de devis en étapes
 
 Le formulaire de devis (`src/components/QuoteWizard.astro`) guide le visiteur en 5 étapes : besoins, entreprise,

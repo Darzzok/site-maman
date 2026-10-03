@@ -11,7 +11,7 @@ import { formulas } from '../data/site';
       <p set:html={formulas.intro} />
     </header>
 
-    <div class="f-grid">
+    <div class="f-grid" data-carousel>
       {
         formulas.items.map((f, i) => (
           <article class="card formula" data-reveal style={`--d:${i}`}>

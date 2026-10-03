@@ -103,19 +103,105 @@ if (trackedSections.length && (navLinks.length || railLinks.length)) {
   trackedSections.forEach((s) => sectionObserver.observe(s));
 }
 
-/* ---------- Cartes repliées sur mobile ("Voir toutes les cartes") ---------- */
-document.querySelectorAll<HTMLButtonElement>('[data-collapse-toggle]').forEach((btn) => {
-  const target = document.getElementById(btn.getAttribute('aria-controls') ?? '');
-  const label = btn.querySelector('[data-label]');
-  if (!target || !label) return;
-  btn.addEventListener('click', () => {
-    const next = btn.getAttribute('aria-expanded') !== 'true';
-    btn.setAttribute('aria-expanded', String(next));
-    target.classList.toggle('is-expanded', next);
-    label.textContent = next ? btn.dataset.less ?? 'Réduire' : btn.dataset.more ?? 'Voir toutes les cartes';
-    if (!next) target.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+/* ---------- Mobile : carrousels glissables avec points de navigation ---------- */
+const mobileMq = window.matchMedia('(max-width: 760px)');
+document.querySelectorAll<HTMLElement>('[data-carousel]').forEach((track) => {
+  const items = [...track.children] as HTMLElement[];
+  if (items.length < 2) return;
+  const dots = document.createElement('div');
+  dots.className = 'carousel-dots';
+  if (track.dataset.carousel === 'light') dots.classList.add('carousel-dots--light');
+  dots.setAttribute('role', 'group');
+  dots.setAttribute('aria-label', 'Navigation entre les cartes');
+  const buttons = items.map((item, i) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.setAttribute('aria-label', `Carte ${i + 1} sur ${items.length}`);
+    b.addEventListener('click', () => {
+      const left = item.offsetLeft - (track.clientWidth - item.offsetWidth) / 2;
+      track.scrollTo({ left, behavior: reduceMotion ? 'auto' : 'smooth' });
+    });
+    dots.append(b);
+    return b;
   });
+  track.after(dots);
+
+  let frame = 0;
+  const update = () => {
+    frame = 0;
+    const center = track.scrollLeft + track.clientWidth / 2;
+    let best = 0;
+    let bestDist = Infinity;
+    items.forEach((item, i) => {
+      const dist = Math.abs(item.offsetLeft + item.offsetWidth / 2 - center);
+      if (dist < bestDist) {
+        bestDist = dist;
+        best = i;
+      }
+      // Les cartes hors écran sont révélées dès qu'elles entrent dans le carrousel
+      if (dist < track.clientWidth) item.classList.add('is-in');
+    });
+    buttons.forEach((b, i) => b.setAttribute('aria-current', String(i === best)));
+  };
+  track.addEventListener('scroll', () => (frame ||= requestAnimationFrame(update)), { passive: true });
+  mobileMq.addEventListener('change', update);
+  update();
 });
+
+/* ---------- Mobile : textes longs repliés avec « Lire la suite » ---------- */
+document.querySelectorAll<HTMLElement>('[data-readmore]').forEach((el) => {
+  const limit = Number(el.dataset.readmore) || 420;
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'readmore-btn';
+  btn.setAttribute('aria-expanded', 'false');
+  btn.innerHTML =
+    '<span>Lire la suite</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
+  el.after(btn);
+  el.style.setProperty('--rm-height', `${limit}px`);
+  let expanded = false;
+  const apply = () => {
+    const needed = mobileMq.matches && !expanded && el.scrollHeight > limit + 120;
+    el.classList.toggle('is-clamped', needed);
+    btn.hidden = !mobileMq.matches || el.scrollHeight <= limit + 120;
+  };
+  btn.addEventListener('click', () => {
+    expanded = !expanded;
+    btn.setAttribute('aria-expanded', String(expanded));
+    btn.querySelector('span')!.textContent = expanded ? 'Réduire' : 'Lire la suite';
+    apply();
+    if (!expanded) el.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+  });
+  mobileMq.addEventListener('change', apply);
+  document.fonts?.ready.then(apply);
+  apply();
+});
+
+/* ---------- Mobile : barre d'actions en bas d'écran ---------- */
+const mobileBar = document.querySelector<HTMLElement>('[data-mobile-bar]');
+if (mobileBar) {
+  // Masquée en haut de page et quand le formulaire de contact ou le pied de page sont à l'écran
+  let hideZones = 0;
+  const zones = [...document.querySelectorAll<HTMLElement>('#contact, footer')];
+  const zoneObserver = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      const el = e.target as HTMLElement;
+      const was = el.dataset.inView === '1';
+      if (e.isIntersecting && !was) hideZones++;
+      if (!e.isIntersecting && was) hideZones--;
+      el.dataset.inView = e.isIntersecting ? '1' : '0';
+    });
+    syncBar();
+  });
+  zones.forEach((z) => zoneObserver.observe(z));
+  const syncBar = () => {
+    const show = window.scrollY > window.innerHeight * 0.7 && hideZones === 0;
+    mobileBar.classList.toggle('is-visible', show);
+    document.body.classList.toggle('has-mobile-bar', show);
+  };
+  window.addEventListener('scroll', syncBar, { passive: true });
+  syncBar();
+}
 
 /* ---------- Halo lumineux qui suit la souris sur les cartes ---------- */
 if (finePointer) {

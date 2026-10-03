@@ -49,10 +49,10 @@ const links = [
       </a>
     </div>
 
-    <!-- Liens -->
+    <!-- Liens (volets dépliables sur mobile) -->
     <div class="footer-grid">
-      <nav aria-label="Navigation du site">
-        <p class="f-title">Navigation</p>
+      <details class="f-col" open data-f-col>
+        <summary class="f-title">Navigation <Icon name="chevronDown" size={18} class="f-chev" /></summary>
         <ul class="f-links">
           {
             links.map((l) => (
@@ -62,10 +62,10 @@ const links = [
             ))
           }
         </ul>
-      </nav>
+      </details>
 
-      <nav aria-label="Accompagnement par métier">
-        <p class="f-title"><a href="/metiers.html">Métiers</a></p>
+      <details class="f-col" open data-f-col>
+        <summary class="f-title">Métiers <Icon name="chevronDown" size={18} class="f-chev" /></summary>
         <ul class="f-links">
           {
             metiers.map((m) => (
@@ -74,11 +74,12 @@ const links = [
               </li>
             ))
           }
+          <li><a href="/metiers.html" class="f-all">Tous les métiers</a></li>
         </ul>
-      </nav>
+      </details>
 
-      <nav aria-label="Zones d’intervention">
-        <p class="f-title"><a href="/zone-intervention.html">Zones</a></p>
+      <details class="f-col" open data-f-col>
+        <summary class="f-title">Zones <Icon name="chevronDown" size={18} class="f-chev" /></summary>
         <ul class="f-links">
           {
             zones.map((z) => (
@@ -87,11 +88,12 @@ const links = [
               </li>
             ))
           }
+          <li><a href="/zone-intervention.html" class="f-all">Toute la zone d’intervention</a></li>
         </ul>
-      </nav>
+      </details>
 
-      <nav aria-label="Liens légaux">
-        <p class="f-title">Informations</p>
+      <details class="f-col" open data-f-col>
+        <summary class="f-title">Informations <Icon name="chevronDown" size={18} class="f-chev" /></summary>
         <ul class="f-links">
           <li><a href="/mentions-legales.html">Mentions légales</a></li>
           <li><a href="/confidentialite.html">Confidentialité</a></li>
@@ -99,7 +101,7 @@ const links = [
             <button type="button" data-manage-cookies>Gérer les cookies</button>
           </li>
         </ul>
-      </nav>
+      </details>
     </div>
 
     <div class="footer-bottom">
@@ -107,6 +109,14 @@ const links = [
     </div>
   </div>
 </footer>
+
+<script>
+  const mq = window.matchMedia('(max-width: 760px)');
+  const cols = document.querySelectorAll<HTMLDetailsElement>('[data-f-col]');
+  const sync = () => cols.forEach((c) => (c.open = !mq.matches));
+  mq.addEventListener('change', sync);
+  sync();
+</script>
 
 <style>
   .footer {
@@ -249,6 +259,69 @@ const links = [
     /* Laisse la place au bouton « retour en haut » */
     .footer-bottom {
       padding-bottom: 5.5rem;
+    }
+  }
+
+  /* ============ Colonnes : volets dépliables sur mobile ============ */
+  .f-col summary {
+    list-style: none;
+  }
+  .f-col summary::-webkit-details-marker {
+    display: none;
+  }
+  .f-col :global(.f-chev) {
+    display: none;
+  }
+  .f-all {
+    font-weight: 700;
+    color: var(--terra-300) !important;
+  }
+  @media (min-width: 761px) {
+    .f-col summary {
+      pointer-events: none;
+    }
+  }
+  @media (max-width: 760px) {
+    .footer-grid {
+      grid-template-columns: 1fr;
+      row-gap: 0;
+      padding-block: 1rem 1.5rem;
+    }
+    .f-col {
+      border-bottom: 1px solid rgb(255 255 255 / 0.1);
+    }
+    .f-col summary {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      min-height: 52px;
+      margin: 0;
+      cursor: pointer;
+    }
+    .f-col :global(.f-chev) {
+      display: block;
+      transition: rotate 0.35s var(--ease-out);
+    }
+    .f-col[open] :global(.f-chev) {
+      rotate: 180deg;
+    }
+    .f-col .f-links {
+      padding-bottom: 1.2rem;
+    }
+    .f-col[open] .f-links {
+      animation: f-open 0.4s var(--ease-out);
+    }
+    @keyframes f-open {
+      from {
+        opacity: 0;
+        translate: 0 -6px;
+      }
+    }
+    .f-links a,
+    .f-links button {
+      display: inline-block;
+      padding-block: 0.3rem;
     }
   }
 </style>

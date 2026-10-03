@@ -1,6 +1,5 @@
 ---
 import Icon from './Icon.astro';
-import CollapseToggle from './CollapseToggle.astro';
 import { reasons } from '../data/site';
 ---
 
@@ -12,7 +11,7 @@ import { reasons } from '../data/site';
       <h2 class="h2">Un accompagnement pensé pour <em>durer</em></h2>
     </header>
 
-    <div class="reason-grid" id="reasons-list" data-collapsible>
+    <div class="reason-grid" id="reasons-list" data-carousel>
       {
         reasons.map((r, i) => (
           <article class="card reason" data-reveal style={`--d:${i % 3}`}>
@@ -27,10 +26,7 @@ import { reasons } from '../data/site';
           </article>
         ))
       }
-    </div>
-
-    <CollapseToggle controls="reasons-list" total={reasons.length} more="Voir tous les engagements" />
-  </div>
+    </div>  </div>
 </section>
 
 <style>

@@ -161,7 +161,7 @@ const devisUrl = !isZone && activiteKey[entry.id] ? `/?activite=${activiteKey[en
         <p class="eyebrow">{isZone ? 'Vos avantages' : 'Vos enjeux'}</p>
         <h2 class="h2">{data.painsTitle}</h2>
       </header>
-      <ul class="pains-grid">
+      <ul class="pains-grid" data-carousel>
         {
           data.pains.map((p, i) => (
             <li class="card pain" data-reveal style={`--d:${i}`}>
@@ -184,7 +184,7 @@ const devisUrl = !isZone && activiteKey[entry.id] ? `/?activite=${activiteKey[en
         <p class="eyebrow">Mes prestations</p>
         <h2 class="h2">{data.tasksTitle}</h2>
       </header>
-      <ul class="tasks-grid">
+      <ul class="tasks-grid" data-carousel>
         {
           data.tasks.map((t, i) => (
             <li class="task" data-reveal style={`--d:${i % 3}`}>
@@ -206,7 +206,7 @@ const devisUrl = !isZone && activiteKey[entry.id] ? `/?activite=${activiteKey[en
   <!-- ============ Texte de la page + cas client ============ -->
   <section class="section l-story">
     <div class="container story-grid">
-      <article class="prose" data-reveal>
+      <article class="prose" data-reveal data-readmore="460">
         <Content />
       </article>
       {
@@ -242,7 +242,7 @@ const devisUrl = !isZone && activiteKey[entry.id] ? `/?activite=${activiteKey[en
         <p class="eyebrow">Méthode</p>
         <h2 class="h2">Un accompagnement <em>simple</em>, étape par étape</h2>
       </header>
-      <ol class="steps">
+      <ol class="steps" data-carousel>
         {
           steps.map((s, i) => (
             <li class="step" data-reveal style={`--d:${i}`}>
@@ -270,7 +270,7 @@ const devisUrl = !isZone && activiteKey[entry.id] ? `/?activite=${activiteKey[en
                 Les métiers que j’accompagne {zoneData!.kind === 'ville' ? 'à' : 'en'} <em>{data.name.replace(/ \(\d+\)$/, '')}</em>
               </h2>
             </header>
-            <ul class="cross-grid">
+            <ul class="cross-grid" data-carousel>
               {metiers.map((m, i) => (
                 <li data-reveal style={`--d:${i}`}>
                   <a href={metierUrl(m.id)} class="cross-card">
@@ -387,7 +387,7 @@ const devisUrl = !isZone && activiteKey[entry.id] ? `/?activite=${activiteKey[en
               Pour aller <em>plus loin</em>
             </h2>
           </header>
-          <div class="related-grid">
+          <div class="related-grid" data-carousel>
             {related.map((a, i) => (
               <ArticleCard entry={a} delay={i} headingLevel="h3" />
             ))}

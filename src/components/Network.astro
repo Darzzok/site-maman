@@ -5,7 +5,6 @@ import Icon from './Icon.astro';
 
 const photos = import.meta.glob<{ default: ImageMetadata }>('../assets/images/*.jpg', { eager: true });
 const photoFor = (path: string) => photos[`../assets/images/${path.split('/').pop()}`].default;
-import CollapseToggle from './CollapseToggle.astro';
 import { network, partners } from '../data/site';
 ---
 
@@ -17,7 +16,7 @@ import { network, partners } from '../data/site';
       <p>{network.intro}</p>
     </header>
 
-    <div class="partner-grid" id="partners-list" data-collapsible>
+    <div class="partner-grid" id="partners-list" data-carousel>
       {
         partners.map((p, i) => (
           <article class="card partner" data-reveal style={`--d:${i}`}>
@@ -55,9 +54,6 @@ import { network, partners } from '../data/site';
         ))
       }
     </div>
-
-    <CollapseToggle controls="partners-list" total={partners.length} more="Voir tous les partenaires" />
-
     <div class="outro" data-reveal>
       <span class="icon-tile icon-tile--terra"><Icon name="network" /></span>
       <div>
@@ -236,6 +232,19 @@ import { network, partners } from '../data/site';
       flex-direction: column;
       align-items: center;
       text-align: center;
+    }
+  }
+
+  /* ============ Mobile : fiches partenaires plus courtes ============ */
+  @media (max-width: 760px) {
+    .desc p:nth-child(n + 2) {
+      display: none;
+    }
+    .tags li:nth-child(n + 7) {
+      display: none;
+    }
+    .cover {
+      height: 88px;
     }
   }
 </style>

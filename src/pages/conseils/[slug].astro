@@ -91,7 +91,7 @@ const jsonLd = {
 };
 ---
 
-<BaseLayout title={`${title} | ${site.name}`} description={description} jsonLd={jsonLd} image={shareImageUrl} ogType="article">
+<BaseLayout title={`${title} | ${site.name}`} description={description} jsonLd={jsonLd} image={shareImageUrl} ogType="article" mobileBar={false}>
   <div class="read-progress" aria-hidden="true"><span data-read-progress></span></div>
 
   <!-- ============ En-tête ============ -->
@@ -276,7 +276,7 @@ const jsonLd = {
         related.length > 0 && (
           <div class="related">
             <h2 class="related-title" data-reveal>À lire aussi</h2>
-            <div class="related-grid">
+            <div class="related-grid" data-carousel>
               {related.map((a, i) => (
                 <ArticleCard entry={a} delay={i} headingLevel="h3" />
               ))}
@@ -1120,5 +1120,13 @@ const jsonLd = {
   }
   .linked a:hover {
     background: var(--blue-100);
+  }
+
+  /* Le bouton de partage remonte au-dessus de la barre d'actions mobile */
+  .fab-share {
+    transition: bottom 0.45s var(--ease-out);
+  }
+  :global(body.has-mobile-bar) .fab-share {
+    bottom: calc(5.1rem + env(safe-area-inset-bottom));
   }
 </style>

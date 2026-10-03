@@ -62,7 +62,7 @@ const jsonLd = {
 
   <section class="section z-depts">
     <div class="container">
-      <ul class="d-grid">
+      <ul class="d-grid" data-carousel>
         {
           departments.map((d, i) => (
             <li class="d-card" data-reveal style={`--d:${i}`}>
@@ -97,7 +97,7 @@ const jsonLd = {
         <h2 class="h2">Au plus près des <em>entreprises</em></h2>
         <p>Des pages dédiées aux principales agglomérations, avec les communes desservies.</p>
       </header>
-      <ul class="c-grid">
+      <ul class="c-grid" data-carousel>
         {
           villes.map((v, i) => (
             <li data-reveal style={`--d:${i}`}>

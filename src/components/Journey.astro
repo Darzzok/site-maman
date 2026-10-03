@@ -441,4 +441,26 @@ import { steps } from '../data/site';
       text-align: center;
     }
   }
+
+  /* ============ Mobile : frise compacte (seule l'étape en cours détaille son texte) ============ */
+  @media (max-width: 900px) and (prefers-reduced-motion: no-preference) {
+    .tl-steps {
+      gap: 0.9rem;
+    }
+    .tl-card {
+      padding: 0.9rem 1.1rem;
+    }
+    .tl-step:not(:global(.is-current)) .tl-text {
+      display: none;
+    }
+    .tl-step:global(.is-current) .tl-text {
+      animation: tl-text-in 0.5s var(--ease-out);
+    }
+    @keyframes tl-text-in {
+      from {
+        opacity: 0;
+        translate: 0 6px;
+      }
+    }
+  }
 </style>

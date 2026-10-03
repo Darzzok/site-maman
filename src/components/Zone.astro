@@ -19,7 +19,7 @@ const cityPage = (name: string) => zones.find((z) => z.data.kind === 'ville' && 
       </p>
     </header>
 
-    <div class="z-grid">
+    <div class="z-grid" data-carousel>
       {
         zone.departments.map((d, i) => (
           <article class="card dept" data-reveal style={`--d:${i}`}>

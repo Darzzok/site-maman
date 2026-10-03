@@ -166,7 +166,7 @@ const { toc } = Astro.props;
 
   @media (max-width: 860px) {
     .legal-grid {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
     }
     .toc {
       position: static;
@@ -214,5 +214,20 @@ const { toc } = Astro.props;
   }
   .legal-body :global(dd:last-child) {
     margin-bottom: 0;
+  }
+
+  /* Mobile : le sommaire ne dépasse plus de l'écran */
+  @media (max-width: 860px) {
+    .toc {
+      min-width: 0;
+    }
+    .toc a {
+      white-space: normal;
+    }
+    /* Les longues adresses (e-mail, site) peuvent passer à la ligne */
+    .legal-body {
+      grid-template-columns: minmax(0, 1fr);
+      overflow-wrap: anywhere;
+    }
   }
 </style>
