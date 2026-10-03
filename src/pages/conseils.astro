@@ -433,7 +433,7 @@ const jsonLd = {
     display: none;
   }
   .search input::placeholder {
-    color: #a8939e;
+    color: #6b6b6b;
   }
   .search input:focus {
     border-color: var(--blue-600);
@@ -628,7 +628,7 @@ const jsonLd = {
     background: var(--blue-600);
   }
   .fmt.is-active small {
-    color: rgb(255 255 255 / 0.8);
+    color: #fff;
   }
   .results {
     min-height: 1.2em;
@@ -783,7 +783,7 @@ const jsonLd = {
     margin-top: clamp(3.5rem, 7vw, 5rem);
     padding: clamp(1.8rem, 4vw, 2.6rem);
     border-radius: var(--radius-lg);
-    color: rgb(255 255 255 / 0.78);
+    color: #fff;
     background:
       radial-gradient(80% 120% at 100% 0%, rgb(229 129 188 / 0.2), transparent 60%),
       linear-gradient(140deg, var(--blue-700), var(--blue-900));
@@ -845,6 +845,34 @@ const jsonLd = {
   @media (max-width: 420px) {
     .t-grid {
       grid-template-columns: 1fr;
+    }
+  }
+
+  /* Centrage du bandeau d'appel */
+  .cta,
+  .cta h2 {
+    text-align: center;
+  }
+
+  /* Grille centrée : la dernière rangée incomplète reste au milieu, quel que soit le filtre */
+  .a-grid {
+    --cols: 3;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .a-grid > :global(*) {
+    flex: 0 0 calc((100% - (var(--cols) - 1) * 1.25rem) / var(--cols));
+    min-width: 0;
+  }
+  @media (max-width: 1023px) {
+    .a-grid {
+      --cols: 2;
+    }
+  }
+  @media (max-width: 680px) {
+    .a-grid {
+      --cols: 1;
     }
   }
 </style>

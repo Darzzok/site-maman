@@ -56,4 +56,26 @@ const latest = (await getConseils()).slice(0, 3);
       grid-template-columns: 1fr;
     }
   }
+
+  /* Grille centrée : la dernière rangée incomplète reste au milieu, quel que soit le filtre */
+  .t-grid {
+    --cols: 3;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .t-grid > :global(*) {
+    flex: 0 0 calc((100% - (var(--cols) - 1) * 1.25rem) / var(--cols));
+    min-width: 0;
+  }
+  @media (max-width: 1023px) {
+    .t-grid {
+      --cols: 2;
+    }
+  }
+  @media (max-width: 680px) {
+    .t-grid {
+      --cols: 1;
+    }
+  }
 </style>

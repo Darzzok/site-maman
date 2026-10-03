@@ -35,7 +35,9 @@ node scripts/og-image.mjs    # régénère l'image de partage (réseaux sociaux)
 Tout le contenu est regroupé dans **`src/data/site.ts`** : coordonnées, services
 (et leur détail), modes d'intervention, zone d'intervention, cas clients, étapes de
 la frise, partenaires, FAQ…
-Les balises `<strong>…</strong>` mettent un mot en valeur (en bleu).
+Les balises `<strong>…</strong>` mettent un mot en valeur (en prune).
+Dans les titres, `<em>…</em>` affiche un mot clé en orange et en MAJUSCULES.
+Les textes courants sont en noir sur fond clair et en blanc sur fond sombre, et centrés.
 
 ## Rubrique Conseils (articles)
 
@@ -84,7 +86,7 @@ Lancer `npm run build`, puis envoyer **le contenu du dossier `dist/`** chez l'h�
 | En-tête / pied de page | `src/components/Header.astro`, `Footer.astro` |
 | Sections de l'accueil | `src/components/` : `Hero`, `Services`, `Formulas` (modes d'intervention), `About`, `Reasons`, `Journey` (frise), `Cases`, `Zone`, `Network`, `ConseilsTeaser`, `PromiseBand`, `Contact` |
 | Articles | `src/content/conseils/*.md` |
-| Animations (apparition, frise, en-tête…) | `src/scripts/main.ts` |
+| Animations (apparition, frise automatique, en-tête…) | `src/scripts/main.ts` (rythme de la frise : constantes `TL_STEP_MS`, `TL_END_MS`, `TL_RESUME_MS`) |
 | Bandeau cookies (Calendly) | `src/components/CookieBanner.astro` |
 | Photos optimisées | `src/assets/images/` |
 | Logo, favicon, image de partage | `public/images/` |

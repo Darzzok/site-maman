@@ -4,10 +4,10 @@ description: 'Réception obligatoire depuis septembre 2026, émission en 2027 : 
 category: 'Gestion administrative'
 date: 2026-09-08
 cover: ./images/facturation-electronique-ce-qui-change-pour-les-tpe.jpg
-coverAlt: "Une femme travaille sur un ordinateur portable dans une salle de réunion"
+coverAlt: "Une facture posée sur un bureau, entourée de stylos et de crayons"
 coverCredit:
-  name: "Surface"
-  url: "https://unsplash.com/fr/photos/RqfCnZvGFQk"
+  name: "Kelly Sikkema"
+  url: "https://unsplash.com/fr/photos/N3o-leQyFsI"
 featured: true
 keyPoints:
   - "Depuis le 1er septembre 2026, toutes les entreprises assujetties à la TVA doivent pouvoir recevoir des factures électroniques."

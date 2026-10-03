@@ -778,7 +778,7 @@ const jsonLd = {
     font-weight: 800;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--terra-600);
+    color: var(--blue-700);
   }
   .author-name {
     margin-top: 0.2rem;
@@ -811,7 +811,7 @@ const jsonLd = {
     padding: clamp(1.8rem, 4vw, 2.6rem);
     text-align: center;
     border-radius: var(--radius-lg);
-    color: rgb(255 255 255 / 0.78);
+    color: #fff;
     background:
       radial-gradient(80% 90% at 100% 0%, rgb(229 129 188 / 0.2), transparent 60%),
       linear-gradient(140deg, var(--blue-700), var(--blue-900));
@@ -982,5 +982,77 @@ const jsonLd = {
       align-items: flex-start;
       text-align: left;
     }
+  }
+
+  /* ============ Centrage des textes ============ */
+  .a-meta {
+    justify-content: center;
+    text-align: center;
+  }
+  .toc summary {
+    justify-content: center;
+  }
+  .toc summary :global(.toc-chevron) {
+    margin-left: 0;
+  }
+  .toc ol {
+    border-left: 0;
+  }
+  .toc a {
+    padding-inline: 0.5rem;
+    text-align: center;
+  }
+  .toc a::before {
+    display: none;
+  }
+  .keypoints {
+    text-align: center;
+  }
+  .kp-title {
+    justify-content: center;
+  }
+  .keypoints li,
+  .prose :global(li) {
+    padding-left: 0;
+  }
+  .keypoints li::before,
+  .prose :global(ul > li::before) {
+    position: static;
+    display: inline-block;
+    margin-right: 0.6rem;
+    vertical-align: 0.12em;
+  }
+  .prose {
+    text-align: center;
+  }
+  .prose :global(ol > li) {
+    padding-left: 0;
+  }
+  .prose :global(ol > li::before) {
+    position: static;
+    display: inline-grid;
+    margin-right: 0.55rem;
+    vertical-align: 0.05em;
+  }
+  .prose :global(blockquote) {
+    padding: 3.3rem 1.4rem 1.2rem;
+  }
+  .prose :global(blockquote::before) {
+    left: 50%;
+    top: 1.1rem;
+    translate: -50% 0;
+  }
+  .prose :global(blockquote strong) {
+    color: var(--blue-700);
+  }
+  .author {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .pager-link,
+  .pager-link--next {
+    align-items: center;
+    text-align: center;
   }
 </style>

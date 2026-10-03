@@ -41,7 +41,6 @@ function onScrollFrame() {
     backToTop.style.setProperty('--progress', String(max > 0 ? Math.min(1, y / max) : 0));
     backToTop.classList.toggle('is-visible', y > 500);
   }
-  updateTimeline();
   ticking = false;
 }
 window.addEventListener(
@@ -143,14 +142,32 @@ if (parallaxRoot && finePointer && !reduceMotion) {
   });
 }
 
-/* ---------- Frise du parcours client, pilotée par le défilement ---------- */
+/* ---------- Frise du parcours client : défilement automatique ---------- */
 const timeline = document.querySelector<HTMLElement>('[data-timeline]');
 const tlSteps = timeline ? [...timeline.querySelectorAll<HTMLElement>('[data-step]')] : [];
 const tlNodes = tlSteps.map((s) => s.querySelector<HTMLElement>('[data-node]')!);
-let tlVertical = false;
-let tlStart = 0;
-let tlLength = 1;
+const tlPrev = document.querySelector<HTMLButtonElement>('[data-tl-prev]');
+const tlNext = document.querySelector<HTMLButtonElement>('[data-tl-next]');
+const tlPlay = document.querySelector<HTMLButtonElement>('[data-tl-play]');
+const tlCurrent = document.querySelector<HTMLElement>('[data-tl-current]');
+const tlTimerBar = document.querySelector<HTMLElement>('[data-tl-timer]');
+const tlZone = timeline?.closest('section') ?? timeline;
+const tlLast = tlSteps.length - 1;
+
+// Rythme : le temps de lire une carte, une pause plus longue à la fin, puis reprise après un clic
+const TL_STEP_MS = 4500;
+const TL_END_MS = 6500;
+const TL_RESUME_MS = 9000;
+
 let tlThresholds: number[] = [];
+let tlIndex = reduceMotion ? tlLast : -1; // -1 : la frise n'a pas encore démarré
+let tlInView = false;
+let tlHover = false;
+let tlFocus = false;
+let tlUserPaused = false;
+let tlHold = false;
+let tlTimer = 0;
+let tlHoldTimer = 0;
 
 function measureTimeline() {
   if (!timeline || tlNodes.length < 2) return;
@@ -161,58 +178,72 @@ function measureTimeline() {
   });
   const first = centers[0];
   const last = centers[centers.length - 1];
-  tlVertical = Math.abs(last.x - first.x) < 4;
-  tlStart = tlVertical ? first.y : first.x;
-  tlLength = Math.max(1, (tlVertical ? last.y : last.x) - tlStart);
-  tlThresholds = centers.map((c) => ((tlVertical ? c.y : c.x) - tlStart) / tlLength);
-  timeline.dataset.orientation = tlVertical ? 'vertical' : 'horizontal';
+  const vertical = Math.abs(last.x - first.x) < 4;
+  const startPos = vertical ? first.y : first.x;
+  const length = Math.max(1, (vertical ? last.y : last.x) - startPos);
+  tlThresholds = centers.map((c) => ((vertical ? c.y : c.x) - startPos) / length);
+  timeline.dataset.orientation = vertical ? 'vertical' : 'horizontal';
   timeline.style.setProperty('--tl-x', `${first.x}px`);
   timeline.style.setProperty('--tl-y', `${first.y}px`);
-  timeline.style.setProperty('--tl-len', `${tlLength}px`);
-  updateTimeline();
+  timeline.style.setProperty('--tl-len', `${length}px`);
+  renderTimeline();
 }
 
-// Étape choisie au clic (null = la frise suit le défilement)
-let tlManual: number | null = null;
-const tlPrev = document.querySelector<HTMLButtonElement>('[data-tl-prev]');
-const tlNext = document.querySelector<HTMLButtonElement>('[data-tl-next]');
-const tlCurrent = document.querySelector<HTMLElement>('[data-tl-current]');
-
-function updateTimeline() {
+function renderTimeline() {
   if (!timeline || !tlThresholds.length) return;
-  let p: number;
-  if (tlManual !== null) p = Math.max(0.001, tlThresholds[tlManual]);
-  else if (reduceMotion) p = 1;
-  else {
-    const box = timeline.getBoundingClientRect();
-    const vh = window.innerHeight;
-    p = tlVertical ? (vh * 0.62 - (box.top + tlStart)) / tlLength : (vh * 0.85 - box.top) / (vh * 0.5);
-  }
-  p = Math.min(1, Math.max(0, p));
+  const p = tlIndex < 0 ? 0 : Math.max(0.001, tlThresholds[tlIndex]);
   timeline.style.setProperty('--p', p.toFixed(4));
-
-  let current = 0;
   tlSteps.forEach((step, i) => {
-    const active = p > 0 && p >= tlThresholds[i] - 0.002;
-    step.classList.toggle('is-active', active);
-    if (active) current = i;
+    step.classList.toggle('is-active', i <= tlIndex);
+    step.classList.toggle('is-current', i === tlIndex);
   });
-  tlSteps.forEach((step, i) => step.classList.toggle('is-current', p > 0 && i === current));
-  if (tlCurrent) tlCurrent.textContent = String(current + 1);
-  if (tlPrev) tlPrev.disabled = p > 0 && current === 0;
-  if (tlNext) tlNext.disabled = current === tlSteps.length - 1 && p > 0;
+  if (tlCurrent) tlCurrent.textContent = String(Math.max(0, tlIndex) + 1);
+  if (tlPrev) tlPrev.disabled = tlIndex <= 0;
+  if (tlNext) tlNext.disabled = tlIndex === tlLast;
 }
 
-function currentStep() {
-  const active = tlSteps.filter((s) => s.classList.contains('is-active')).length;
-  return Math.max(0, active - 1);
+const tlCanPlay = () =>
+  !reduceMotion && tlInView && !tlHover && !tlFocus && !tlUserPaused && !tlHold && !document.hidden;
+
+/** Programme l'étape suivante et anime la barre de progression */
+function scheduleTimeline() {
+  window.clearTimeout(tlTimer);
+  timeline?.classList.toggle('is-playing', tlCanPlay());
+  if (!tlCanPlay()) return;
+  const delay = tlIndex === tlLast ? TL_END_MS : TL_STEP_MS;
+  if (tlTimerBar) {
+    tlTimerBar.style.animation = 'none';
+    void tlTimerBar.offsetWidth; // relance l'animation
+    tlTimerBar.style.animation = `tl-timer ${delay}ms linear forwards`;
+  }
+  tlTimer = window.setTimeout(() => {
+    tlIndex = tlIndex >= tlLast ? 0 : tlIndex + 1;
+    renderTimeline();
+    scheduleTimeline();
+  }, delay);
 }
 
+/** Choix manuel : l'autoplay se met en pause quelques secondes */
 function goToStep(index: number) {
-  if (!timeline) return;
-  tlManual = Math.max(0, Math.min(tlSteps.length - 1, index));
-  timeline.classList.add('is-manual');
-  updateTimeline();
+  tlIndex = Math.max(0, Math.min(tlLast, index));
+  renderTimeline();
+  tlHold = true;
+  window.clearTimeout(tlHoldTimer);
+  tlHoldTimer = window.setTimeout(() => {
+    tlHold = false;
+    scheduleTimeline();
+  }, TL_RESUME_MS);
+  scheduleTimeline();
+}
+
+function setUserPaused(paused: boolean) {
+  tlUserPaused = paused;
+  if (tlPlay) {
+    tlPlay.setAttribute('aria-pressed', String(paused));
+    tlPlay.setAttribute('aria-label', paused ? 'Reprendre le défilement automatique' : 'Mettre en pause le défilement automatique');
+    tlPlay.classList.toggle('is-paused', paused);
+  }
+  scheduleTimeline();
 }
 
 if (timeline) {
@@ -220,22 +251,49 @@ if (timeline) {
   document.fonts?.ready.then(measureTimeline);
   measureTimeline();
 
-  // Clic sur une pastille ou sur les flèches
   tlNodes.forEach((node, i) => node.addEventListener('click', () => goToStep(i)));
-  tlPrev?.addEventListener('click', () => goToStep(currentStep() - 1));
-  tlNext?.addEventListener('click', () => {
-    const anyActive = tlSteps.some((s) => s.classList.contains('is-active'));
-    goToStep(anyActive ? currentStep() + 1 : 0);
-  });
+  tlPrev?.addEventListener('click', () => goToStep(tlIndex - 1));
+  tlNext?.addEventListener('click', () => goToStep(tlIndex + 1));
+  tlPlay?.addEventListener('click', () => setUserPaused(!tlUserPaused));
+  if (reduceMotion && tlPlay) tlPlay.hidden = true;
 
-  // Dès que la frise sort de l'écran, elle reprend le suivi du défilement
-  new IntersectionObserver((entries) => {
-    if (entries.some((e) => !e.isIntersecting) && tlManual !== null) {
-      tlManual = null;
-      timeline.classList.remove('is-manual');
-      updateTimeline();
-    }
-  }).observe(timeline);
+  // Démarre quand la frise est bien visible, s'arrête quand elle sort de l'écran
+  new IntersectionObserver(
+    ([entry]) => {
+      tlInView = entry.isIntersecting;
+      if (tlInView && tlIndex < 0) {
+        window.setTimeout(() => {
+          if (tlIndex < 0) {
+            tlIndex = 0;
+            renderTimeline();
+          }
+          scheduleTimeline();
+        }, 500);
+      } else scheduleTimeline();
+    },
+    { threshold: 0.45 },
+  ).observe(timeline);
+
+  // Pause au survol (souris) et pendant la navigation au clavier
+  if (finePointer) {
+    timeline.addEventListener('pointerenter', () => {
+      tlHover = true;
+      scheduleTimeline();
+    });
+    timeline.addEventListener('pointerleave', () => {
+      tlHover = false;
+      scheduleTimeline();
+    });
+  }
+  tlZone?.addEventListener('focusin', (e) => {
+    tlFocus = (e.target as HTMLElement).matches(':focus-visible') && e.target !== tlPlay;
+    scheduleTimeline();
+  });
+  tlZone?.addEventListener('focusout', () => {
+    tlFocus = false;
+    scheduleTimeline();
+  });
+  document.addEventListener('visibilitychange', scheduleTimeline);
 }
 
 /* ---------- Année du pied de page ---------- */
