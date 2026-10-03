@@ -64,6 +64,17 @@ Chaque article est un fichier Markdown dans **`src/content/conseils/`**.
 La page `/conseils.html`, l'aperçu sur l'accueil, les articles associés et le
 plan du site (sitemap) se mettent à jour automatiquement.
 
+## Demande de devis en étapes
+
+Le formulaire de devis () guide le visiteur en 5 étapes : besoins, entreprise,
+format d’accompagnement, coordonnées, puis récapitulatif avant envoi. Les réponses arrivent par e-mail via Formspree,
+avec un objet clair (nom, activité, besoins).
+
+- **Modifier les choix proposés** : listes , , , … en haut du fichier.
+- **Présélection depuis un lien** :  (btp, sante, liberal, commerce, tpe) ou
+  . Les boutons « Demander un devis » des pages métiers l’utilisent déjà.
+- La saisie est conservée pendant la visite si la page est rechargée, et le formulaire reste utilisable sans JavaScript.
+
 ## Pages métiers et zones (référencement)
 
 Des pages dédiées ciblent les recherches par métier et par ville :

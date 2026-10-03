@@ -1,13 +1,7 @@
 ---
 import Icon from './Icon.astro';
+import QuoteWizard from './QuoteWizard.astro';
 import { site } from '../data/site';
-
-const fields = [
-  { id: 'nom', type: 'text', label: 'Nom complet', icon: 'user', required: true, autocomplete: 'name', half: true },
-  { id: 'telephone', type: 'tel', label: 'Téléphone', icon: 'phone', required: true, autocomplete: 'tel', half: true },
-  { id: 'email', type: 'email', label: 'Adresse e-mail', icon: 'mail', required: true, autocomplete: 'email' },
-  { id: 'entreprise', type: 'text', label: 'Entreprise', icon: 'building', required: false, autocomplete: 'organization' },
-];
 
 const chips = [
   { href: `mailto:${site.email}`, icon: 'mail', label: site.emailLabel },
@@ -34,49 +28,10 @@ const chips = [
         </div>
         <h3>Demander un devis personnalisé</h3>
         <p class="cc-desc">
-          Décrivez votre besoin à l’aide du formulaire. Je vous répondrai rapidement avec une proposition adaptée.
+          Cinq étapes rapides pour décrire votre besoin. Je vous réponds sous 24 h avec une proposition adaptée.
         </p>
 
-        <form id="contact-form" action={site.formspree} method="POST" class="form" novalidate>
-          <input type="hidden" name="_subject" value={`Nouvelle demande de devis — ${site.name}`} />
-          <div class="fields">
-            {
-              fields.map((f) => (
-                <div class:list={['field', { half: f.half }]}>
-                  <input
-                    type={f.type}
-                    id={f.id}
-                    name={f.id}
-                    required={f.required}
-                    autocomplete={f.autocomplete}
-                    placeholder=" "
-                  />
-                  <label for={f.id}>
-                    {f.label} {f.required && <span class="req">*</span>}
-                  </label>
-                  <span class="field-ic">
-                    <Icon name={f.icon} size={18} />
-                  </span>
-                </div>
-              ))
-            }
-            <div class="field">
-              <textarea id="f-message" name="message" rows="4" required placeholder=" "></textarea>
-              <label for="f-message">Message <span class="req">*</span></label>
-              <span class="field-ic top"><Icon name="message" size={18} /></span>
-            </div>
-          </div>
-
-          <div class="form-foot">
-            <p class="hint"><span class="req">*</span> Champs obligatoires</p>
-            <button type="submit" class="btn" id="submit-btn">
-              <span id="submit-label">Envoyer ma demande de devis</span>
-              <Icon name="send" size={17} class="i-arrow" />
-            </button>
-          </div>
-
-          <p id="form-feedback" class="feedback" role="status" aria-live="polite" hidden></p>
-        </form>
+        <QuoteWizard />
       </article>
 
       <!-- Carte 2 : prise de rendez-vous Calendly -->
@@ -197,53 +152,6 @@ const chips = [
     window.dispatchEvent(new CustomEvent('sgc:consent-request', { detail: 'accepted' }));
   });
 
-  /* ---------------------------------------------------------------
-     Formulaire de devis : envoi via Formspree
-     --------------------------------------------------------------- */
-  const form = document.getElementById('contact-form') as HTMLFormElement | null;
-  const feedback = document.getElementById('form-feedback');
-  const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement | null;
-  const submitLabel = document.getElementById('submit-label');
-
-  function showFeedback(type: 'ok' | 'error', message: string) {
-    if (!feedback) return;
-    feedback.textContent = message;
-    feedback.dataset.type = type;
-    feedback.hidden = false;
-  }
-
-  form?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    if (!form.checkValidity()) {
-      form.classList.add('was-validated');
-      form.reportValidity();
-      return;
-    }
-    if (!submitBtn || !submitLabel) return;
-    submitBtn.disabled = true;
-    const original = submitLabel.textContent;
-    submitLabel.textContent = 'Envoi en cours…';
-
-    try {
-      const response = await fetch(form.action, {
-        method: 'POST',
-        body: new FormData(form),
-        headers: { Accept: 'application/json' },
-      });
-      if (!response.ok) throw new Error('Réponse non valide du serveur');
-      showFeedback('ok', 'Merci, votre demande de devis a bien été envoyée. Je vous répondrai rapidement.');
-      form.reset();
-      form.classList.remove('was-validated');
-    } catch {
-      showFeedback(
-        'error',
-        `Une erreur est survenue lors de l’envoi. Merci de réessayer, ou écrivez-moi directement à ${site.emailLabel}.`,
-      );
-    } finally {
-      submitBtn.disabled = false;
-      submitLabel.textContent = original;
-    }
-  });
 </script>
 
 <style>
@@ -301,127 +209,6 @@ const chips = [
     text-align: center;
     color: var(--muted);
     font-size: 0.97rem;
-  }
-
-  /* — Formulaire — */
-  .form {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-  }
-  .fields {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.9rem;
-  }
-  .field {
-    position: relative;
-    grid-column: 1 / -1;
-  }
-  .field.half {
-    grid-column: span 1;
-  }
-  .field input,
-  .field textarea {
-    width: 100%;
-    padding: 1.45rem 1rem 0.55rem 2.9rem;
-    border-radius: 14px;
-    border: 1.5px solid var(--line);
-    background: var(--cream);
-    font-size: 0.97rem;
-    color: var(--ink);
-    outline: none;
-    transition:
-      border-color 0.3s,
-      background 0.3s,
-      box-shadow 0.3s;
-  }
-  .field textarea {
-    resize: vertical;
-    min-height: 140px;
-    padding-top: 1.7rem;
-  }
-  .field input:hover,
-  .field textarea:hover {
-    border-color: var(--sand-300);
-  }
-  .field input:focus,
-  .field textarea:focus {
-    border-color: var(--blue-600);
-    background: #fff;
-    box-shadow: 0 0 0 4px rgb(123 37 80 / 0.12);
-  }
-  .form:global(.was-validated) input:invalid,
-  .form:global(.was-validated) textarea:invalid {
-    border-color: var(--danger);
-    background: var(--danger-bg);
-  }
-  .field label {
-    position: absolute;
-    left: 2.9rem;
-    top: 1rem;
-    font-size: 0.95rem;
-    color: var(--muted);
-    pointer-events: none;
-    transform-origin: left top;
-    transition:
-      transform 0.35s var(--ease-out),
-      color 0.3s;
-  }
-  .field input:focus + label,
-  .field input:not(:placeholder-shown) + label,
-  .field textarea:focus + label,
-  .field textarea:not(:placeholder-shown) + label {
-    transform: translateY(-0.6rem) scale(0.78);
-    color: var(--blue-700);
-    font-weight: 600;
-  }
-  .req {
-    color: var(--blue-700);
-  }
-  .field-ic {
-    position: absolute;
-    left: 1rem;
-    top: 50%;
-    translate: 0 -50%;
-    color: var(--muted);
-    transition: color 0.3s;
-  }
-  .field-ic.top {
-    top: 1.05rem;
-    translate: none;
-  }
-  .field:focus-within .field-ic {
-    color: var(--blue-700);
-  }
-  .form-foot {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-top: auto;
-    padding-top: 1.5rem;
-  }
-  .hint {
-    font-size: 0.82rem;
-    color: var(--muted);
-  }
-  .feedback {
-    margin-top: 1rem;
-    padding: 0.9rem 1rem;
-    border-radius: 14px;
-    font-size: 0.92rem;
-    font-weight: 600;
-    animation: reveal-up 0.6s var(--ease-out);
-  }
-  .feedback[data-type='ok'] {
-    color: var(--success);
-    background: var(--success-bg);
-  }
-  .feedback[data-type='error'] {
-    color: var(--danger);
-    background: var(--danger-bg);
   }
 
   /* — Calendly — */
@@ -561,15 +348,6 @@ const chips = [
     }
   }
   @media (max-width: 520px) {
-    .fields {
-      grid-template-columns: 1fr;
-    }
-    .field.half {
-      grid-column: 1 / -1;
-    }
-    .form-foot .btn {
-      width: 100%;
-    }
     .chip {
       width: 100%;
       justify-content: center;

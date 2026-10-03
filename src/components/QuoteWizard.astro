@@ -1,0 +1,1395 @@
+---
+/**
+ * Demande de devis en plusieurs étapes (envoi via Formspree).
+ * Sans JavaScript, toutes les étapes s'affichent les unes sous les autres et le formulaire reste utilisable.
+ * Pré-sélection possible depuis un lien : /?activite=btp#devis  ou  /?besoin=tresorerie#devis
+ */
+import Icon from './Icon.astro';
+import { site } from '../data/site';
+
+const besoins = [
+  { value: 'tresorerie', label: 'Trésorerie & recouvrement', icon: 'wallet' },
+  { value: 'administratif', label: 'Gestion administrative', icon: 'file' },
+  { value: 'rh', label: 'RH & paie', icon: 'users' },
+  { value: 'pilotage', label: 'Pilotage & tableaux de bord', icon: 'chart' },
+  { value: 'patrimoine', label: 'Patrimoine du dirigeant', icon: 'shield' },
+  { value: 'global', label: 'Je ne sais pas encore', icon: 'help' },
+];
+const activites = [
+  { value: 'btp', label: 'Artisan du BTP', icon: 'hardhat' },
+  { value: 'sante', label: 'Profession de santé', icon: 'stethoscope' },
+  { value: 'liberal', label: 'Profession libérale', icon: 'briefcase' },
+  { value: 'commerce', label: 'Commerce / artisan', icon: 'store' },
+  { value: 'tpe', label: 'Autre TPE', icon: 'building' },
+];
+const effectifs = ['Seul(e)', '2 à 5', '6 à 10', 'Plus de 10'];
+const departements = ['Eure (27)', 'Seine-Maritime (76)', 'Autre / à distance'];
+const rythmes = [
+  { value: 'Mission ponctuelle', label: 'Mission ponctuelle', icon: 'zap', text: 'Un besoin précis' },
+  { value: 'Suivi régulier', label: 'Suivi régulier', icon: 'calendar', text: 'Chaque mois' },
+  { value: 'Temps partagé', label: 'Temps partagé', icon: 'users', text: 'Déléguer sans recruter' },
+  { value: 'À définir ensemble', label: 'À définir', icon: 'message', text: 'On en parle' },
+];
+const modalites = ['Sur site', 'À distance', 'Les deux'];
+const delais = ['Dès que possible', 'Dans le mois', 'Dans les 3 mois', 'Je me renseigne'];
+
+const steps = ['Besoins', 'Entreprise', 'Format', 'Coordonnées', 'Envoi'];
+---
+
+<div class="wizard" data-wizard>
+  <!-- Progression -->
+  <div class="progress" aria-hidden="true">
+    <div class="progress-track"><span class="progress-fill" data-progress></span></div>
+    <ol class="progress-steps">
+      {
+        steps.map((s, i) => (
+          <li class:list={['p-step', { 'is-current': i === 0 }]} data-p-step>
+            <span class="p-dot">
+              <span class="p-num">{i + 1}</span>
+              <Icon name="check" size={14} strokeWidth={3} class="p-check" />
+            </span>
+            <span class="p-label">{s}</span>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+  <p class="sr-only" aria-live="polite" data-step-announce></p>
+
+  <form action={site.formspree} method="POST" class="q-form" novalidate data-quote-form>
+    <input type="hidden" name="_subject" value={`Nouvelle demande de devis — ${site.name}`} data-subject />
+    <!-- Piège à robots : laissé vide par les humains -->
+    <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" class="hp" aria-hidden="true" />
+
+    <div class="viewport" data-viewport>
+      <!-- Étape 1 : besoins -->
+      <fieldset class="step is-current" data-step="0">
+        <legend class="step-title" tabindex="-1">
+          <span class="step-kicker">Étape 1 sur 5</span>
+          De quoi avez-vous besoin ?
+        </legend>
+        <p class="step-sub">Plusieurs choix possibles.</p>
+        <div class="opts opts--cards" data-group="besoins" data-min="1">
+          {
+            besoins.map((b) => (
+              <label class="opt">
+                <input type="checkbox" name="besoins" value={b.label} data-key={b.value} />
+                <span class="opt-box">
+                  <span class="opt-ic">
+                    <Icon name={b.icon} size={20} />
+                  </span>
+                  <span class="opt-label">{b.label}</span>
+                  <span class="opt-check">
+                    <Icon name="check" size={12} strokeWidth={3.2} />
+                  </span>
+                </span>
+              </label>
+            ))
+          }
+        </div>
+        <p class="step-error" data-error>Choisissez au moins un besoin pour continuer.</p>
+      </fieldset>
+
+      <!-- Étape 2 : entreprise -->
+      <fieldset class="step" data-step="1">
+        <legend class="step-title" tabindex="-1">
+          <span class="step-kicker">Étape 2 sur 5</span>
+          Parlez-moi de votre entreprise
+        </legend>
+        <p class="q-label">Votre activité</p>
+        <div class="opts opts--cards opts--five" data-group="activite" data-min="1">
+          {
+            activites.map((a) => (
+              <label class="opt">
+                <input type="radio" name="activite" value={a.label} data-key={a.value} />
+                <span class="opt-box">
+                  <span class="opt-ic">
+                    <Icon name={a.icon} size={20} />
+                  </span>
+                  <span class="opt-label">{a.label}</span>
+                  <span class="opt-check">
+                    <Icon name="check" size={12} strokeWidth={3.2} />
+                  </span>
+                </span>
+              </label>
+            ))
+          }
+        </div>
+        <p class="q-label">Nombre de personnes dans l’entreprise</p>
+        <div class="opts opts--pills" data-group="effectif" data-min="1">
+          {
+            effectifs.map((e) => (
+              <label class="pill-opt">
+                <input type="radio" name="effectif" value={e} />
+                <span>{e}</span>
+              </label>
+            ))
+          }
+        </div>
+        <p class="q-label">Où êtes-vous installé ?</p>
+        <div class="opts opts--pills" data-group="departement" data-min="1">
+          {
+            departements.map((d) => (
+              <label class="pill-opt">
+                <input type="radio" name="departement" value={d} />
+                <span><Icon name="mapPin" size={14} />{d}</span>
+              </label>
+            ))
+          }
+        </div>
+        <p class="step-error" data-error>Merci de répondre aux trois questions.</p>
+      </fieldset>
+
+      <!-- Étape 3 : format -->
+      <fieldset class="step" data-step="2">
+        <legend class="step-title" tabindex="-1">
+          <span class="step-kicker">Étape 3 sur 5</span>
+          Quel accompagnement imaginez-vous ?
+        </legend>
+        <div class="opts opts--cards" data-group="rythme" data-min="1">
+          {
+            rythmes.map((r) => (
+              <label class="opt">
+                <input type="radio" name="rythme" value={r.value} />
+                <span class="opt-box">
+                  <span class="opt-ic">
+                    <Icon name={r.icon} size={20} />
+                  </span>
+                  <span class="opt-label">{r.label}</span>
+                  <span class="opt-text">{r.text}</span>
+                  <span class="opt-check">
+                    <Icon name="check" size={12} strokeWidth={3.2} />
+                  </span>
+                </span>
+              </label>
+            ))
+          }
+        </div>
+        <p class="q-label">Modalité</p>
+        <div class="opts opts--pills" data-group="modalite" data-min="1">
+          {
+            modalites.map((m) => (
+              <label class="pill-opt">
+                <input type="radio" name="modalite" value={m} />
+                <span>{m}</span>
+              </label>
+            ))
+          }
+        </div>
+        <p class="q-label">Pour quand ?</p>
+        <div class="opts opts--pills" data-group="delai" data-min="1">
+          {
+            delais.map((d) => (
+              <label class="pill-opt">
+                <input type="radio" name="delai" value={d} />
+                <span>{d}</span>
+              </label>
+            ))
+          }
+        </div>
+        <p class="step-error" data-error>Merci de répondre aux trois questions.</p>
+      </fieldset>
+
+      <!-- Étape 4 : coordonnées -->
+      <fieldset class="step" data-step="3">
+        <legend class="step-title" tabindex="-1">
+          <span class="step-kicker">Étape 4 sur 5</span>
+          Comment vous recontacter ?
+        </legend>
+        <div class="fields">
+          <div class="field half">
+            <input type="text" id="q-nom" name="nom" required autocomplete="name" placeholder=" " />
+            <label for="q-nom">Nom complet <span class="req">*</span></label>
+            <span class="field-ic"><Icon name="user" size={18} /></span>
+          </div>
+          <div class="field half">
+            <input type="text" id="q-entreprise" name="entreprise" autocomplete="organization" placeholder=" " />
+            <label for="q-entreprise">Entreprise</label>
+            <span class="field-ic"><Icon name="building" size={18} /></span>
+          </div>
+          <div class="field half">
+            <input type="email" id="q-email" name="email" required autocomplete="email" placeholder=" " />
+            <label for="q-email">Adresse e-mail <span class="req">*</span></label>
+            <span class="field-ic"><Icon name="mail" size={18} /></span>
+          </div>
+          <div class="field half">
+            <input
+              type="tel"
+              id="q-tel"
+              name="telephone"
+              required
+              autocomplete="tel"
+              inputmode="tel"
+              pattern="[0-9+().\s-]{10,}"
+              placeholder=" "
+            />
+            <label for="q-tel">Téléphone <span class="req">*</span></label>
+            <span class="field-ic"><Icon name="phone" size={18} /></span>
+          </div>
+          <div class="field">
+            <textarea id="q-message" name="message" rows="3" placeholder=" "></textarea>
+            <label for="q-message">Précisez votre situation (facultatif)</label>
+            <span class="field-ic top"><Icon name="message" size={18} /></span>
+          </div>
+        </div>
+        <p class="q-label">Je préfère être recontacté par</p>
+        <div class="opts opts--pills" data-group="preference">
+          <label class="pill-opt">
+            <input type="radio" name="preference_contact" value="Téléphone" checked />
+            <span><Icon name="phone" size={14} />Téléphone</span>
+          </label>
+          <label class="pill-opt">
+            <input type="radio" name="preference_contact" value="E-mail" />
+            <span><Icon name="mail" size={14} />E-mail</span>
+          </label>
+        </div>
+        <label class="consent">
+          <input type="checkbox" name="consentement" value="Oui" required />
+          <span class="consent-box"><Icon name="check" size={13} strokeWidth={3.2} /></span>
+          <span>
+            J’accepte que mes informations soient utilisées pour répondre à ma demande, conformément à la
+            <a href="/confidentialite.html">politique de confidentialité</a>. <span class="req">*</span>
+          </span>
+        </label>
+        <p class="step-error" data-error>Merci de compléter les champs obligatoires.</p>
+      </fieldset>
+
+      <!-- Étape 5 : récapitulatif -->
+      <fieldset class="step" data-step="4">
+        <legend class="step-title" tabindex="-1">
+          <span class="step-kicker">Étape 5 sur 5</span>
+          Vérifiez votre demande
+        </legend>
+        <dl class="recap" data-recap></dl>
+        <p class="recap-note">
+          <Icon name="lock" size={15} /><span>Vos informations restent confidentielles. Réponse sous 24 h ouvrées.</span>
+        </p>
+        <p class="step-error send-error" data-send-error>
+          L’envoi n’a pas abouti. Merci de réessayer, ou écrivez-moi directement à {site.emailLabel}.
+        </p>
+      </fieldset>
+    </div>
+
+    <!-- Navigation -->
+    <div class="q-nav">
+      <button type="button" class="q-back" data-back hidden>
+        <Icon name="arrowLeft" size={17} /> Retour
+      </button>
+      <span class="q-time" data-time><Icon name="clock" size={15} /> Environ 2 minutes</span>
+      <button type="button" class="btn" data-next>
+        <span data-next-label>Continuer</span>
+        <Icon name="arrowRight" size={18} class="i-arrow" />
+      </button>
+      <button type="submit" class="btn q-submit" data-submit>
+        <span class="q-spinner" aria-hidden="true"></span>
+        <span data-submit-label>Envoyer ma demande</span>
+        <Icon name="send" size={17} class="i-arrow" />
+      </button>
+    </div>
+  </form>
+
+  <!-- Confirmation -->
+  <div class="success" data-success hidden tabindex="-1">
+    <div class="success-mark" aria-hidden="true">
+      <svg viewBox="0 0 64 64">
+        <circle class="sm-circle" cx="32" cy="32" r="29"></circle>
+        <path class="sm-check" d="M19 33.5l9 9 17-19"></path>
+      </svg>
+      <span class="burst">
+        {Array.from({ length: 10 }, (_, i) => <i style={`--a:${i * 36}deg`} />)}
+      </span>
+    </div>
+    <h4 class="success-title">Merci<span data-success-name></span> !</h4>
+    <p class="success-text">
+      Votre demande de devis est bien envoyée. Je l’étudie et je vous recontacte <strong>sous 24 h ouvrées</strong> avec une proposition adaptée.
+    </p>
+    <div class="success-actions">
+      <a href="#rendez-vous" class="btn">
+        Réserver aussi un échange <Icon name="calendar" size={17} />
+      </a>
+      <button type="button" class="q-back" data-restart>Faire une autre demande</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-wizard]');
+  if (root) initWizard(root);
+
+  function initWizard(root: HTMLElement) {
+    const form = root.querySelector<HTMLFormElement>('[data-quote-form]')!;
+    const viewport = root.querySelector<HTMLElement>('[data-viewport]')!;
+    const steps = [...root.querySelectorAll<HTMLFieldSetElement>('[data-step]')];
+    const pSteps = [...root.querySelectorAll<HTMLElement>('[data-p-step]')];
+    const fill = root.querySelector<HTMLElement>('[data-progress]')!;
+    const back = root.querySelector<HTMLButtonElement>('[data-back]')!;
+    const next = root.querySelector<HTMLButtonElement>('[data-next]')!;
+    const submit = root.querySelector<HTMLButtonElement>('[data-submit]')!;
+    const time = root.querySelector<HTMLElement>('[data-time]')!;
+    const announce = root.querySelector<HTMLElement>('[data-step-announce]')!;
+    const recap = root.querySelector<HTMLElement>('[data-recap]')!;
+    const success = root.querySelector<HTMLElement>('[data-success]')!;
+    const sendError = root.querySelector<HTMLElement>('[data-send-error]')!;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const DRAFT_KEY = 'sgc_devis_brouillon';
+    const labels = ['Besoins', 'Entreprise', 'Format', 'Coordonnées', 'Envoi'];
+    let current = 0;
+
+    root.classList.add('is-enhanced');
+
+    /* ---------- Affichage d'une étape ---------- */
+    function show(index: number, focus = true) {
+      const prev = current;
+      const dir = index >= prev ? 'next' : 'prev';
+      const from = viewport.offsetHeight;
+      steps.forEach((s, i) => {
+        s.classList.toggle('is-current', i === index);
+        s.classList.remove('enter-next', 'enter-prev', 'shake');
+      });
+      current = index;
+      const step = steps[index];
+      if (!reduceMotion && prev !== index) {
+        step.classList.add(`enter-${dir}`);
+        // Hauteur animée entre deux étapes
+        // + 16 px : marge intérieure du cadre (contours de focus)
+        const to = step.offsetHeight + 16;
+        viewport.style.height = `${from}px`;
+        requestAnimationFrame(() => {
+          viewport.style.height = `${to}px`;
+        });
+        window.setTimeout(() => (viewport.style.height = ''), 480);
+      }
+      pSteps.forEach((p, i) => {
+        p.classList.toggle('is-done', i < index);
+        p.classList.toggle('is-current', i === index);
+      });
+      fill.style.transform = `scaleX(${index / (steps.length - 1)})`;
+      back.hidden = index === 0;
+      time.hidden = index !== 0;
+      const last = index === steps.length - 1;
+      next.hidden = last;
+      submit.hidden = !last;
+      next.querySelector('[data-next-label]')!.textContent = index === steps.length - 2 ? 'Vérifier ma demande' : 'Continuer';
+      sendError.classList.remove('is-visible');
+      if (last) buildRecap();
+      announce.textContent = `Étape ${index + 1} sur ${steps.length} : ${labels[index]}`;
+      if (focus && prev !== index) {
+        step.querySelector<HTMLElement>('.step-title')?.focus({ preventScroll: true });
+        const top = root.getBoundingClientRect().top;
+        if (top < 80) root.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+      }
+    }
+
+    /* ---------- Validation d'une étape ---------- */
+    function validate(index: number) {
+      const step = steps[index];
+      let ok = true;
+      step.querySelectorAll<HTMLElement>('[data-group][data-min]').forEach((g) => {
+        const checked = g.querySelectorAll('input:checked').length;
+        const valid = checked >= Number(g.dataset.min);
+        g.classList.toggle('is-invalid', !valid);
+        if (!valid) ok = false;
+      });
+      step.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input[required], textarea[required]').forEach((f) => {
+        if (!f.checkValidity()) ok = false;
+      });
+      step.classList.toggle('was-validated', !ok);
+      step.querySelector('[data-error]')?.classList.toggle('is-visible', !ok);
+      if (!ok) {
+        step.classList.remove('shake');
+        void step.offsetWidth;
+        if (!reduceMotion) step.classList.add('shake');
+        const firstBad = step.querySelector<HTMLElement>('.is-invalid input, input:invalid, textarea:invalid');
+        firstBad?.focus();
+      }
+      return ok;
+    }
+
+    next.addEventListener('click', () => {
+      if (validate(current)) show(current + 1);
+    });
+    back.addEventListener('click', () => show(current - 1));
+
+    // Entrée = étape suivante (sauf à la dernière étape et dans le message)
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (current < steps.length - 1) {
+        if (validate(current)) show(current + 1);
+        return;
+      }
+      send();
+    });
+
+    // Une réponse corrige l'erreur affichée ; un choix unique fait avancer automatiquement l'étape 1 d'un pas
+    form.addEventListener('change', (e) => {
+      const input = e.target as HTMLInputElement;
+      const group = input.closest<HTMLElement>('[data-group]');
+      if (group?.classList.contains('is-invalid') && group.querySelector('input:checked')) group.classList.remove('is-invalid');
+      const step = steps[current];
+      if (step.classList.contains('was-validated') && !step.querySelector('.is-invalid, input:invalid')) {
+        step.querySelector('[data-error]')?.classList.remove('is-visible');
+      }
+      // « Je ne sais pas encore » exclut les autres besoins, et inversement
+      if (input.name === 'besoins') {
+        const all = [...form.querySelectorAll<HTMLInputElement>('input[name="besoins"]')];
+        if (input.dataset.key === 'global' && input.checked) all.forEach((b) => b !== input && (b.checked = false));
+        if (input.dataset.key !== 'global' && input.checked) all.find((b) => b.dataset.key === 'global')!.checked = false;
+      }
+      saveDraft();
+    });
+    form.addEventListener('input', saveDraft);
+
+    /* ---------- Récapitulatif ---------- */
+    function buildRecap() {
+      const data = new FormData(form);
+      const rows: [string, string, number][] = [
+        ['Besoins', data.getAll('besoins').join(', '), 0],
+        ['Activité', `${data.get('activite') ?? ''} · ${data.get('effectif') ?? ''}`, 1],
+        ['Localisation', String(data.get('departement') ?? ''), 1],
+        ['Accompagnement', `${data.get('rythme') ?? ''} · ${data.get('modalite') ?? ''} · ${data.get('delai') ?? ''}`, 2],
+        ['Contact', [data.get('nom'), data.get('entreprise')].filter(Boolean).join(' — '), 3],
+        ['Coordonnées', `${data.get('email')} · ${data.get('telephone')}`, 3],
+      ];
+      const message = String(data.get('message') ?? '').trim();
+      if (message) rows.push(['Message', message, 3]);
+      recap.replaceChildren(
+        ...rows.map(([label, value, step]) => {
+          const row = document.createElement('div');
+          row.className = 'recap-row';
+          const dt = document.createElement('dt');
+          dt.textContent = label;
+          const dd = document.createElement('dd');
+          dd.textContent = value;
+          const edit = document.createElement('button');
+          edit.type = 'button';
+          edit.className = 'recap-edit';
+          edit.textContent = 'Modifier';
+          edit.setAttribute('aria-label', `Modifier : ${label}`);
+          edit.addEventListener('click', () => show(step));
+          row.append(dt, dd, edit);
+          return row;
+        }),
+      );
+    }
+
+    /* ---------- Envoi ---------- */
+    async function send() {
+      submit.disabled = true;
+      submit.classList.add('is-loading');
+      submit.querySelector('[data-submit-label]')!.textContent = 'Envoi en cours…';
+      const data = new FormData(form);
+      // Besoins regroupés sur une seule ligne dans l'e-mail reçu
+      const besoins = data.getAll('besoins').join(', ');
+      data.delete('besoins');
+      data.set('besoins', besoins);
+      data.set('_subject', `Devis — ${data.get('nom')} — ${data.get('activite')} (${besoins})`);
+      try {
+        const res = await fetch(form.action, { method: 'POST', body: data, headers: { Accept: 'application/json' } });
+        if (!res.ok) throw new Error('Envoi refusé');
+        const firstName = String(data.get('nom') ?? '').trim().split(/\s+/)[0];
+        root.querySelector('[data-success-name]')!.textContent = firstName ? ` ${firstName}` : '';
+        clearDraft();
+        form.hidden = true;
+        root.querySelector('.progress')?.setAttribute('hidden', '');
+        success.hidden = false;
+        success.focus({ preventScroll: true });
+        root.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+      } catch {
+        sendError.classList.add('is-visible');
+      } finally {
+        submit.disabled = false;
+        submit.classList.remove('is-loading');
+        submit.querySelector('[data-submit-label]')!.textContent = 'Envoyer ma demande';
+      }
+    }
+
+    root.querySelector('[data-restart]')?.addEventListener('click', () => {
+      form.reset();
+      form.hidden = false;
+      success.hidden = true;
+      root.querySelector('.progress')?.removeAttribute('hidden');
+      steps.forEach((s) => s.classList.remove('was-validated'));
+      show(0);
+    });
+
+    /* ---------- Brouillon conservé pendant la visite ---------- */
+    function saveDraft() {
+      try {
+        const data: Record<string, string[]> = {};
+        new FormData(form).forEach((v, k) => {
+          if (k.startsWith('_') || k === 'consentement') return;
+          (data[k] ??= []).push(String(v));
+        });
+        sessionStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+      } catch {
+        /* stockage indisponible : sans conséquence */
+      }
+    }
+    function clearDraft() {
+      try {
+        sessionStorage.removeItem(DRAFT_KEY);
+      } catch {
+        /* rien */
+      }
+    }
+    function restoreDraft() {
+      try {
+        const data = JSON.parse(sessionStorage.getItem(DRAFT_KEY) ?? '{}') as Record<string, string[]>;
+        Object.entries(data).forEach(([name, values]) => {
+          form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>(`[name="${name}"]`).forEach((el) => {
+            if (el instanceof HTMLInputElement && (el.type === 'checkbox' || el.type === 'radio')) el.checked = values.includes(el.value);
+            else el.value = values[0] ?? '';
+          });
+        });
+      } catch {
+        /* rien */
+      }
+    }
+
+    /* ---------- Pré-sélection depuis l'adresse (?activite=btp, ?besoin=tresorerie) ---------- */
+    function preselect() {
+      const params = new URLSearchParams(location.search);
+      const activite = params.get('activite');
+      const besoin = params.get('besoin');
+      if (activite) form.querySelector<HTMLInputElement>(`input[name="activite"][data-key="${CSS.escape(activite)}"]`)?.click();
+      if (besoin) {
+        const input = form.querySelector<HTMLInputElement>(`input[name="besoins"][data-key="${CSS.escape(besoin)}"]`);
+        if (input && !input.checked) input.click();
+      }
+    }
+
+    restoreDraft();
+    preselect();
+    show(0, false);
+  }
+</script>
+
+<style>
+  .wizard {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+  .hp {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+  }
+
+  /* ============ Progression ============ */
+  .progress {
+    position: relative;
+    margin-bottom: 1.6rem;
+  }
+  .progress[hidden],
+  :global(html:not(.js)) .progress {
+    display: none;
+  }
+  .progress-track {
+    position: absolute;
+    top: 15px;
+    left: 10%;
+    right: 10%;
+    height: 3px;
+    border-radius: 3px;
+    background: var(--line);
+  }
+  .progress-fill {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--blue-600), var(--blue-400, var(--blue-500)));
+    transform-origin: left center;
+    transform: scaleX(0);
+    transition: transform 0.6s var(--ease-out);
+  }
+  .progress-steps {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+  .p-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.45rem;
+  }
+  .p-dot {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--muted);
+    background: #fff;
+    border: 2px solid var(--line);
+    transition:
+      background 0.4s,
+      border-color 0.4s,
+      color 0.4s,
+      transform 0.5s var(--ease-spring);
+  }
+  .p-dot :global(.p-check) {
+    position: absolute;
+    opacity: 0;
+    scale: 0.4;
+    transition:
+      opacity 0.3s,
+      scale 0.45s var(--ease-spring);
+  }
+  .p-step.is-current .p-dot {
+    color: #fff;
+    background: var(--blue-700);
+    border-color: var(--blue-700);
+    transform: scale(1.12);
+    box-shadow: 0 0 0 5px rgb(123 37 80 / 0.12);
+  }
+  .p-step.is-done .p-dot {
+    color: #fff;
+    background: var(--blue-600);
+    border-color: var(--blue-600);
+  }
+  .p-step.is-done .p-num {
+    opacity: 0;
+  }
+  .p-step.is-done .p-dot :global(.p-check) {
+    opacity: 1;
+    scale: 1;
+  }
+  .p-label {
+    font-size: 0.74rem;
+    font-weight: 600;
+    color: var(--muted);
+    transition: color 0.3s;
+  }
+  .p-step.is-current .p-label,
+  .p-step.is-done .p-label {
+    color: var(--blue-700);
+  }
+
+  /* ============ Étapes ============ */
+  .q-form {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+  .q-form[hidden] {
+    display: none;
+  }
+  .viewport {
+    position: relative;
+    transition: height 0.45s var(--ease-out);
+  }
+  .wizard:global(.is-enhanced) .viewport {
+    overflow: hidden;
+    /* Laisse respirer les ombres et contours de focus */
+    margin: -8px;
+    padding: 8px;
+  }
+  .step {
+    min-width: 0;
+    border: 0;
+    padding: 0;
+    margin: 0;
+  }
+  :global(html:not(.js)) .step + .step {
+    margin-top: 2.5rem;
+  }
+  .wizard:global(.is-enhanced) .step:not(.is-current) {
+    display: none;
+  }
+  .step:global(.enter-next) {
+    animation: step-in-next 0.5s var(--ease-out) both;
+  }
+  .step:global(.enter-prev) {
+    animation: step-in-prev 0.5s var(--ease-out) both;
+  }
+  @keyframes step-in-next {
+    from {
+      opacity: 0;
+      transform: translateX(36px);
+    }
+  }
+  @keyframes step-in-prev {
+    from {
+      opacity: 0;
+      transform: translateX(-36px);
+    }
+  }
+  .step:global(.shake) {
+    animation: shake 0.45s ease;
+  }
+  @keyframes shake {
+    20%,
+    60% {
+      transform: translateX(-7px);
+    }
+    40%,
+    80% {
+      transform: translateX(7px);
+    }
+  }
+  .step-title {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 0.4rem;
+    text-align: center;
+    font-family: var(--font-display);
+    font-size: clamp(1.3rem, 2.2vw, 1.55rem);
+    font-weight: 500;
+    color: var(--blue-700);
+    outline: none;
+  }
+  .step-kicker {
+    margin-bottom: 0.35rem;
+    font-family: var(--font-body);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .step-sub {
+    margin-bottom: 1rem;
+    text-align: center;
+    font-size: 0.88rem;
+    color: var(--muted);
+  }
+  .q-label {
+    margin: 1.3rem 0 0.6rem;
+    text-align: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+  .step-title + .q-label {
+    margin-top: 1rem;
+  }
+
+  /* ============ Choix sous forme de cartes ============ */
+  .opts {
+    border-radius: 18px;
+    transition: box-shadow 0.3s;
+  }
+  .opts--cards {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.65rem;
+  }
+  .opts--five > :last-child {
+    grid-column: 1 / -1;
+  }
+  .opt {
+    position: relative;
+    display: block;
+    cursor: pointer;
+  }
+  .opt input,
+  .pill-opt input,
+  .consent input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .opt-box {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    height: 100%;
+    padding: 0.95rem 0.7rem;
+    text-align: center;
+    border-radius: 16px;
+    background: var(--cream);
+    border: 1.5px solid var(--line);
+    transition:
+      border-color 0.3s,
+      background 0.3s,
+      box-shadow 0.35s,
+      transform 0.45s var(--ease-spring);
+  }
+  .opt:hover .opt-box {
+    border-color: var(--blue-200);
+    transform: translateY(-2px);
+  }
+  .opt input:checked + .opt-box {
+    background: #fff;
+    border-color: var(--blue-600);
+    box-shadow:
+      0 0 0 4px rgb(123 37 80 / 0.1),
+      0 14px 26px -18px rgb(97 25 58 / 0.6);
+    animation: pop 0.45s var(--ease-spring);
+  }
+  .opt input:focus-visible + .opt-box {
+    outline: 2.5px solid var(--blue-600);
+    outline-offset: 3px;
+  }
+  @keyframes pop {
+    40% {
+      transform: scale(1.04);
+    }
+  }
+  .opt-ic {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    color: var(--blue-700);
+    background: #fff;
+    border: 1px solid var(--blue-100);
+    transition:
+      background 0.35s,
+      color 0.35s,
+      transform 0.5s var(--ease-spring);
+  }
+  .opt input:checked + .opt-box .opt-ic {
+    color: #fff;
+    background: var(--blue-700);
+    transform: rotate(-6deg);
+  }
+  .opt-label {
+    font-size: 0.9rem;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--ink);
+  }
+  .opt-text {
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  .opt-check {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    display: grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    color: #fff;
+    background: var(--blue-700);
+    scale: 0;
+    transition: scale 0.4s var(--ease-spring);
+  }
+  .opt input:checked + .opt-box .opt-check {
+    scale: 1;
+  }
+
+  /* ============ Choix sous forme de pastilles ============ */
+  .opts--pills {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+  .pill-opt {
+    position: relative;
+    cursor: pointer;
+  }
+  .pill-opt span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.55rem 1rem;
+    border-radius: 999px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--ink);
+    background: var(--cream);
+    border: 1.5px solid var(--line);
+    transition:
+      color 0.3s,
+      background 0.3s,
+      border-color 0.3s,
+      transform 0.4s var(--ease-spring);
+  }
+  .pill-opt:hover span {
+    border-color: var(--blue-200);
+  }
+  .pill-opt input:checked + span {
+    color: #fff;
+    background: var(--blue-700);
+    border-color: var(--blue-700);
+    animation: pop 0.4s var(--ease-spring);
+  }
+  .pill-opt input:focus-visible + span {
+    outline: 2.5px solid var(--blue-600);
+    outline-offset: 3px;
+  }
+
+  /* Groupe sans réponse après tentative */
+  .opts:global(.is-invalid) {
+    box-shadow: 0 0 0 2px rgb(196 50 50 / 0.45);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--danger) 55%, transparent);
+  }
+  .opts--pills:global(.is-invalid) {
+    padding: 0.4rem;
+    border-radius: 24px;
+  }
+  .step-error {
+    max-height: 0;
+    overflow: hidden;
+    margin-top: 0;
+    text-align: center;
+    font-size: 0.86rem;
+    font-weight: 600;
+    color: var(--danger);
+    opacity: 0;
+    transition:
+      max-height 0.35s var(--ease-out),
+      opacity 0.3s,
+      margin 0.35s;
+  }
+  .step-error:global(.is-visible) {
+    max-height: 4rem;
+    margin-top: 0.9rem;
+    opacity: 1;
+  }
+
+  /* ============ Champs ============ */
+  .fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+  .field {
+    position: relative;
+    grid-column: 1 / -1;
+  }
+  .field.half {
+    grid-column: span 1;
+  }
+  .field input,
+  .field textarea {
+    width: 100%;
+    padding: 1.45rem 1rem 0.55rem 2.9rem;
+    border-radius: 14px;
+    border: 1.5px solid var(--line);
+    background: var(--cream);
+    font-size: 0.97rem;
+    color: var(--ink);
+    outline: none;
+    transition:
+      border-color 0.3s,
+      background 0.3s,
+      box-shadow 0.3s;
+  }
+  .field textarea {
+    resize: vertical;
+    min-height: 96px;
+    padding-top: 1.7rem;
+  }
+  .field input:hover,
+  .field textarea:hover {
+    border-color: var(--sand-300);
+  }
+  .field input:focus,
+  .field textarea:focus {
+    border-color: var(--blue-600);
+    background: #fff;
+    box-shadow: 0 0 0 4px rgb(123 37 80 / 0.12);
+  }
+  .step:global(.was-validated) input:invalid,
+  .step:global(.was-validated) textarea:invalid {
+    border-color: var(--danger);
+    background: var(--danger-bg);
+  }
+  .field label {
+    position: absolute;
+    left: 2.9rem;
+    top: 1rem;
+    max-width: calc(100% - 3.5rem);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: 0.95rem;
+    color: var(--muted);
+    pointer-events: none;
+    transform-origin: left top;
+    transition:
+      transform 0.35s var(--ease-out),
+      color 0.3s;
+  }
+  .field input:focus + label,
+  .field input:not(:placeholder-shown) + label,
+  .field textarea:focus + label,
+  .field textarea:not(:placeholder-shown) + label {
+    transform: translateY(-0.6rem) scale(0.78);
+    color: var(--blue-700);
+    font-weight: 600;
+  }
+  .req {
+    color: var(--blue-700);
+  }
+  .field-ic {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    translate: 0 -50%;
+    color: var(--muted);
+    transition: color 0.3s;
+  }
+  .field-ic.top {
+    top: 1.05rem;
+    translate: none;
+  }
+  .field:focus-within .field-ic {
+    color: var(--blue-700);
+  }
+
+  /* Consentement */
+  .consent {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 0.65rem;
+    margin-top: 1.3rem;
+    font-size: 0.84rem;
+    line-height: 1.5;
+    text-align: left;
+    color: var(--text);
+    cursor: pointer;
+  }
+  .consent input {
+    width: 22px;
+    height: 22px;
+  }
+  .consent-box {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    margin-top: 0.05rem;
+    border-radius: 7px;
+    color: transparent;
+    background: #fff;
+    border: 1.5px solid var(--sand-300);
+    transition:
+      background 0.3s,
+      border-color 0.3s,
+      color 0.3s,
+      transform 0.4s var(--ease-spring);
+  }
+  .consent input:checked + .consent-box {
+    color: #fff;
+    background: var(--blue-700);
+    border-color: var(--blue-700);
+    transform: scale(1.08);
+  }
+  .consent input:focus-visible + .consent-box {
+    outline: 2.5px solid var(--blue-600);
+    outline-offset: 3px;
+  }
+  .step:global(.was-validated) .consent input:invalid + .consent-box {
+    border-color: var(--danger);
+    background: var(--danger-bg);
+  }
+  .consent a {
+    position: relative;
+    z-index: 1;
+    font-weight: 700;
+    color: var(--blue-700);
+    text-decoration: underline;
+  }
+
+  /* ============ Récapitulatif ============ */
+  .recap {
+    display: grid;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+  .recap :global(.recap-row) {
+    display: grid;
+    grid-template-columns: 7.5rem minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 0.9rem;
+    border-radius: 14px;
+    background: var(--cream);
+    border: 1px solid var(--line);
+    text-align: left;
+    animation: step-in-next 0.45s var(--ease-out) both;
+  }
+  .recap :global(.recap-row:nth-child(2)) {
+    animation-delay: 0.05s;
+  }
+  .recap :global(.recap-row:nth-child(3)) {
+    animation-delay: 0.1s;
+  }
+  .recap :global(.recap-row:nth-child(4)) {
+    animation-delay: 0.15s;
+  }
+  .recap :global(.recap-row:nth-child(5)) {
+    animation-delay: 0.2s;
+  }
+  .recap :global(.recap-row:nth-child(n + 6)) {
+    animation-delay: 0.25s;
+  }
+  .recap :global(dt) {
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .recap :global(dd) {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--ink);
+    overflow-wrap: anywhere;
+  }
+  .recap :global(.recap-edit) {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--blue-700);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .recap-note {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    text-align: center;
+    margin-top: 1rem;
+    font-size: 0.82rem;
+    color: var(--muted);
+  }
+
+  /* ============ Navigation ============ */
+  .q-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.8rem;
+    margin-top: auto;
+    padding-top: 1.6rem;
+  }
+  .q-nav > [hidden] {
+    display: none;
+  }
+  /* Avant l'initialisation du script : seul « Continuer » est visible */
+  :global(html.js) .wizard:not(:global(.is-enhanced)) [data-submit] {
+    display: none;
+  }
+  .q-nav .btn {
+    margin-left: auto;
+  }
+  :global(html:not(.js)) [data-next],
+  :global(html:not(.js)) [data-back],
+  :global(html:not(.js)) [data-time] {
+    display: none;
+  }
+  .q-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.6rem 0.9rem;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--blue-700);
+    transition: background 0.3s;
+  }
+  .q-back:hover {
+    background: var(--blue-50);
+  }
+  .q-time {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.82rem;
+    color: var(--muted);
+  }
+  .q-spinner {
+    display: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid rgb(255 255 255 / 0.35);
+    border-top-color: #fff;
+    animation: q-spin 0.8s linear infinite;
+  }
+  .q-submit:global(.is-loading) .q-spinner {
+    display: inline-block;
+  }
+  .q-submit:global(.is-loading) :global(.i-arrow) {
+    display: none;
+  }
+  @keyframes q-spin {
+    to {
+      rotate: 360deg;
+    }
+  }
+
+  /* ============ Confirmation ============ */
+  .success {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    justify-content: center;
+    padding: 1.5rem 0.5rem;
+    text-align: center;
+    outline: none;
+    animation: step-in-next 0.6s var(--ease-out) both;
+  }
+  .success[hidden] {
+    display: none;
+  }
+  .success-mark {
+    position: relative;
+    width: 96px;
+    height: 96px;
+  }
+  .success-mark svg {
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .sm-circle {
+    stroke: var(--blue-700);
+    stroke-width: 3;
+    stroke-dasharray: 183;
+    stroke-dashoffset: 183;
+    animation: draw 0.7s var(--ease-out) 0.1s forwards;
+  }
+  .sm-check {
+    stroke: var(--blue-700);
+    stroke-width: 4;
+    stroke-dasharray: 40;
+    stroke-dashoffset: 40;
+    animation: draw 0.45s var(--ease-out) 0.7s forwards;
+  }
+  @keyframes draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  .burst i {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 8px;
+    height: 8px;
+    margin: -4px;
+    border-radius: 50%;
+    background: var(--terra-300);
+    opacity: 0;
+    transform: rotate(var(--a)) translateY(0);
+    animation: burst 0.8s var(--ease-out) 0.85s forwards;
+  }
+  .burst i:nth-child(even) {
+    background: var(--rose);
+    width: 6px;
+    height: 6px;
+  }
+  @keyframes burst {
+    0% {
+      opacity: 1;
+      transform: rotate(var(--a)) translateY(-30px) scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: rotate(var(--a)) translateY(-70px) scale(0.4);
+    }
+  }
+  .success-title {
+    margin-top: 1.4rem;
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 3vw, 2rem);
+    font-weight: 400;
+    color: var(--blue-700);
+  }
+  .success-text {
+    max-width: 26rem;
+    margin-top: 0.7rem;
+    color: var(--text);
+  }
+  .success-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 1.6rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sm-circle,
+    .sm-check {
+      animation-duration: 0.01s;
+      animation-delay: 0s;
+    }
+    .burst {
+      display: none;
+    }
+  }
+  @media (max-width: 520px) {
+    .p-label {
+      display: none;
+    }
+    .progress-track {
+      left: 10%;
+      right: 10%;
+    }
+    .fields {
+      grid-template-columns: 1fr;
+    }
+    .field.half {
+      grid-column: 1 / -1;
+    }
+    .opt-box {
+      padding: 0.85rem 0.5rem;
+    }
+    .opt-label {
+      font-size: 0.84rem;
+    }
+    .recap :global(.recap-row) {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+    .recap :global(dd) {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
+    .q-time {
+      display: none;
+    }
+    /* Bouton principal en pleine largeur, « Retour » en dessous */
+    .q-nav {
+      flex-direction: column-reverse;
+      align-items: stretch;
+      gap: 0.4rem;
+    }
+    .q-nav .btn {
+      width: 100%;
+      margin-left: 0;
+    }
+    .q-back {
+      align-self: center;
+    }
+    .recap-note :global(svg) {
+      display: none;
+    }
+  }
+</style>
