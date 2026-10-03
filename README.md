@@ -13,6 +13,23 @@ npm run preview              # aperçu du site final
 node scripts/og-image.mjs    # régénère l'image de partage (réseaux sociaux)
 ```
 
+## Charte graphique
+
+| Couleur | Code | Usage sur le site |
+| --- | --- | --- |
+| Prune | `#61193a` | couleur principale : titres, mots importants, fonds sombres |
+| Orange | `#e97e0d` | accent : boutons, mots accentués des titres |
+| Rose | `#e581bc` | décorations, halos |
+| Abricot | `#f6b55b` | reflets, fonds doux |
+| Blanc / Noir | `#ffffff` / `#000000` | fonds et texte |
+
+- **Polices** : MADE Mirage (titres) et Garet (texte), dans `public/fonts/`.
+- **Logo** : source dans `scripts/logo-source.png` ; toutes les déclinaisons (prune, blanc,
+  monogramme, favicon) se régénèrent avec `node scripts/brand-assets.mjs`.
+- ⚠️ **Licence MADE Mirage** : les fichiers fournis sont marqués « PERSONAL USE ».
+  Une licence commerciale doit être achetée auprès de MADE Type avant la mise en ligne.
+  Vérifier aussi les conditions d'utilisation de Garet.
+
 ## Modifier un texte, un numéro, un lien
 
 Tout le contenu est regroupé dans **`src/data/site.ts`** : coordonnées, services

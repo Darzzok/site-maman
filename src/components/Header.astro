@@ -16,7 +16,7 @@ const isCurrent = (item: { href?: string }) => !!item.href && Astro.url.pathname
   <div class="bar-wrap">
     <div class="bar">
       <a href={home ? '#accueil' : '/'} class="brand" aria-label={`${site.name} — retour à l’accueil`}>
-        <img src="/images/logo-mark.png" alt="" width="262" height="204" class="brand-mark" />
+        <img src="/images/logo-mark.png" alt="" width="600" height="205" class="brand-mark" />
         <span class="brand-text">
           <span class="brand-name">{site.shortName}</span>
           <span class="brand-sub">{site.tagline}</span>
@@ -129,9 +129,9 @@ const isCurrent = (item: { href?: string }) => !!item.href && Astro.url.pathname
   .site-header.is-scrolled .bar {
     width: min(100%, 1120px);
     background: rgb(255 255 255 / 0.78);
-    border-color: rgb(13 21 48 / 0.07);
+    border-color: rgb(42 9 22 / 0.07);
     box-shadow:
-      0 12px 32px -16px rgb(13 21 48 / 0.25),
+      0 12px 32px -16px rgb(42 9 22 / 0.25),
       inset 0 1px 0 #fff;
     backdrop-filter: blur(18px) saturate(1.5);
     -webkit-backdrop-filter: blur(18px) saturate(1.5);
@@ -146,7 +146,7 @@ const isCurrent = (item: { href?: string }) => !!item.href && Astro.url.pathname
   }
   .brand-mark {
     width: auto;
-    height: 40px;
+    height: 34px;
     transition:
       transform 0.6s var(--ease-spring),
       height 0.5s var(--ease-out);
@@ -155,29 +155,27 @@ const isCurrent = (item: { href?: string }) => !!item.href && Astro.url.pathname
     transform: rotate(-4deg) scale(1.05);
   }
   .site-header.is-scrolled .brand-mark {
-    height: 34px;
+    height: 30px;
   }
   .brand-text {
     display: flex;
     flex-direction: column;
     line-height: 1.05;
     padding-left: 0.75rem;
-    border-left: 1px solid rgb(0 44 150 / 0.18);
+    border-left: 1px solid rgb(97 25 58 / 0.18);
   }
-  .brand-name {
-    font-family: var(--font-display);
-    font-size: 1.28rem;
-    font-weight: 500;
+  /* Lockup en minuscules, comme sur le logo */
+  .brand-name,
+  .brand-sub {
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    text-transform: lowercase;
     color: var(--blue-700);
-    letter-spacing: -0.01em;
   }
   .brand-sub {
-    font-size: 0.64rem;
-    font-weight: 700;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-top: 0.2rem;
+    margin-top: 0.15rem;
   }
 
   /* — Navigation — */
@@ -191,8 +189,9 @@ const isCurrent = (item: { href?: string }) => !!item.href && Astro.url.pathname
     display: block;
     padding: 0.55rem 0.95rem;
     border-radius: 999px;
-    font-size: 0.94rem;
-    font-weight: 600;
+    font-size: 0.95rem;
+    font-weight: 400;
+    white-space: nowrap;
     color: var(--text);
     transition:
       color 0.3s,
@@ -213,7 +212,7 @@ const isCurrent = (item: { href?: string }) => !!item.href && Astro.url.pathname
   }
   .nav-link:hover {
     color: var(--blue-700);
-    background: rgb(0 44 150 / 0.06);
+    background: rgb(97 25 58 / 0.06);
   }
   .nav-link.is-active {
     color: var(--blue-700);
@@ -236,7 +235,7 @@ const isCurrent = (item: { href?: string }) => !!item.href && Astro.url.pathname
     height: 46px;
     border-radius: 50%;
     background: var(--blue-700);
-    box-shadow: 0 10px 22px -10px rgb(0 44 150 / 0.7);
+    box-shadow: 0 10px 22px -10px rgb(97 25 58 / 0.7);
   }
   .burger span {
     position: absolute;
@@ -277,8 +276,8 @@ const isCurrent = (item: { href?: string }) => !!item.href && Astro.url.pathname
     padding: 7.5rem 1.75rem 2.25rem;
     overflow-y: auto;
     background:
-      radial-gradient(60% 40% at 100% 0%, rgb(203 106 51 / 0.14), transparent 70%),
-      radial-gradient(60% 50% at 0% 100%, rgb(29 67 181 / 0.12), transparent 70%), var(--cream);
+      radial-gradient(60% 40% at 100% 0%, rgb(233 126 13 / 0.14), transparent 70%),
+      radial-gradient(60% 50% at 0% 100%, rgb(123 37 80 / 0.12), transparent 70%), var(--cream);
     clip-path: circle(0 at calc(100% - 2.6rem) 2.6rem);
     visibility: hidden;
     transition:

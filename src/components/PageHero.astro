@@ -38,8 +38,8 @@ const { eyebrow, title, crumb } = Astro.props;
     inset: 0;
     z-index: -1;
     background-image:
-      linear-gradient(rgb(0 44 150 / 0.045) 1px, transparent 1px),
-      linear-gradient(90deg, rgb(0 44 150 / 0.045) 1px, transparent 1px);
+      linear-gradient(rgb(97 25 58 / 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(97 25 58 / 0.045) 1px, transparent 1px);
     background-size: 56px 56px;
     mask-image: radial-gradient(70% 80% at 30% 20%, #000, transparent 80%);
   }
@@ -54,14 +54,14 @@ const { eyebrow, title, crumb } = Astro.props;
     height: 420px;
     top: -160px;
     right: -80px;
-    background: rgb(226 137 90 / 0.35);
+    background: rgb(246 181 91 / 0.35);
   }
   .orb.b {
     width: 360px;
     height: 360px;
     bottom: -220px;
     left: 10%;
-    background: rgb(58 98 211 / 0.22);
+    background: rgb(229 129 188 / 0.22);
     animation-delay: -8s;
   }
   @keyframes drift {
@@ -107,7 +107,7 @@ const { eyebrow, title, crumb } = Astro.props;
     letter-spacing: -0.03em;
   }
   h1 :global(em) {
-    font-style: italic;
+    font-style: normal;
     font-weight: 400;
     color: var(--blue-700);
   }
