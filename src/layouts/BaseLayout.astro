@@ -6,6 +6,7 @@ import Footer from '../components/Footer.astro';
 import Icon from '../components/Icon.astro';
 import CookieBanner from '../components/CookieBanner.astro';
 import { site } from '../data/site';
+import { clampText } from '../utils/seo';
 
 interface Props {
   title: string;
@@ -21,7 +22,15 @@ interface Props {
   ogType?: string;
 }
 
-const { title, description, home = false, noindex = false, ogTitle, ogDescription, jsonLd, image, ogType = 'website' } = Astro.props;
+const { home = false, noindex = false, ogTitle, ogDescription, jsonLd, image, ogType = 'website' } = Astro.props;
+// Google affiche environ 60 caractères de titre et 155 de description :
+// au-delà, on retire le nom du site du titre et on coupe proprement la description.
+const brandSuffix = ` | ${site.name}`;
+const title =
+  Astro.props.title.length > 65 && Astro.props.title.endsWith(brandSuffix)
+    ? Astro.props.title.slice(0, -brandSuffix.length)
+    : Astro.props.title;
+const description = clampText(Astro.props.description, 158);
 const canonical = new URL(Astro.url.pathname === '/index.html' ? '/' : Astro.url.pathname, site.url).href;
 const ogImage = new URL(image ?? '/images/og-image.jpg', site.url).href;
 ---

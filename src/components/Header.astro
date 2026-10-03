@@ -9,7 +9,12 @@ const { home = false } = Astro.props;
 
 const base = home ? '' : '/';
 const linkFor = (item: { id?: string; href?: string }) => item.href ?? `${base}#${item.id}`;
-const isCurrent = (item: { href?: string }) => !!item.href && Astro.url.pathname.replace(/\.html$/, '') === item.href.replace(/\.html$/, '');
+const isCurrent = (item: { href?: string }) => {
+  if (!item.href) return false;
+  const path = Astro.url.pathname.replace(/\.html$/, '');
+  const target = item.href.replace(/\.html$/, '');
+  return path === target || path.startsWith(`${target}/`);
+};
 ---
 
 <header class="site-header" data-header>

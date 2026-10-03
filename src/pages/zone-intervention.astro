@@ -1,0 +1,319 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import Icon from '../components/Icon.astro';
+import { site, zone } from '../data/site';
+import { getMetiers, getZones, metierUrl, zoneUrl } from '../utils/landings';
+import { breadcrumbLd, businessEntity } from '../utils/seo';
+
+const zones = await getZones();
+const metiers = await getMetiers();
+const villes = zones.filter((z) => z.data.kind === 'ville');
+const url = '/zone-intervention.html';
+
+// Département → page dédiée, villes → page dédiée quand elle existe
+const deptPage = (code: string) => zones.find((z) => z.data.kind === 'departement' && z.data.department === code);
+const cityPage = (name: string) => villes.find((v) => v.data.name === name);
+const departments = zone.departments.map((d) => {
+  const page = deptPage(d.code);
+  return { ...d, page, communes: page?.data.communes ?? d.cities };
+});
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    businessEntity(),
+    {
+      '@type': 'CollectionPage',
+      '@id': `${site.url}${url}`,
+      url: `${site.url}${url}`,
+      name: 'Zone d’intervention : Eure et Seine-Maritime',
+      inLanguage: 'fr-FR',
+      isPartOf: { '@id': `${site.url}/#site` },
+      mainEntity: {
+        '@type': 'ItemList',
+        itemListElement: zones.map((z, i) => ({
+          '@type': 'ListItem',
+          position: i + 1,
+          name: z.data.name,
+          url: `${site.url}${zoneUrl(z.id)}`,
+        })),
+      },
+    },
+    breadcrumbLd([
+      { name: 'Accueil', url: '/' },
+      { name: 'Zone d’intervention', url },
+    ]),
+  ],
+};
+---
+
+<BaseLayout
+  title={`Zone d’intervention : Eure et Seine-Maritime | ${site.name}`}
+  description="Gestion administrative externalisée en Normandie : Rouen, Le Havre, Évreux, Vernon, Dieppe et tout l’Eure (27) et la Seine-Maritime (76), sur site ou à distance."
+  jsonLd={jsonLd}
+>
+  <PageHero eyebrow="Zone d’intervention" title="Votre gestionnaire en <em>Normandie</em>" crumb="Zone d’intervention">
+    <p class="page-intro">
+      J’accompagne les TPE, artisans et professions libérales de l’Eure (27) et de la Seine-Maritime (76), dans leurs
+      locaux ou à distance. Retrouvez ci-dessous les villes et communes desservies.
+    </p>
+  </PageHero>
+
+  <section class="section z-depts">
+    <div class="container">
+      <ul class="d-grid">
+        {
+          departments.map((d, i) => (
+            <li class="d-card" data-reveal style={`--d:${i}`}>
+              <span class="d-code">{d.code}</span>
+              <h2>{d.name}</h2>
+              <p class="d-text">
+                Interventions sur site et à distance dans tout le département, notamment :
+              </p>
+              <ul class="d-cities">
+                {d.communes.map((c) => {
+                  const p = cityPage(c);
+                  return <li>{p ? <a href={zoneUrl(p.id)}>{c}</a> : <span>{c}</span>}</li>;
+                })}
+              </ul>
+              {d.page && (
+                <a href={zoneUrl(d.page.id)} class="btn btn--ghost">
+                  Gestion administrative {d.name === 'Eure' ? 'dans l’Eure' : 'en Seine-Maritime'}
+                  <Icon name="arrowRight" size={17} class="i-arrow" />
+                </a>
+              )}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--white z-cities">
+    <div class="container">
+      <header class="section-head" data-reveal>
+        <p class="eyebrow">Villes</p>
+        <h2 class="h2">Au plus près des <em>entreprises</em></h2>
+        <p>Des pages dédiées aux principales agglomérations, avec les communes desservies.</p>
+      </header>
+      <ul class="c-grid">
+        {
+          villes.map((v, i) => (
+            <li data-reveal style={`--d:${i}`}>
+              <a href={zoneUrl(v.id)} class="c-card">
+                <span class="icon-tile">
+                  <Icon name={v.data.icon} />
+                </span>
+                <h3>{v.data.name}</h3>
+                <p>{v.data.cardText}</p>
+                <span class="c-more">
+                  Découvrir <Icon name="arrowRight" size={15} />
+                </span>
+              </a>
+            </li>
+          ))
+        }
+        <li data-reveal style="--d:3">
+          <div class="c-card c-card--remote">
+            <span class="icon-tile">
+              <Icon name="globe" />
+            </span>
+            <h3>À distance</h3>
+            <p>Un suivi en visioconférence, par téléphone et par e-mail, seul ou en complément des rendez-vous sur place.</p>
+            <a href="/#rendez-vous" class="c-more">
+              Réserver un échange <Icon name="arrowRight" size={15} />
+            </a>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section z-metiers">
+    <div class="container">
+      <header class="section-head" data-reveal>
+        <p class="eyebrow">Métiers</p>
+        <h2 class="h2">Un accompagnement adapté à chaque <em>métier</em></h2>
+      </header>
+      <ul class="z-links" data-reveal>
+        {
+          metiers.map((m) => (
+            <li>
+              <a href={metierUrl(m.id)}>
+                <Icon name={m.data.icon} size={17} />
+                {m.data.name}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <div class="z-actions" data-reveal>
+        <a href="/#rendez-vous" class="btn">
+          Réserver un échange gratuit <Icon name="arrowRight" size={18} class="i-arrow" />
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .z-depts {
+    padding-top: clamp(3rem, 6vw, 4.5rem);
+  }
+  .d-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+  .d-card {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: clamp(2rem, 4vw, 2.8rem) clamp(1.4rem, 3vw, 2.2rem);
+    text-align: center;
+    border-radius: var(--radius-lg);
+    background: #fff;
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-md);
+  }
+  .d-code {
+    display: grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    color: #fff;
+    background: linear-gradient(135deg, var(--blue-500), var(--blue-800));
+    box-shadow: 0 16px 32px -14px rgb(97 25 58 / 0.6);
+  }
+  .d-card h2 {
+    margin-top: 1rem;
+    font-size: clamp(1.7rem, 3vw, 2.2rem);
+  }
+  .d-text {
+    margin-top: 0.5rem;
+    color: var(--muted);
+  }
+  .d-cities {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.45rem;
+    margin: 1.3rem 0 1.6rem;
+  }
+  .d-cities li > * {
+    display: inline-block;
+    padding: 0.35rem 0.8rem;
+    border-radius: 999px;
+    font-size: 0.86rem;
+    font-weight: 600;
+    color: var(--ink);
+    background: var(--cream);
+    border: 1px solid var(--line);
+  }
+  .d-cities a {
+    color: var(--blue-700);
+    background: var(--blue-50);
+    border-color: var(--blue-100);
+    text-decoration: underline;
+    text-decoration-color: var(--blue-200);
+    text-underline-offset: 3px;
+  }
+  .d-cities a:hover {
+    background: var(--blue-100);
+  }
+  .d-card .btn {
+    margin-top: auto;
+  }
+
+  .c-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+  }
+  .c-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    padding: 1.7rem 1.3rem;
+    text-align: center;
+    border-radius: var(--radius-lg);
+    background: var(--cream);
+    border: 1px solid var(--line);
+    transition:
+      transform 0.45s var(--ease-out),
+      box-shadow 0.45s,
+      border-color 0.45s;
+  }
+  a.c-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--blue-200);
+    box-shadow: var(--shadow-lg);
+  }
+  .c-card h3 {
+    margin-top: 1rem;
+    font-size: 1.4rem;
+  }
+  .c-card p {
+    flex: 1;
+    margin-top: 0.5rem;
+    font-size: 0.92rem;
+    color: var(--muted);
+  }
+  .c-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 1rem;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--blue-700);
+  }
+  .z-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.6rem;
+  }
+  .z-links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.7rem 1.2rem;
+    border-radius: 999px;
+    font-weight: 600;
+    color: var(--blue-700);
+    background: #fff;
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-sm);
+    transition:
+      border-color 0.3s,
+      transform 0.3s var(--ease-out);
+  }
+  .z-links a:hover {
+    border-color: var(--blue-200);
+    transform: translateY(-2px);
+  }
+  .z-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 2.2rem;
+  }
+  @media (max-width: 1023px) {
+    .c-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 760px) {
+    .d-grid,
+    .c-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

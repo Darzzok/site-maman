@@ -1,0 +1,13 @@
+---
+import Landing from '../../components/Landing.astro';
+import { getMetiers, type Metier } from '../../utils/landings';
+
+export async function getStaticPaths() {
+  const metiers = await getMetiers();
+  return metiers.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props as { entry: Metier };
+---
+
+<Landing entry={entry} kind="metier" />

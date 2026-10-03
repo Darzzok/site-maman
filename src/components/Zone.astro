@@ -1,6 +1,11 @@
 ---
 import Icon from './Icon.astro';
 import { zone } from '../data/site';
+import { getZones, zoneUrl } from '../utils/landings';
+
+const zones = await getZones();
+const deptPage = (code: string) => zones.find((z) => z.data.kind === 'departement' && z.data.department === code);
+const cityPage = (name: string) => zones.find((z) => z.data.kind === 'ville' && z.data.name === name);
 ---
 
 <section id="zone" class="section zone">
@@ -26,10 +31,16 @@ import { zone } from '../data/site';
             </h3>
             <p class="dept-text">Interventions en présentiel dans tout le département, notamment :</p>
             <ul class="cities">
-              {d.cities.map((c) => (
-                <li>{c}</li>
-              ))}
+              {d.cities.map((c) => {
+                const p = cityPage(c);
+                return <li>{p ? <a href={zoneUrl(p.id)}>{c}</a> : c}</li>;
+              })}
             </ul>
+            {deptPage(d.code) && (
+              <a href={zoneUrl(deptPage(d.code)!.id)} class="link">
+                Gestion administrative {d.name === 'Eure' ? 'dans l’Eure' : 'en Seine-Maritime'} <Icon name="arrowRight" size={16} />
+              </a>
+            )}
           </article>
         ))
       }
@@ -115,5 +126,21 @@ import { zone } from '../data/site';
       max-width: 560px;
       margin-inline: auto;
     }
+  }
+
+  /* Villes disposant d'une page dédiée */
+  .cities a {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: var(--blue-200);
+    text-underline-offset: 3px;
+  }
+  .cities a:hover {
+    text-decoration-color: currentColor;
+  }
+  .link {
+    justify-content: center;
+    text-align: center;
+    font-size: 0.94rem;
   }
 </style>

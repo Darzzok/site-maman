@@ -1,0 +1,13 @@
+---
+import Landing from '../../components/Landing.astro';
+import { getZones, type ZoneEntry } from '../../utils/landings';
+
+export async function getStaticPaths() {
+  const zones = await getZones();
+  return zones.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props as { entry: ZoneEntry };
+---
+
+<Landing entry={entry} kind="zone" />

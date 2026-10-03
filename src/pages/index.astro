@@ -13,57 +13,30 @@ import PromiseBand from '../components/PromiseBand.astro';
 import ConseilsTeaser from '../components/ConseilsTeaser.astro';
 import Contact from '../components/Contact.astro';
 import SideRail from '../components/SideRail.astro';
-import { faqs, services, site, zone } from '../data/site';
+import { site } from '../data/site';
+import { businessEntity, businessId } from '../utils/seo';
 
-// Données structurées : entreprise locale + zone servie (référencement local)
+// Données structurées : entreprise locale + site (référencement local)
 const jsonLd = {
   '@context': 'https://schema.org',
   '@graph': [
-    {
-      '@type': 'ProfessionalService',
-      '@id': `${site.url}/#entreprise`,
-      name: site.name,
-      alternateName: site.owner,
-      description:
-        'Conseil et accompagnement en gestion administrative, trésorerie, recouvrement, ressources humaines et pilotage d’exploitation pour TPE, artisans et professions libérales en Normandie (Eure et Seine-Maritime).',
-      url: `${site.url}/`,
-      logo: `${site.url}/images/logo.png`,
-      image: `${site.url}/images/og-image.jpg`,
-      email: site.email,
-      telephone: site.phone,
-      priceRange: '€€',
-      address: { '@type': 'PostalAddress', addressRegion: zone.region, addressCountry: 'FR' },
-      areaServed: [
-        ...zone.departments.map((d) => ({ '@type': 'AdministrativeArea', name: `${d.name} (${d.code})` })),
-        ...zone.departments.flatMap((d) => d.cities.map((c) => ({ '@type': 'City', name: c }))),
-        { '@type': 'State', name: zone.region },
-      ],
-      founder: { '@type': 'Person', name: site.owner, jobTitle: site.role },
-      knowsAbout: services.flatMap((s) => [s.title, ...(s.points ?? [])]),
-      hasOfferCatalog: {
-        '@type': 'OfferCatalog',
-        name: 'Prestations',
-        itemListElement: services.map((s) => ({
-          '@type': 'Offer',
-          itemOffered: { '@type': 'Service', name: s.title, areaServed: zone.short },
-        })),
-      },
-    },
+    businessEntity(),
     {
       '@type': 'WebSite',
       '@id': `${site.url}/#site`,
       url: `${site.url}/`,
       name: site.name,
       inLanguage: 'fr-FR',
-      publisher: { '@id': `${site.url}/#entreprise` },
+      publisher: { '@id': businessId },
     },
     {
-      '@type': 'FAQPage',
-      mainEntity: faqs.slice(0, 5).map((f) => ({
-        '@type': 'Question',
-        name: f.q,
-        acceptedAnswer: { '@type': 'Answer', text: f.a.replace(/<[^>]+>/g, '') },
-      })),
+      '@type': 'WebPage',
+      '@id': `${site.url}/#accueil`,
+      url: `${site.url}/`,
+      name: `${site.name} — gestion administrative en Normandie`,
+      inLanguage: 'fr-FR',
+      isPartOf: { '@id': `${site.url}/#site` },
+      about: { '@id': businessId },
     },
   ],
 };
@@ -71,8 +44,8 @@ const jsonLd = {
 
 <BaseLayout
   home
-  title={`Gestion administrative pour TPE et artisans en Normandie (27, 76) | ${site.name}`}
-  description="Consultante indépendante dans l’Eure (27) et en Seine-Maritime (76) : gestion administrative, trésorerie, recouvrement, RH et paie pour TPE, artisans et professions libérales."
+  title="Gestion administrative externalisée en Normandie (27, 76) | SGC"
+  description="Consultante en gestion administrative dans l’Eure et la Seine-Maritime : facturation, relances, trésorerie, RH et paie pour TPE, artisans et libéraux."
   ogTitle={`${site.name} — ${site.promise}`}
   ogDescription="Gestion administrative, trésorerie, RH, suivi de chantiers : un accompagnement opérationnel pour les TPE, artisans et professions libérales de l’Eure et de Seine-Maritime."
   jsonLd={jsonLd}

@@ -1,6 +1,10 @@
 ---
 import { site, zone } from '../data/site';
 import Icon from './Icon.astro';
+import { getMetiers, getZones, metierUrl, zoneUrl } from '../utils/landings';
+
+const metiers = await getMetiers();
+const zones = await getZones();
 
 interface Props {
   home?: boolean;
@@ -54,6 +58,32 @@ const links = [
             links.map((l) => (
               <li>
                 <a href={l.href}>{l.label}</a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+
+      <nav aria-label="Accompagnement par métier">
+        <p class="f-title"><a href="/metiers.html">Métiers</a></p>
+        <ul class="f-links">
+          {
+            metiers.map((m) => (
+              <li>
+                <a href={metierUrl(m.id)}>{m.data.name}</a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+
+      <nav aria-label="Zones d’intervention">
+        <p class="f-title"><a href="/zone-intervention.html">Zones d’intervention</a></p>
+        <ul class="f-links">
+          {
+            zones.map((z) => (
+              <li>
+                <a href={zoneUrl(z.id)}>{z.data.name}</a>
               </li>
             ))
           }
@@ -118,7 +148,7 @@ const links = [
   }
   .footer-grid {
     display: grid;
-    grid-template-columns: 1.4fr 1fr 1fr;
+    grid-template-columns: 1.6fr repeat(4, minmax(0, 1fr));
     gap: 2.5rem;
     padding-block: clamp(2.5rem, 5vw, 3.5rem);
   }
@@ -275,5 +305,22 @@ const links = [
   }
   .footer-bottom {
     text-align: center;
+  }
+
+  /* Titres de colonnes cliquables (Métiers, Zones) */
+  .f-title a {
+    color: inherit;
+  }
+  .f-title a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  @media (max-width: 1100px) and (min-width: 761px) {
+    .footer-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+    .footer-brand {
+      grid-column: 1 / -1;
+    }
   }
 </style>

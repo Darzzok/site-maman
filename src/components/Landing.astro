@@ -1,0 +1,1168 @@
+---
+/**
+ * Gabarit des pages "métiers" et "zones" (pages d'atterrissage pour le référencement).
+ * Contenu : src/content/metiers/*.md et src/content/zones/*.md
+ */
+import { Image } from 'astro:assets';
+import { render } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from './Icon.astro';
+import ArticleCard from './ArticleCard.astro';
+import nadege from '../assets/images/nadege.jpg';
+import { cases, site, steps, zone } from '../data/site';
+import { getConseils } from '../utils/conseils';
+import { getMetiers, getZones, metierUrl, zoneUrl, plainTitle, type Metier, type ZoneEntry } from '../utils/landings';
+import { breadcrumbLd, businessEntity, businessId, faqLd } from '../utils/seo';
+
+interface Props {
+  entry: Metier | ZoneEntry;
+  kind: 'metier' | 'zone';
+}
+const { entry, kind } = Astro.props;
+const data = entry.data;
+const { Content } = await render(entry);
+
+const isZone = kind === 'zone';
+const zoneData = isZone ? (entry as ZoneEntry).data : null;
+const url = isZone ? zoneUrl(entry.id) : metierUrl(entry.id);
+const parent = isZone
+  ? { name: 'Zone d’intervention', url: '/zone-intervention.html' }
+  : { name: 'Métiers', url: '/metiers.html' };
+const h1Plain = plainTitle(data.title);
+
+const featuredCase = data.caseIndex !== undefined ? cases[data.caseIndex] : undefined;
+const allConseils = await getConseils();
+const related = data.related
+  .map((slug) => allConseils.find((a) => a.id === slug))
+  .filter((a): a is NonNullable<typeof a> => Boolean(a));
+
+// Maillage interne : une page métier renvoie vers les zones, une page zone vers les métiers
+const metiers = await getMetiers();
+const zones = await getZones();
+const otherZones = zones.filter((z) => z.id !== entry.id);
+
+const dept = zone.departments.find((d) => d.code === zoneData?.department);
+const areaServed = isZone
+  ? zoneData!.kind === 'ville'
+    ? {
+        '@type': 'City',
+        name: data.name,
+        containedInPlace: { '@type': 'AdministrativeArea', name: `${dept?.name} (${dept?.code})` },
+      }
+    : {
+        '@type': 'AdministrativeArea',
+        name: `${dept?.name} (${dept?.code})`,
+        containsPlace: zoneData!.communes.map((c) => ({ '@type': 'City', name: c })),
+      }
+  : zone.departments.map((d) => ({ '@type': 'AdministrativeArea', name: `${d.name} (${d.code})` }));
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    businessEntity(),
+    {
+      '@type': 'Service',
+      '@id': `${site.url}${url}#service`,
+      name: h1Plain,
+      serviceType: 'Gestion administrative et financière externalisée',
+      description: data.description,
+      url: `${site.url}${url}`,
+      provider: { '@id': businessId },
+      areaServed,
+      ...(isZone ? {} : { audience: { '@type': 'BusinessAudience', audienceType: data.audience.join(', ') } }),
+      hasOfferCatalog: {
+        '@type': 'OfferCatalog',
+        name: data.tasksTitle,
+        itemListElement: data.tasks.map((t) => ({
+          '@type': 'Offer',
+          itemOffered: { '@type': 'Service', name: t.title, description: t.text },
+        })),
+      },
+    },
+    {
+      '@type': 'WebPage',
+      '@id': `${site.url}${url}`,
+      url: `${site.url}${url}`,
+      name: data.seoTitle,
+      description: data.description,
+      inLanguage: 'fr-FR',
+      isPartOf: { '@id': `${site.url}/#site` },
+      about: { '@id': `${site.url}${url}#service` },
+      primaryImageOfPage: `${site.url}/images/og-image.jpg`,
+    },
+    breadcrumbLd([{ name: 'Accueil', url: '/' }, parent, { name: data.name, url }]),
+    faqLd(data.faq),
+  ],
+};
+
+const trust = ['Premier échange offert', 'Sans engagement', 'Sur site ou à distance'];
+---
+
+<BaseLayout title={data.seoTitle} description={data.description} jsonLd={jsonLd}>
+  <!-- ============ En-tête ============ -->
+  <section class="l-hero">
+    <div class="l-hero-bg" aria-hidden="true"><span></span><span></span></div>
+    <div class="container l-hero-inner">
+      <nav class="crumbs" aria-label="Fil d’Ariane">
+        <a href="/">Accueil</a>
+        <span aria-hidden="true">/</span>
+        <a href={parent.url}>{parent.name}</a>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page">{data.name}</span>
+      </nav>
+      <span class="hero-ic"><Icon name={data.icon} size={28} /></span>
+      <p class="eyebrow">{data.eyebrow}</p>
+      <h1 set:html={data.title} />
+      <p class="lead">{data.lead}</p>
+      <div class="hero-actions">
+        <a href="/#rendez-vous" class="btn">
+          Réserver un échange gratuit <Icon name="arrowRight" size={18} class="i-arrow" />
+        </a>
+        <a href="/#devis" class="btn btn--ghost">Demander un devis</a>
+      </div>
+      <ul class="trust">
+        {
+          trust.map((t) => (
+            <li>
+              <Icon name="checkCircle" size={17} />
+              {t}
+            </li>
+          ))
+        }
+      </ul>
+      {
+        data.audience.length > 0 && (
+          <div class="audience">
+            <p class="audience-title">{isZone ? 'Communes desservies' : 'Métiers accompagnés'}</p>
+            <ul>
+              {data.audience.map((a) => (
+                <li>{a}</li>
+              ))}
+            </ul>
+          </div>
+        )
+      }
+    </div>
+  </section>
+
+  <!-- ============ Enjeux ============ -->
+  <section class="section l-pains">
+    <div class="container">
+      <header class="section-head" data-reveal>
+        <p class="eyebrow">{isZone ? 'Vos avantages' : 'Vos enjeux'}</p>
+        <h2 class="h2">{data.painsTitle}</h2>
+      </header>
+      <ul class="pains-grid">
+        {
+          data.pains.map((p, i) => (
+            <li class="card pain" data-reveal style={`--d:${i}`}>
+              <span class="icon-tile">
+                <Icon name={p.icon} />
+              </span>
+              <h3>{p.title}</h3>
+              <p>{p.text}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============ Prestations ============ -->
+  <section class="section section--white l-tasks">
+    <div class="container">
+      <header class="section-head" data-reveal>
+        <p class="eyebrow">Mes prestations</p>
+        <h2 class="h2">{data.tasksTitle}</h2>
+      </header>
+      <ul class="tasks-grid">
+        {
+          data.tasks.map((t, i) => (
+            <li class="task" data-reveal style={`--d:${i % 3}`}>
+              <span class="task-ic">
+                <Icon name="check" size={18} strokeWidth={2.4} />
+              </span>
+              <h3>{t.title}</h3>
+              <p>{t.text}</p>
+            </li>
+          ))
+        }
+      </ul>
+      <p class="more-link" data-reveal>
+        <a href="/#services">Découvrir toutes mes prestations <Icon name="arrowRight" size={16} /></a>
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ Texte de la page + cas client ============ -->
+  <section class="section l-story">
+    <div class="container story-grid">
+      <article class="prose" data-reveal>
+        <Content />
+      </article>
+      {
+        featuredCase && (
+          <aside class="case" data-reveal="right">
+            <p class="case-kicker">Exemple d’accompagnement</p>
+            <span class="tag">
+              <Icon name={featuredCase.icon} size={14} strokeWidth={2} />
+              {featuredCase.tag}
+            </span>
+            <h3>{featuredCase.title}</h3>
+            <p class="case-label">La situation</p>
+            <p class="case-problem">{featuredCase.problem}</p>
+            <div class="case-result">
+              <span class="result-ic">
+                <Icon name="check" size={16} strokeWidth={2.6} />
+              </span>
+              <p>{featuredCase.result}</p>
+            </div>
+            <a href="/#cas-clients" class="case-link">
+              Voir tous les cas clients <Icon name="arrowRight" size={16} />
+            </a>
+          </aside>
+        )
+      }
+    </div>
+  </section>
+
+  <!-- ============ Méthode ============ -->
+  <section class="section section--sand l-steps">
+    <div class="container">
+      <header class="section-head" data-reveal>
+        <p class="eyebrow">Méthode</p>
+        <h2 class="h2">Un accompagnement <em>simple</em>, étape par étape</h2>
+      </header>
+      <ol class="steps">
+        {
+          steps.map((s, i) => (
+            <li class="step" data-reveal style={`--d:${i}`}>
+              <span class="step-ic">
+                <Icon name={s.icon} size={22} />
+              </span>
+              <h3>{s.title}</h3>
+              <p>{s.text}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <!-- ============ Maillage : zones ou métiers ============ -->
+  <section class="section l-cross">
+    <div class="container">
+      {
+        isZone ? (
+          <>
+            <header class="section-head" data-reveal>
+              <p class="eyebrow">Métiers</p>
+              <h2 class="h2">
+                Les métiers que j’accompagne {zoneData!.kind === 'ville' ? 'à' : 'en'} <em>{data.name.replace(/ \(\d+\)$/, '')}</em>
+              </h2>
+            </header>
+            <ul class="cross-grid">
+              {metiers.map((m, i) => (
+                <li data-reveal style={`--d:${i}`}>
+                  <a href={metierUrl(m.id)} class="cross-card">
+                    <span class="icon-tile">
+                      <Icon name={m.data.icon} />
+                    </span>
+                    <span class="cross-name">{m.data.name}</span>
+                    <span class="cross-text">{m.data.cardText}</span>
+                    <span class="cross-more">
+                      Découvrir <Icon name="arrowRight" size={15} />
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <div class="zone-links" data-reveal>
+              <p>J’interviens aussi :</p>
+              <ul>
+                {otherZones.map((z) => (
+                  <li>
+                    <a href={zoneUrl(z.id)}>
+                      <Icon name="mapPin" size={15} />
+                      {z.data.name}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </>
+        ) : (
+          <>
+            <header class="section-head" data-reveal>
+              <p class="eyebrow">Zone d’intervention</p>
+              <h2 class="h2">
+                Partout dans l’<em>Eure</em> et la <em>Seine-Maritime</em>
+              </h2>
+              <p>
+                J’accompagne les {data.name.charAt(0).toLowerCase() + data.name.slice(1)} dans toute la Normandie, dans vos locaux ou à distance.
+              </p>
+            </header>
+            <ul class="zone-cards">
+              {zones.map((z, i) => (
+                <li data-reveal style={`--d:${i % 5}`}>
+                  <a href={zoneUrl(z.id)} class="zone-card">
+                    <Icon name="mapPin" size={18} />
+                    <span>
+                      <strong>{z.data.name}</strong>
+                      <small>{z.data.kind === 'ville' ? 'et ses environs' : 'tout le département'}</small>
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <div class="zone-links" data-reveal>
+              <p>Autres métiers accompagnés :</p>
+              <ul>
+                {metiers
+                  .filter((m) => m.id !== entry.id)
+                  .map((m) => (
+                    <li>
+                      <a href={metierUrl(m.id)}>
+                        <Icon name={m.data.icon} size={15} />
+                        {m.data.name}
+                      </a>
+                    </li>
+                  ))}
+              </ul>
+            </div>
+          </>
+        )
+      }
+    </div>
+  </section>
+
+  <!-- ============ Questions ============ -->
+  <section class="section section--white l-faq">
+    <div class="container">
+      <header class="section-head" data-reveal>
+        <p class="eyebrow">Questions fréquentes</p>
+        <h2 class="h2">Vos <em>questions</em>, mes réponses</h2>
+      </header>
+      <div class="faq-list">
+        {
+          data.faq.map((f, i) => (
+            <details class="faq-item" data-reveal style={`--d:${i % 4}`} open={i === 0}>
+              <summary>
+                <span class="q-text">{f.q}</span>
+                <span class="q-toggle" aria-hidden="true">
+                  <span />
+                  <span />
+                </span>
+              </summary>
+              <div class="answer">
+                <p set:html={f.a} />
+              </div>
+            </details>
+          ))
+        }
+      </div>
+      <p class="more-link" data-reveal>
+        <a href="/faq.html">Toutes les questions fréquentes <Icon name="arrowRight" size={16} /></a>
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ Articles ============ -->
+  {
+    related.length > 0 && (
+      <section class="section l-related">
+        <div class="container">
+          <header class="section-head" data-reveal>
+            <p class="eyebrow">Conseils</p>
+            <h2 class="h2">
+              Pour aller <em>plus loin</em>
+            </h2>
+          </header>
+          <div class="related-grid">
+            {related.map((a, i) => (
+              <ArticleCard entry={a} delay={i} headingLevel="h3" />
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  <!-- ============ Appel à l'action ============ -->
+  <section class="l-cta">
+    <div class="container">
+      <div class="cta-card" data-reveal>
+        <div class="cta-glow" aria-hidden="true"></div>
+        <Image src={nadege} alt={site.owner} width={176} height={176} class="cta-photo" loading="lazy" />
+        <p class="eyebrow eyebrow--dark">{site.owner}</p>
+        <h2>Parlons de votre <em>entreprise</em></h2>
+        <p class="cta-text">
+          Un premier échange gratuit de 30 minutes pour faire le point sur votre situation{isZone ? ` à ${data.name.replace(/ \(\d+\)$/, '')}` : ''}, sans engagement.
+        </p>
+        <div class="cta-actions">
+          <a href="/#rendez-vous" class="btn btn--soft">
+            Réserver un échange gratuit <Icon name="arrowRight" size={18} class="i-arrow" />
+          </a>
+          <a href="/#devis" class="btn-outline">
+            <Icon name="file" size={18} /> Demander un devis
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* ============ En-tête ============ */
+  .l-hero {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    padding: calc(var(--header-h) + 3.5rem) 0 clamp(3.5rem, 7vw, 5rem);
+    text-align: center;
+    background: linear-gradient(180deg, var(--cream), var(--sand));
+  }
+  .l-hero-bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image:
+      linear-gradient(rgb(97 25 58 / 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(97 25 58 / 0.045) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(70% 80% at 50% 20%, #000, transparent 80%);
+  }
+  .l-hero-bg span {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(70px);
+  }
+  .l-hero-bg span:first-child {
+    width: 420px;
+    height: 420px;
+    top: -160px;
+    right: -80px;
+    background: rgb(246 181 91 / 0.18);
+  }
+  .l-hero-bg span:last-child {
+    width: 380px;
+    height: 380px;
+    bottom: -220px;
+    left: 5%;
+    background: rgb(229 129 188 / 0.14);
+  }
+  .l-hero-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 900px;
+  }
+  .crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.6rem;
+    font-size: 0.86rem;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .crumbs a {
+    color: var(--blue-700);
+  }
+  .crumbs a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .hero-ic {
+    display: grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    margin-bottom: 1.2rem;
+    border-radius: 20px;
+    color: #fff;
+    background: linear-gradient(135deg, var(--blue-500), var(--blue-800));
+    box-shadow: 0 16px 32px -14px rgb(97 25 58 / 0.6);
+  }
+  h1 {
+    margin-top: 1.1rem;
+    font-size: clamp(2.2rem, 5vw, 3.6rem);
+    letter-spacing: -0.02em;
+  }
+  .lead {
+    max-width: 44rem;
+    margin-top: 1.2rem;
+    font-size: 1.12rem;
+    color: var(--muted);
+  }
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.8rem;
+    margin-top: 2rem;
+  }
+  .trust {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem 1.4rem;
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .trust li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .trust :global(svg) {
+    color: var(--blue-600);
+  }
+  .audience {
+    margin-top: 2.2rem;
+  }
+  .audience-title {
+    font-size: 0.74rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .audience ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.45rem;
+    max-width: 52rem;
+    margin-top: 0.8rem;
+  }
+  .audience li {
+    padding: 0.38rem 0.85rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--blue-700);
+    background: rgb(255 255 255 / 0.8);
+    border: 1px solid var(--blue-100);
+  }
+
+  /* ============ Enjeux ============ */
+  .pains-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.1rem;
+  }
+  .pain {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .pain h3 {
+    margin-top: 1rem;
+    font-size: 1.2rem;
+  }
+  .pain p {
+    margin-top: 0.5rem;
+    font-size: 0.95rem;
+    color: var(--muted);
+  }
+
+  /* ============ Prestations ============ */
+  .tasks-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+  }
+  .task {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.6rem 1.4rem;
+    text-align: center;
+    border-radius: var(--radius);
+    background: var(--cream);
+    border: 1px solid var(--line);
+    transition:
+      transform 0.45s var(--ease-out),
+      box-shadow 0.45s,
+      border-color 0.45s;
+  }
+  .task:hover {
+    transform: translateY(-4px);
+    border-color: var(--blue-200);
+    box-shadow: var(--shadow-md);
+  }
+  .task-ic {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    color: #fff;
+    background: var(--blue-700);
+  }
+  .task h3 {
+    margin-top: 0.9rem;
+    font-size: 1.15rem;
+  }
+  .task p {
+    margin-top: 0.45rem;
+    font-size: 0.95rem;
+    color: var(--muted);
+  }
+  .more-link {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+  }
+  .more-link a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-weight: 700;
+    color: var(--blue-700);
+    text-decoration: underline;
+    text-decoration-color: var(--blue-200);
+    text-underline-offset: 4px;
+    transition: text-decoration-color 0.3s;
+  }
+  .more-link a:hover {
+    text-decoration-color: var(--blue-700);
+  }
+
+  /* ============ Texte + cas client ============ */
+  .story-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: start;
+  }
+  .prose {
+    text-align: center;
+    font-size: 1.06rem;
+    line-height: 1.8;
+    color: var(--text);
+  }
+  .prose :global(h2) {
+    margin-top: 2.6rem;
+    font-size: clamp(1.5rem, 2.6vw, 1.95rem);
+  }
+  .prose :global(h2:first-child) {
+    margin-top: 0;
+  }
+  .prose :global(p) {
+    margin-top: 1rem;
+  }
+  .prose :global(h2 + p) {
+    margin-top: 0.8rem;
+  }
+  .prose :global(ul) {
+    display: grid;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+  .prose :global(li::before) {
+    content: '';
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    margin-right: 0.6rem;
+    vertical-align: 0.15em;
+    border-radius: 50%;
+    background: var(--blue-600);
+  }
+  .case {
+    position: sticky;
+    top: calc(var(--header-h) + 1.5rem);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.8rem 1.5rem;
+    text-align: center;
+    border-radius: var(--radius-lg);
+    background: #fff;
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-md);
+  }
+  .case-kicker {
+    margin-bottom: 0.9rem;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--blue-700);
+  }
+  .case h3 {
+    margin-top: 0.9rem;
+    font-size: 1.35rem;
+  }
+  .case-label {
+    margin-top: 1rem;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .case-problem {
+    margin-top: 0.35rem;
+    font-size: 0.95rem;
+    color: var(--text);
+  }
+  .case-result {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    margin-top: 1.2rem;
+    padding: 1rem;
+    border-radius: var(--radius-sm);
+    background: linear-gradient(135deg, var(--rose-100), #fff);
+    border: 1px solid rgb(229 129 188 / 0.35);
+  }
+  .result-ic {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    color: #fff;
+    background: var(--blue-700);
+  }
+  .case-result p {
+    font-weight: 700;
+    color: var(--blue-700);
+  }
+  .case-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 1.2rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--blue-700);
+  }
+
+  /* ============ Méthode ============ */
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 1rem;
+  }
+  .step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem 1.1rem;
+    text-align: center;
+    border-radius: var(--radius);
+    background: #fff;
+    border: 1px solid var(--line);
+  }
+  .step-ic {
+    display: grid;
+    place-items: center;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    color: var(--blue-700);
+    background: var(--blue-50);
+    border: 1px solid var(--blue-100);
+  }
+  .step h3 {
+    margin-top: 0.9rem;
+    font-size: 1.1rem;
+  }
+  .step p {
+    margin-top: 0.4rem;
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+
+  /* ============ Maillage ============ */
+  .cross-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+  }
+  .cross-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    padding: 1.6rem 1.3rem;
+    text-align: center;
+    border-radius: var(--radius-lg);
+    background: #fff;
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-sm);
+    transition:
+      transform 0.45s var(--ease-out),
+      box-shadow 0.45s,
+      border-color 0.45s;
+  }
+  .cross-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--blue-200);
+    box-shadow: var(--shadow-lg);
+  }
+  .cross-name {
+    margin-top: 1rem;
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: var(--blue-700);
+  }
+  .cross-text {
+    margin-top: 0.5rem;
+    flex: 1;
+    font-size: 0.92rem;
+    color: var(--muted);
+  }
+  .cross-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 1rem;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--blue-700);
+  }
+  .zone-cards {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.8rem;
+  }
+  .zone-card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.95rem 1.3rem;
+    border-radius: 999px;
+    background: #fff;
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-sm);
+    color: var(--blue-700);
+    transition:
+      transform 0.4s var(--ease-out),
+      border-color 0.4s,
+      box-shadow 0.4s;
+  }
+  .zone-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--blue-200);
+    box-shadow: var(--shadow-md);
+  }
+  .zone-card span {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 1.25;
+  }
+  .zone-card strong {
+    font-size: 0.98rem;
+  }
+  .zone-card small {
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+  .zone-links {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 2.2rem;
+  }
+  .zone-links p {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--muted);
+  }
+  .zone-links ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 0.7rem;
+  }
+  .zone-links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.4rem 0.85rem;
+    border-radius: 999px;
+    font-size: 0.86rem;
+    font-weight: 600;
+    color: var(--blue-700);
+    background: var(--blue-50);
+    border: 1px solid var(--blue-100);
+    transition: background 0.3s;
+  }
+  .zone-links a:hover {
+    background: var(--blue-100);
+  }
+
+  /* ============ Questions ============ */
+  .faq-list {
+    display: grid;
+    gap: 0.75rem;
+    max-width: 52rem;
+    margin-inline: auto;
+  }
+  .faq-item {
+    border-radius: var(--radius);
+    background: #fff;
+    border: 1px solid var(--line);
+    transition:
+      border-color 0.35s,
+      box-shadow 0.35s;
+  }
+  .faq-item:hover,
+  .faq-item[open] {
+    border-color: var(--blue-200);
+  }
+  .faq-item[open] {
+    box-shadow:
+      0 0 0 4px rgb(123 37 80 / 0.05),
+      var(--shadow-md);
+  }
+  .faq-item::details-content {
+    block-size: 0;
+    overflow: hidden;
+    transition:
+      block-size 0.45s var(--ease-out),
+      content-visibility 0.45s allow-discrete;
+  }
+  .faq-item[open]::details-content {
+    block-size: auto;
+  }
+  summary {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.15rem 1.3rem;
+    cursor: pointer;
+    list-style: none;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  summary::before {
+    content: '';
+    flex: none;
+    width: 36px;
+  }
+  .q-text {
+    flex: 1;
+    text-align: center;
+    font-family: var(--font-display);
+    font-size: clamp(1.05rem, 1.6vw, 1.18rem);
+    font-weight: 500;
+    line-height: 1.35;
+    color: var(--ink);
+  }
+  .faq-item[open] .q-text,
+  summary:hover .q-text {
+    color: var(--blue-700);
+  }
+  .q-toggle {
+    position: relative;
+    flex: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--blue-50);
+    border: 1px solid var(--blue-100);
+    transition:
+      background 0.4s,
+      rotate 0.5s var(--ease-out);
+  }
+  .q-toggle span {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 12px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--blue-700);
+    translate: -50% -50%;
+    transition:
+      rotate 0.4s var(--ease-out),
+      background 0.4s;
+  }
+  .q-toggle span:last-child {
+    rotate: 90deg;
+  }
+  .faq-item[open] .q-toggle {
+    background: var(--blue-700);
+    rotate: 180deg;
+  }
+  .faq-item[open] .q-toggle span {
+    background: #fff;
+  }
+  .faq-item[open] .q-toggle span:last-child {
+    rotate: 0deg;
+  }
+  .answer {
+    padding: 0 clamp(1.3rem, 4vw, 3.2rem) 1.4rem;
+    text-align: center;
+    color: var(--text);
+    line-height: 1.75;
+  }
+
+  /* ============ Articles ============ */
+  .related-grid {
+    --cols: 3;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.25rem;
+  }
+  .related-grid > :global(*) {
+    flex: 0 0 calc((100% - (var(--cols) - 1) * 1.25rem) / var(--cols));
+    min-width: 0;
+  }
+
+  /* ============ Appel à l'action ============ */
+  .l-cta {
+    padding-block: clamp(1rem, 3vw, 2rem) clamp(4.5rem, 9vw, 7rem);
+  }
+  .cta-card {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 60rem;
+    margin-inline: auto;
+    padding: clamp(2.5rem, 6vw, 4rem) clamp(1.4rem, 5vw, 4rem);
+    text-align: center;
+    border-radius: 36px;
+    color: #fff;
+    background: linear-gradient(150deg, var(--blue-700), var(--blue-900) 70%);
+    box-shadow: var(--shadow-lg);
+  }
+  .cta-glow {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(50% 70% at 0% 0%, rgb(229 129 188 / 0.2), transparent 70%),
+      radial-gradient(45% 60% at 100% 100%, rgb(246 181 91 / 0.12), transparent 70%);
+  }
+  .cta-card :global(.cta-photo) {
+    width: 88px;
+    height: 88px;
+    margin-bottom: 1.2rem;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: 51% 28%;
+    border: 3px solid rgb(255 255 255 / 0.9);
+  }
+  .cta-card h2 {
+    margin-top: 1rem;
+    font-size: clamp(2rem, 4.2vw, 2.9rem);
+    color: #fff;
+  }
+  .cta-card h2 em {
+    color: var(--terra-300);
+  }
+  .cta-text {
+    max-width: 36rem;
+    margin-top: 1rem;
+    font-size: 1.04rem;
+    color: #fff;
+  }
+  .cta-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.8rem;
+    margin-top: 2rem;
+  }
+  .btn-outline {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.95rem 1.5rem;
+    border-radius: 999px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #fff;
+    border: 1.5px solid rgb(255 255 255 / 0.45);
+    transition:
+      background 0.3s,
+      border-color 0.3s;
+  }
+  .btn-outline:hover {
+    background: rgb(255 255 255 / 0.1);
+    border-color: #fff;
+  }
+
+  /* ============ Adaptations ============ */
+  @media (max-width: 1100px) {
+    .steps {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+    .step {
+      grid-column: span 2;
+    }
+    /* 3 + 2 étapes : la seconde rangée reste centrée */
+    .step:nth-child(4) {
+      grid-column: 2 / span 2;
+    }
+  }
+  @media (max-width: 1023px) {
+    .pains-grid,
+    .cross-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .tasks-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .story-grid {
+      grid-template-columns: 1fr;
+    }
+    .case {
+      position: static;
+      max-width: 30rem;
+      margin-inline: auto;
+    }
+    .related-grid {
+      --cols: 2;
+    }
+  }
+  @media (max-width: 680px) {
+    .pains-grid,
+    .tasks-grid,
+    .cross-grid,
+    .steps {
+      grid-template-columns: 1fr;
+    }
+    .step,
+    .step:nth-child(4) {
+      grid-column: auto;
+    }
+    .related-grid {
+      --cols: 1;
+    }
+    summary {
+      gap: 0.6rem;
+      padding: 1rem 0.9rem;
+    }
+    summary::before {
+      width: 32px;
+    }
+    .q-toggle {
+      width: 32px;
+      height: 32px;
+    }
+  }
+</style>

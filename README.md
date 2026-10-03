@@ -64,13 +64,47 @@ Chaque article est un fichier Markdown dans **`src/content/conseils/`**.
 La page `/conseils.html`, l'aperçu sur l'accueil, les articles associés et le
 plan du site (sitemap) se mettent à jour automatiquement.
 
+## Pages métiers et zones (référencement)
+
+Des pages dédiées ciblent les recherches par métier et par ville :
+
+| Type | Adresse | Fichier |
+| --- | --- | --- |
+| Regroupement des métiers | `/metiers.html` | `src/pages/metiers.astro` |
+| Page métier | `/metiers/artisans-btp.html`… | `src/content/metiers/*.md` |
+| Zone d’intervention | `/zone-intervention.html` | `src/pages/zone-intervention.astro` |
+| Page ville / département | `/gestion-administrative/rouen.html`… | `src/content/zones/*.md` |
+
+- **Modifier une page** : ouvrir le fichier `.md` correspondant. L’en-tête (entre les `---`) décrit les blocs
+  (titre, accroche, enjeux, prestations, questions, articles associés) ; le texte en dessous forme la partie rédactionnelle.
+- **Ajouter un métier ou une ville** : copier un fichier existant, le renommer (le nom devient l’adresse) et adapter
+  tout le contenu. Le menu du pied de page, les liens croisés et le plan du site se mettent à jour automatiquement.
+- **Important** : chaque page doit rester **unique** (textes, questions, exemples). Des pages quasi identiques d’une
+  ville à l’autre sont pénalisées par Google.
+- `seoTitle` (60 caractères max) et `description` (155 max) sont ce qui s’affiche dans Google.
+
 ## Référencement (SEO)
 
-- Titres et descriptions de chaque page optimisés pour la Normandie (Eure 27, Seine-Maritime 76).
-- Données structurées Google : entreprise locale avec zone desservie, FAQ, articles, fil d'Ariane.
-- Plan du site généré automatiquement (`sitemap-index.xml`), déclaré dans `robots.txt`.
-- Image de partage 1200×630 : `public/images/og-image.jpg`.
-- Photos converties automatiquement en WebP/AVIF à la bonne taille.
+- Titres et descriptions optimisés pour chaque page (raccourcis automatiquement s’ils dépassent la taille affichée par Google).
+- Données structurées Google : entreprise locale avec zone desservie, services par métier et par ville, FAQ, articles, fil d’Ariane.
+- Maillage interne : accueil ↔ métiers ↔ villes ↔ articles, et colonnes Métiers / Zones dans le pied de page.
+- Plan du site généré automatiquement (`sitemap-index.xml`), avec la date de mise à jour des articles, déclaré dans `robots.txt`.
+- Page 404 personnalisée. Image de partage 1200×630 : `public/images/og-image.jpg`.
+- Pages très légères (environ 11 à 19 Ko compressés, 6 Ko de JavaScript) et photos converties en WebP/AVIF.
+
+### À faire après la mise en ligne (hors site, indispensable pour le SEO local)
+
+1. **Fiche Google Business Profile** : créer la fiche « Sérénité Gestion Conseils » en tant qu’entreprise de services
+   avec zone desservie (Eure, Seine-Maritime), sans afficher l’adresse si elle est personnelle. Mêmes nom, téléphone et
+   site que sur le site web.
+2. **Google Search Console** et **Bing Webmaster Tools** : valider le site et y déclarer `sitemap-index.xml`.
+3. **Avis clients** : demander un avis Google à chaque client satisfait (c’est le premier critère du référencement local).
+4. **Annuaires** : inscrire l’entreprise avec exactement les mêmes coordonnées (PagesJaunes, annuaires d’entreprises
+   locaux, réseaux de dirigeants, page LinkedIn).
+5. **Coordonnées** : renseigner le vrai téléphone (`phone`, `phoneLabel` puis `phoneIsSet: true`), le lien LinkedIn
+   et, si possible, la commune de rattachement (`address`) dans `src/data/site.ts`.
+6. **Nom de domaine sans accents** : réserver aussi `serenitegestionconseils.fr` et le rediriger vers le site, car
+   beaucoup de personnes tapent l’adresse sans accents.
 
 ## Mettre en ligne
 
@@ -86,6 +120,8 @@ Lancer `npm run build`, puis envoyer **le contenu du dossier `dist/`** chez l'h�
 | En-tête / pied de page | `src/components/Header.astro`, `Footer.astro` |
 | Sections de l'accueil | `src/components/` : `Hero`, `Services`, `Formulas` (modes d'intervention), `About`, `Reasons`, `Journey` (frise), `Cases`, `Zone`, `Network`, `ConseilsTeaser`, `PromiseBand`, `Contact` |
 | Articles | `src/content/conseils/*.md` |
+| Pages métiers / zones | contenu : `src/content/metiers/`, `src/content/zones/` ; gabarit : `src/components/Landing.astro` |
+| Données structurées (SEO) | `src/utils/seo.ts` |
 | Animations (apparition, frise automatique, en-tête…) | `src/scripts/main.ts` (rythme de la frise : constantes `TL_STEP_MS`, `TL_END_MS`, `TL_RESUME_MS`) |
 | Bandeau cookies (Calendly) | `src/components/CookieBanner.astro` |
 | Photos optimisées | `src/assets/images/` |

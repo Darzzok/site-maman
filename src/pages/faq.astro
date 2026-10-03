@@ -5,6 +5,7 @@ import PageHero from '../components/PageHero.astro';
 import Icon from '../components/Icon.astro';
 import nadege from '../assets/images/nadege.jpg';
 import { faqs, faqCategories, site } from '../data/site';
+import { breadcrumbLd } from '../utils/seo';
 
 const stripTags = (html: string) => html.replace(/<[^>]+>/g, '');
 // Texte sans accents ni majuscules, pour la recherche et les ancres
@@ -31,18 +32,26 @@ const facts = [
 
 const jsonLd = {
   '@context': 'https://schema.org',
-  '@type': 'FAQPage',
-  mainEntity: faqs.map((f) => ({
-    '@type': 'Question',
-    name: f.q,
-    acceptedAnswer: { '@type': 'Answer', text: stripTags(f.a) },
-  })),
+  '@graph': [
+    {
+      '@type': 'FAQPage',
+      mainEntity: faqs.map((f) => ({
+        '@type': 'Question',
+        name: f.q,
+        acceptedAnswer: { '@type': 'Answer', text: stripTags(f.a) },
+      })),
+    },
+    breadcrumbLd([
+      { name: 'Accueil', url: '/' },
+      { name: 'FAQ', url: '/faq.html' },
+    ]),
+  ],
 };
 ---
 
 <BaseLayout
-  title={`Questions fréquentes (FAQ) — ${site.name}`}
-  description={`Tarifs, zone d’intervention, paie, relances, confidentialité… ${faqs.length} réponses claires sur l’accompagnement en gestion administrative de ${site.name}, en Normandie (27, 76).`}
+  title="Questions fréquentes sur la gestion administrative | SGC"
+  description={`Tarifs, zone d’intervention, paie, relances, confidentialité : ${faqs.length} réponses claires avant de déléguer votre gestion administrative.`}
   jsonLd={jsonLd}
 >
   <PageHero eyebrow="Questions fréquentes" title="Toutes les réponses à vos <em>questions</em>" crumb="FAQ">

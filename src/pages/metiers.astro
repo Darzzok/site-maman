@@ -1,0 +1,264 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import Icon from '../components/Icon.astro';
+import { cases, site } from '../data/site';
+import { getMetiers, getZones, metierUrl, zoneUrl } from '../utils/landings';
+import { breadcrumbLd, businessEntity } from '../utils/seo';
+
+const metiers = await getMetiers();
+const zones = await getZones();
+const url = '/metiers.html';
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    businessEntity(),
+    {
+      '@type': 'CollectionPage',
+      '@id': `${site.url}${url}`,
+      url: `${site.url}${url}`,
+      name: 'Gestion administrative par métier',
+      inLanguage: 'fr-FR',
+      isPartOf: { '@id': `${site.url}/#site` },
+      mainEntity: {
+        '@type': 'ItemList',
+        itemListElement: metiers.map((m, i) => ({
+          '@type': 'ListItem',
+          position: i + 1,
+          name: m.data.name,
+          url: `${site.url}${metierUrl(m.id)}`,
+        })),
+      },
+    },
+    breadcrumbLd([
+      { name: 'Accueil', url: '/' },
+      { name: 'Métiers', url },
+    ]),
+  ],
+};
+---
+
+<BaseLayout
+  title={`Gestion administrative par métier | ${site.name}`}
+  description="Artisans du BTP, professions de santé, professions libérales, commerces : une gestion administrative adaptée à votre métier, dans l’Eure et la Seine-Maritime."
+  jsonLd={jsonLd}
+>
+  <PageHero eyebrow="Accompagnement par métier" title="Une gestion adaptée à votre <em>métier</em>" crumb="Métiers">
+    <p class="page-intro">
+      Chaque activité a ses contraintes : situations de travaux dans le bâtiment, encaissements en cabinet, personnel
+      saisonnier en commerce, trésorerie irrégulière en profession libérale. Mon accompagnement part de la réalité de
+      votre métier.
+    </p>
+  </PageHero>
+
+  <section class="section m-list">
+    <div class="container">
+      <ul class="m-grid">
+        {
+          metiers.map((m, i) => {
+            const c = cases.find((x) => x.metier === m.id);
+            return (
+              <li data-reveal style={`--d:${i % 2}`}>
+                <a href={metierUrl(m.id)} class="m-card">
+                  <span class="m-ic">
+                    <Icon name={m.data.icon} size={28} />
+                  </span>
+                  <h2>{m.data.name}</h2>
+                  <p class="m-text">{m.data.cardText}</p>
+                  <ul class="m-chips">
+                    {m.data.audience.slice(0, 5).map((a) => (
+                      <li>{a}</li>
+                    ))}
+                  </ul>
+                  {c && (
+                    <p class="m-result">
+                      <Icon name="checkCircle" size={17} />
+                      {c.result}
+                    </p>
+                  )}
+                  <span class="m-more">
+                    Découvrir l’accompagnement <Icon name="arrowRight" size={16} />
+                  </span>
+                </a>
+              </li>
+            );
+          })
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--white m-other">
+    <div class="container">
+      <header class="section-head" data-reveal>
+        <p class="eyebrow">Votre activité n’est pas listée ?</p>
+        <h2 class="h2">Toutes les <em>TPE</em> sont les bienvenues</h2>
+        <p>
+          Entreprises de services, artisans d’autres secteurs, jeunes entreprises : les besoins en facturation,
+          trésorerie, personnel et organisation se retrouvent dans toutes les petites structures. Parlons de la vôtre.
+        </p>
+      </header>
+      <div class="m-actions" data-reveal>
+        <a href="/#rendez-vous" class="btn">
+          Réserver un échange gratuit <Icon name="arrowRight" size={18} class="i-arrow" />
+        </a>
+        <a href="/#services" class="btn btn--ghost">Voir toutes les prestations</a>
+      </div>
+      <div class="m-zones" data-reveal>
+        <p>J’interviens dans l’Eure et la Seine-Maritime :</p>
+        <ul>
+          {
+            zones.map((z) => (
+              <li>
+                <a href={zoneUrl(z.id)}>
+                  <Icon name="mapPin" size={15} />
+                  {z.data.name}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .m-list {
+    padding-top: clamp(3rem, 6vw, 4.5rem);
+  }
+  .m-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+  .m-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    padding: clamp(1.8rem, 4vw, 2.6rem) clamp(1.4rem, 3vw, 2.2rem);
+    text-align: center;
+    border-radius: var(--radius-lg);
+    background: #fff;
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-sm);
+    transition:
+      transform 0.5s var(--ease-out),
+      box-shadow 0.5s,
+      border-color 0.5s;
+  }
+  .m-card:hover {
+    transform: translateY(-6px);
+    border-color: var(--blue-200);
+    box-shadow: var(--shadow-lg);
+  }
+  .m-ic {
+    display: grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 20px;
+    color: #fff;
+    background: linear-gradient(135deg, var(--blue-500), var(--blue-800));
+    box-shadow: 0 16px 32px -14px rgb(97 25 58 / 0.6);
+  }
+  .m-card h2 {
+    margin-top: 1.2rem;
+    font-size: clamp(1.6rem, 3vw, 2rem);
+  }
+  .m-text {
+    max-width: 30rem;
+    margin-top: 0.6rem;
+    color: var(--muted);
+  }
+  .m-chips {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.4rem;
+    margin-top: 1.2rem;
+  }
+  .m-chips li {
+    padding: 0.3rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--blue-700);
+    background: var(--blue-50);
+    border: 1px solid var(--blue-100);
+  }
+  .m-result {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-top: 1.2rem;
+    padding: 0.55rem 1rem;
+    border-radius: 999px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--blue-700);
+    background: var(--rose-100);
+  }
+  .m-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: auto;
+    padding-top: 1.4rem;
+    font-weight: 700;
+    color: var(--blue-700);
+  }
+  .m-card:hover .m-more :global(svg) {
+    translate: 4px 0;
+  }
+  .m-more :global(svg) {
+    transition: translate 0.3s var(--ease-out);
+  }
+  .m-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.8rem;
+  }
+  .m-zones {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 2.5rem;
+  }
+  .m-zones p {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--muted);
+  }
+  .m-zones ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 0.8rem;
+  }
+  .m-zones a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.42rem 0.9rem;
+    border-radius: 999px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--blue-700);
+    background: var(--blue-50);
+    border: 1px solid var(--blue-100);
+    transition: background 0.3s;
+  }
+  .m-zones a:hover {
+    background: var(--blue-100);
+  }
+  @media (max-width: 760px) {
+    .m-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

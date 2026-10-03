@@ -9,6 +9,8 @@ import ShareBar from '../../components/ShareBar.astro';
 import nadege from '../../assets/images/nadege.jpg';
 import { site, zone } from '../../data/site';
 import { articleUrl, categories, formatDate, getConseils, lengthFormat, readingTime, type Conseil } from '../../utils/conseils';
+import { getMetiers, getZones, metierUrl, zoneUrl } from '../../utils/landings';
+import { businessId } from '../../utils/seo';
 
 export async function getStaticPaths() {
   const articles = await getConseils();
@@ -28,6 +30,12 @@ interface Props {
 }
 const { entry, articles, prev, next } = Astro.props;
 const { Content, headings } = await render(entry);
+
+// Pages métiers et zones qui recommandent cet article (maillage interne)
+const linkedPages = [
+  ...(await getMetiers()).filter((m) => m.data.related.includes(entry.id)).map((m) => ({ label: m.data.name, href: metierUrl(m.id), icon: m.data.icon })),
+  ...(await getZones()).filter((z) => z.data.related.includes(entry.id)).map((z) => ({ label: z.data.name, href: zoneUrl(z.id), icon: 'mapPin' })),
+];
 const { title, description, category, date, updated, keyPoints } = entry.data;
 const minutes = readingTime(entry.body);
 const url = `${site.url}${articleUrl(entry)}`;
@@ -63,9 +71,10 @@ const jsonLd = {
       articleSection: category,
       wordCount: entry.body?.trim().split(/\s+/).length,
       image: shareImageUrl,
-      author: { '@type': 'Person', name: site.owner, jobTitle: site.role },
+      author: { '@type': 'Person', name: site.owner, jobTitle: site.role, url: `${site.url}/#a-propos`, worksFor: { '@id': businessId } },
       publisher: {
         '@type': 'Organization',
+        '@id': businessId,
         name: site.name,
         logo: { '@type': 'ImageObject', url: `${site.url}/images/logo.png` },
       },
@@ -224,6 +233,24 @@ const jsonLd = {
           <a href="/#devis" class="btn btn--ghost">Demander un devis</a>
         </div>
       </div>
+
+      {
+        linkedPages.length > 0 && (
+          <div class="linked">
+            <p class="linked-title">Un accompagnement adapté à votre situation</p>
+            <ul>
+              {linkedPages.map((p) => (
+                <li>
+                  <a href={p.href}>
+                    <Icon name={p.icon} size={15} />
+                    {p.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )
+      }
 
       <!-- Article précédent / suivant -->
       <nav class="pager" aria-label="Autres articles">
@@ -1054,5 +1081,44 @@ const jsonLd = {
   .pager-link--next {
     align-items: center;
     text-align: center;
+  }
+
+  /* Pages métiers / zones liées */
+  .linked {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 2.5rem;
+    text-align: center;
+  }
+  .linked-title {
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .linked ul {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 0.8rem;
+  }
+  .linked a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.95rem;
+    border-radius: 999px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--blue-700);
+    background: var(--blue-50);
+    border: 1px solid var(--blue-100);
+    transition: background 0.3s;
+  }
+  .linked a:hover {
+    background: var(--blue-100);
   }
 </style>

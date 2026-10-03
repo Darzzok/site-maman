@@ -67,6 +67,10 @@ import { services } from '../data/site';
     </div>
 
     <CollapseToggle controls="services-list" total={services.length} more="Voir toutes les prestations" />
+
+    <p class="by-metier" data-reveal>
+      <a href="/metiers.html">Découvrir l’accompagnement adapté à votre métier <Icon name="arrowRight" size={16} /></a>
+    </p>
   </div>
 </section>
 
@@ -251,5 +255,25 @@ import { services } from '../data/site';
     .wide-cta {
       width: 100%;
     }
+  }
+
+  /* Lien vers les pages métiers */
+  .by-metier {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+  }
+  .by-metier a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-weight: 700;
+    color: var(--blue-700);
+    text-decoration: underline;
+    text-decoration-color: var(--blue-200);
+    text-underline-offset: 4px;
+  }
+  .by-metier a:hover {
+    text-decoration-color: currentColor;
   }
 </style>

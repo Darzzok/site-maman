@@ -35,6 +35,12 @@ import { cases } from '../data/site';
                 <p class="result-text">{c.result}</p>
               </div>
             </div>
+            {c.metier && (
+              <a href={`/metiers/${c.metier}.html`} class="case-more">
+                Accompagnement {c.tag.toLowerCase().includes('btp') ? 'des artisans du BTP' : c.metier === 'professions-de-sante' ? 'des professions de santé' : c.metier === 'professions-liberales' ? 'des professions libérales' : 'des commerces'}
+                <Icon name="arrowRight" size={15} />
+              </a>
+            )}
           </article>
         ))
       }
@@ -141,5 +147,21 @@ import { cases } from '../data/site';
     .case-grid {
       grid-template-columns: 1fr;
     }
+  }
+
+  /* Lien vers la page métier */
+  .case-more {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    margin-top: 1rem;
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: var(--blue-700);
+  }
+  .case-more:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
 </style>

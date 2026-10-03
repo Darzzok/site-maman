@@ -19,6 +19,10 @@ export const site = {
   emailLabel: 'contact@sérénitégestionconseils.fr',
   phone: '+33600000000', // À compléter
   phoneLabel: '06 00 00 00 00', // À compléter
+  // Passer à true une fois le vrai numéro renseigné (il sera alors transmis à Google)
+  phoneIsSet: false,
+  // Adresse de l'entreprise (référencement local, fiche Google) : à compléter si elle peut être publiée
+  address: { street: '', postalCode: '', locality: '' },
   linkedin: '#', // À compléter : lien de la page LinkedIn
   // Formulaire de devis : les réponses arrivent par e-mail via Formspree
   formspree: 'https://formspree.io/f/mbdnqoda',
@@ -49,6 +53,7 @@ export const zone = {
 export const nav: { label: string; id?: string; href?: string }[] = [
   { label: 'Accueil', id: 'accueil' },
   { label: 'Services', id: 'services' },
+  { label: 'Métiers', href: '/metiers.html' },
   { label: 'À propos', id: 'a-propos' },
   { label: 'Cas clients', id: 'cas-clients' },
   { label: 'Conseils', href: '/conseils.html' },
@@ -223,6 +228,7 @@ export const cases = [
     icon: 'hardhat',
     tag: 'Artisan du BTP',
     title: 'Entreprise de maçonnerie',
+    metier: 'artisans-btp',
     problem: 'Devis en retard, suivi de chantiers approximatif et relances clients jamais faites faute de temps.',
     result: 'Délai de facturation divisé par deux',
   },
@@ -230,6 +236,7 @@ export const cases = [
     icon: 'briefcase',
     tag: 'Profession libérale',
     title: 'Cabinet de conseil indépendant',
+    metier: 'professions-liberales',
     problem: 'Un dirigeant seul, submergé par l’administratif au point de repousser ses rendez-vous clients.',
     result: 'Plus de 10h/semaine récupérées',
   },
@@ -237,6 +244,7 @@ export const cases = [
     icon: 'store',
     tag: 'TPE commerce',
     title: 'Commerce de proximité',
+    metier: 'commerces-de-proximite',
     problem: 'Aucun process RH formalisé : contrats, DPAE et suivi de paie gérés dans l’urgence à chaque embauche.',
     result: 'Personnel et paie enfin sécurisés',
   },
@@ -244,6 +252,7 @@ export const cases = [
     icon: 'wrench',
     tag: 'Artisan',
     title: 'Entreprise de plomberie',
+    metier: 'artisans-btp',
     problem: 'Trésorerie tendue en fin de mois, sans visibilité claire sur les impayés ni les échéances à venir.',
     result: 'Trésorerie suivie et sécurisée au quotidien',
   },
@@ -251,6 +260,7 @@ export const cases = [
     icon: 'stethoscope',
     tag: 'Profession libérale',
     title: 'Cabinet médical',
+    metier: 'professions-de-sante',
     problem: 'Secrétariat administratif débordé entre la prise de rendez-vous, la facturation et le suivi des dossiers.',
     result: 'Organisation administrative fluidifiée',
   },
@@ -258,6 +268,7 @@ export const cases = [
     icon: 'home',
     tag: 'TPE BTP',
     title: 'Entreprise de rénovation',
+    metier: 'artisans-btp',
     problem: 'Sous-traitance mal suivie et situations de travaux transmises en retard, avec un impact direct sur la trésorerie.',
     result: 'Chantiers et sous-traitance sous contrôle',
   },
