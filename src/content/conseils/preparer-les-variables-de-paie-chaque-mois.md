@@ -2,7 +2,12 @@
 title: 'Préparer les variables de paie chaque mois sans erreur'
 description: 'Heures supplémentaires, absences, primes, entrées et sorties : comment organiser la remontée des éléments variables pour des bulletins de paie justes et à l’heure.'
 category: 'Ressources humaines'
-date: 2026-10-03
+date: 2026-08-27
+cover: ./images/preparer-les-variables-de-paie-chaque-mois.jpg
+coverAlt: "Deux collègues travaillent sur leur ordinateur dans un bureau lumineux"
+coverCredit:
+  name: "Tim van der Kuip"
+  url: "https://unsplash.com/fr/photos/CPs2X8JYmS8"
 keyPoints:
   - "La plupart des erreurs de paie viennent d’éléments variables oubliés ou transmis en retard."
   - "Un tableau unique et une date limite fixe chaque mois évitent les allers-retours."

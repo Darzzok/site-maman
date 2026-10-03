@@ -1,19 +1,24 @@
 ---
+import { Picture } from 'astro:assets';
 import Icon from './Icon.astro';
 import ArticleCover from './ArticleCover.astro';
-import { articleUrl, readingTime, type Conseil } from '../utils/conseils';
+import { articleUrl, categories, formatDate, lengthFormat, readingTime, type Conseil } from '../utils/conseils';
 
 interface Props {
   entry: Conseil;
   delay?: number;
   headingLevel?: 'h2' | 'h3';
-  /** Carte "à la une" : couverture à gauche, plus grande */
+  /** Carte "à la une" : grande photo à gauche */
   featured?: boolean;
+  /** Image prioritaire (au-dessus de la ligne de flottaison) */
+  eager?: boolean;
 }
-const { entry, delay = 0, headingLevel = 'h2', featured = false } = Astro.props;
+const { entry, delay = 0, headingLevel = 'h2', featured = false, eager = false } = Astro.props;
 const Heading = headingLevel;
-const { title, description, category } = entry.data;
+const { title, description, category, date, cover, coverAlt } = entry.data;
 const minutes = readingTime(entry.body);
+const format = lengthFormat(minutes);
+const theme = categories[category];
 
 // Texte de recherche normalisé (sans accents) pour le filtre de la page Conseils
 const searchText = `${title} ${description} ${category}`
@@ -23,26 +28,49 @@ const searchText = `${title} ${description} ${category}`
 ---
 
 <article
-  class:list={['card', 'article', { 'article--featured': featured }]}
+  class:list={['card', 'article', `tone-${theme.tone}`, { 'article--featured': featured }]}
   data-reveal
   style={`--d:${delay}`}
   data-category={category}
+  data-format={format.key}
   data-search={searchText}
   data-featured={entry.data.featured ? 'true' : undefined}
 >
-  <ArticleCover category={category} size={featured ? 'lg' : 'sm'} class="a-cover" />
+  <div class="a-media">
+    {
+      cover ? (
+        <Picture
+          src={cover}
+          alt={coverAlt}
+          formats={['avif', 'webp']}
+          widths={featured ? [600, 900, 1200] : [400, 640, 800]}
+          sizes={featured ? '(max-width: 860px) 100vw, 600px' : '(max-width: 680px) 100vw, (max-width: 1023px) 50vw, 380px'}
+          loading={eager ? 'eager' : 'lazy'}
+          class="a-img"
+        />
+      ) : (
+        <ArticleCover category={category} size={featured ? 'lg' : 'sm'} class="a-img" />
+      )
+    }
+    <span class="a-chip a-chip--cat">
+      <Icon name={theme.icon} size={14} strokeWidth={2} />
+      {category}
+    </span>
+    <span class:list={['a-chip', 'a-chip--len', `len-${format.key}`]}>
+      <Icon name="clock" size={13} strokeWidth={2.2} />
+      {format.label} · {minutes} min
+    </span>
+  </div>
+
   <div class="a-body">
-    <p class="a-top">
-      {featured && <span class="a-flag"><Icon name="sparkles" size={13} strokeWidth={2} />À la une</span>}
-      <span class="a-cat">{category}</span>
-    </p>
+    {featured && <p class="a-flag"><Icon name="sparkles" size={13} strokeWidth={2} />À la une</p>}
     <Heading class="a-title">
       <a href={articleUrl(entry)}>{title}</a>
     </Heading>
     <p class="a-desc">{description}</p>
     <p class="a-foot">
-      <span class="a-time"><Icon name="clock" size={15} />{minutes} min de lecture</span>
-      <span class="a-more" aria-hidden="true">Lire <Icon name="arrowRight" size={16} /></span>
+      <time datetime={date.toISOString()}>{formatDate(date)}</time>
+      <span class="a-more" aria-hidden="true">Lire l’article <Icon name="arrowRight" size={16} /></span>
     </p>
   </div>
 </article>
@@ -53,39 +81,95 @@ const searchText = `${title} ${description} ${category}`
     flex-direction: column;
     padding: 0;
     text-align: center;
+    border-radius: 24px;
   }
-  .article :global(.a-cover) {
-    height: 150px;
+  .article:hover {
+    transform: translateY(-6px);
+  }
+
+  /* — Photo — */
+  .a-media {
+    position: relative;
     flex: none;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background: var(--sand);
   }
+  .a-media :global(picture),
+  .a-media :global(.a-img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .a-media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition:
+      transform 1.1s var(--ease-out),
+      filter 0.6s;
+  }
+  .article:hover .a-media :global(img) {
+    transform: scale(1.06);
+  }
+  /* Voile dégradé pour la lisibilité des étiquettes */
+  .a-media::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgb(6 15 51 / 0.45), transparent 35%),
+      linear-gradient(0deg, rgb(6 15 51 / 0.25), transparent 30%);
+    pointer-events: none;
+  }
+  .a-chip {
+    position: absolute;
+    top: 0.85rem;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.7rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    backdrop-filter: blur(10px);
+  }
+  .a-chip--cat {
+    left: 0.85rem;
+    color: #fff;
+    background: rgb(6 15 51 / 0.45);
+    border: 1px solid rgb(255 255 255 / 0.25);
+  }
+  .a-chip--len {
+    right: 0.85rem;
+    color: var(--ink);
+    background: rgb(255 255 255 / 0.9);
+  }
+  .len-express {
+    color: var(--success);
+  }
+  .len-dossier {
+    color: var(--terra-700);
+  }
+
+  /* — Texte — */
   .a-body {
     display: flex;
     flex-direction: column;
     align-items: center;
     flex: 1;
-    gap: 0.75rem;
-    padding: 1.4rem 1.5rem 1.5rem;
-  }
-  .a-top {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.5rem;
-  }
-  .a-cat {
-    font-size: 0.72rem;
-    font-weight: 800;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--terra-600);
+    gap: 0.7rem;
+    padding: 1.4rem 1.5rem 1.4rem;
   }
   .a-flag {
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
-    padding: 0.2rem 0.6rem;
+    padding: 0.25rem 0.7rem;
     border-radius: 999px;
-    font-size: 0.7rem;
+    font-size: 0.72rem;
     font-weight: 800;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -93,8 +177,8 @@ const searchText = `${title} ${description} ${category}`
     background: linear-gradient(135deg, var(--terra-400), var(--terra-600));
   }
   .a-title {
-    font-size: 1.28rem;
-    line-height: 1.25;
+    font-size: 1.25rem;
+    line-height: 1.28;
   }
   .a-title a {
     transition: color 0.3s;
@@ -118,7 +202,11 @@ const searchText = `${title} ${description} ${category}`
   }
   .a-desc {
     flex: 1;
-    font-size: 0.93rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-size: 0.92rem;
     line-height: 1.6;
     color: var(--muted);
   }
@@ -127,16 +215,11 @@ const searchText = `${title} ${description} ${category}`
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    margin-top: 0.4rem;
+    margin-top: 0.3rem;
     padding-top: 0.9rem;
     border-top: 1px solid var(--line-soft);
-    font-size: 0.84rem;
+    font-size: 0.82rem;
     font-weight: 600;
-  }
-  .a-time {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
     color: var(--muted);
   }
   .a-more {
@@ -156,30 +239,35 @@ const searchText = `${title} ${description} ${category}`
   /* — Carte à la une — */
   .article--featured {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
   }
-  .article--featured :global(.a-cover) {
-    height: auto;
-    min-height: 300px;
+  .article--featured .a-media {
+    aspect-ratio: auto;
+    min-height: 340px;
   }
   .article--featured .a-body {
     justify-content: center;
     gap: 1rem;
-    padding: clamp(1.75rem, 4vw, 2.75rem);
+    padding: clamp(1.75rem, 4vw, 3rem);
   }
   .article--featured .a-title {
-    font-size: clamp(1.6rem, 2.8vw, 2.2rem);
+    font-size: clamp(1.6rem, 2.8vw, 2.25rem);
   }
   .article--featured .a-desc {
     flex: none;
+    -webkit-line-clamp: 4;
     font-size: 1.02rem;
+  }
+  .article--featured .a-foot {
+    max-width: 26rem;
   }
   @media (max-width: 860px) {
     .article--featured {
       grid-template-columns: 1fr;
     }
-    .article--featured :global(.a-cover) {
-      min-height: 190px;
+    .article--featured .a-media {
+      min-height: 0;
+      aspect-ratio: 16 / 10;
     }
   }
 </style>

@@ -3,7 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import ArticleCard from '../components/ArticleCard.astro';
 import Icon from '../components/Icon.astro';
 import { site } from '../data/site';
-import { articleUrl, categories, getConseils, readingTime, type Category } from '../utils/conseils';
+import { articleUrl, categories, getConseils, lengthFormat, lengthFormats, readingTime, type Category } from '../utils/conseils';
 
 const articles = await getConseils();
 const featured = articles.find((a) => a.data.featured) ?? articles[0];
@@ -20,6 +20,9 @@ const themes = (Object.keys(categories) as Category[])
   .filter((t) => t.count > 0);
 
 const minutes = articles.map((a) => readingTime(a.body));
+const formats = lengthFormats
+  .map((f) => ({ ...f, count: articles.filter((a) => lengthFormat(readingTime(a.body)).key === f.key).length }))
+  .filter((f) => f.count > 0);
 const readRange = `${Math.min(...minutes)} à ${Math.max(...minutes)} min`;
 
 const jsonLd = {
@@ -99,7 +102,7 @@ const jsonLd = {
       {
         featured && (
           <div class="featured" data-featured-block>
-            <ArticleCard entry={featured} featured />
+            <ArticleCard entry={featured} featured eager />
           </div>
         )
       }
@@ -120,6 +123,17 @@ const jsonLd = {
             ))
           }
         </div>
+      </div>
+      <div class="formats" role="group" aria-label="Filtrer par durée de lecture">
+        <span class="formats-label"><Icon name="clock" size={15} /> Durée</span>
+        <button type="button" class="fmt is-active" data-format-filter="all" aria-pressed="true">Toutes</button>
+        {
+          formats.map((f) => (
+            <button type="button" class="fmt" data-format-filter={f.key} aria-pressed="false" title={f.hint}>
+              {f.label} <small>{f.hint}</small>
+            </button>
+          ))
+        }
       </div>
       <p class="results" aria-live="polite" data-results></p>
 
@@ -187,6 +201,7 @@ const jsonLd = {
   const grid = document.querySelector<HTMLElement>('[data-articles]')!;
   const cards = [...grid.querySelectorAll<HTMLElement>('[data-category]')];
   const filters = [...document.querySelectorAll<HTMLButtonElement>('[data-filter]')];
+  const formatBtns = [...document.querySelectorAll<HTMLButtonElement>('[data-format-filter]')];
   const featuredBlock = document.querySelector<HTMLElement>('[data-featured-block]');
   const results = document.querySelector<HTMLElement>('[data-results]')!;
   const empty = document.querySelector<HTMLElement>('[data-empty]')!;
@@ -196,6 +211,7 @@ const jsonLd = {
     s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
 
   let theme = 'all';
+  let format = 'all';
 
   function apply(updateUrl = true) {
     const q = normalize(input.value);
@@ -204,14 +220,15 @@ const jsonLd = {
       .split(/\s+/)
       .filter(Boolean)
       .map((w) => (w.length > 4 ? w.replace(/(es|e|s)$/, '') : w));
-    const filtering = theme !== 'all' || words.length > 0;
+    const filtering = theme !== 'all' || format !== 'all' || words.length > 0;
     let visible = 0;
 
     cards.forEach((card) => {
       const matchTheme = theme === 'all' || card.dataset.category === theme;
       const matchText = words.every((w) => (card.dataset.search ?? '').includes(w));
+      const matchFormat = format === 'all' || card.dataset.format === format;
       // Sans filtre, l'article "à la une" est déjà affiché au-dessus
-      const show = matchTheme && matchText && (filtering || card.dataset.featured !== 'true');
+      const show = matchTheme && matchText && matchFormat && (filtering || card.dataset.featured !== 'true');
       card.hidden = !show;
       if (show) {
         visible++;
@@ -230,12 +247,18 @@ const jsonLd = {
       f.classList.toggle('is-active', active);
       f.setAttribute('aria-pressed', String(active));
     });
+    formatBtns.forEach((b) => {
+      const active = b.dataset.formatFilter === format;
+      b.classList.toggle('is-active', active);
+      b.setAttribute('aria-pressed', String(active));
+    });
 
     if (updateUrl) {
       const url = new URL(location.href);
       const slug = filters.find((f) => f.dataset.filter === theme)?.dataset.slug;
       slug ? url.searchParams.set('theme', slug) : url.searchParams.delete('theme');
       input.value ? url.searchParams.set('q', input.value) : url.searchParams.delete('q');
+      format !== 'all' ? url.searchParams.set('duree', format) : url.searchParams.delete('duree');
       history.replaceState(null, '', url);
     }
   }
@@ -247,6 +270,12 @@ const jsonLd = {
   }
 
   filters.forEach((f) => f.addEventListener('click', () => setTheme(f.dataset.filter ?? 'all')));
+  formatBtns.forEach((b) =>
+    b.addEventListener('click', () => {
+      format = b.dataset.formatFilter ?? 'all';
+      apply();
+    }),
+  );
   document.querySelectorAll<HTMLButtonElement>('[data-theme]').forEach((b) =>
     b.addEventListener('click', () => setTheme(b.dataset.theme ?? 'all', true)),
   );
@@ -258,6 +287,7 @@ const jsonLd = {
   });
   document.querySelector('[data-reset]')?.addEventListener('click', () => {
     input.value = '';
+    format = 'all';
     setTheme('all');
   });
 
@@ -279,6 +309,8 @@ const jsonLd = {
   const fromSlug = filters.find((f) => f.dataset.slug === params.get('theme'))?.dataset.filter;
   if (fromSlug) theme = fromSlug;
   input.value = params.get('q') ?? '';
+  const fromFormat = params.get('duree');
+  if (formatBtns.some((b) => b.dataset.formatFilter === fromFormat)) format = fromFormat as string;
   grid.classList.add('is-enhanced');
   apply(false);
 </script>
@@ -547,6 +579,57 @@ const jsonLd = {
     color: var(--blue-700);
     background: #fff;
   }
+  .formats {
+    width: fit-content;
+    margin: 0 auto 0.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    padding: 0.3rem;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.88);
+    border: 1px solid var(--line);
+    backdrop-filter: blur(14px);
+  }
+  .formats-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0 0.6rem 0 0.5rem;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .fmt {
+    padding: 0.4rem 0.85rem;
+    border-radius: 999px;
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: var(--text);
+    transition:
+      background 0.3s,
+      color 0.3s;
+  }
+  .fmt small {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .fmt:hover {
+    color: var(--blue-700);
+    background: var(--blue-50);
+  }
+  .fmt.is-active {
+    color: #fff;
+    background: var(--terra-600);
+  }
+  .fmt.is-active small {
+    color: rgb(255 255 255 / 0.8);
+  }
   .results {
     min-height: 1.2em;
     margin-bottom: 1.5rem;
@@ -750,7 +833,7 @@ const jsonLd = {
       grid-template-columns: 1fr;
     }
     .toolbar {
-      top: 4.6rem;
+      position: static;
     }
     .filters {
       border-radius: 18px;

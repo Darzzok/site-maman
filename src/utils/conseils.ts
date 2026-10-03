@@ -18,6 +18,19 @@ export function readingTime(body = ''): number {
   return Math.max(1, Math.ceil(body.trim().split(/\s+/).length / 200));
 }
 
+/** Format de lecture selon la durée : Express (≤ 3 min), Guide (4-5 min), Dossier (6 min et +) */
+export function lengthFormat(minutes: number) {
+  if (minutes <= 3) return { key: 'express', label: 'Express' } as const;
+  if (minutes <= 5) return { key: 'guide', label: 'Guide' } as const;
+  return { key: 'dossier', label: 'Dossier' } as const;
+}
+
+export const lengthFormats = [
+  { key: 'express', label: 'Express', hint: '3 min max' },
+  { key: 'guide', label: 'Guides', hint: '4 à 5 min' },
+  { key: 'dossier', label: 'Dossiers', hint: '6 min et +' },
+] as const;
+
 export function formatDate(date: Date): string {
   return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
 }

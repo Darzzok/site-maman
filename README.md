@@ -28,6 +28,13 @@ Chaque article est un fichier Markdown dans **`src/content/conseils/`**.
   devient l'adresse de la page), puis modifier l'en-tête entre les `---` :
   `title`, `description` (affichée dans Google), `category` (Trésorerie,
   Gestion administrative, Ressources humaines ou Pilotage) et `date`.
+- **Photo de l'article** : déposer l'image dans `src/content/conseils/images/`, puis renseigner
+  `cover` (chemin de l'image), `coverAlt` (description pour l'accessibilité) et `coverCredit`
+  (nom de l'auteur et lien). N'utiliser que des photos libres de droits (par exemple Unsplash),
+  sans texte, ou avec du texte en français. La liste des photos actuelles et de leurs auteurs
+  est dans `scripts/photos.json`.
+- **Durée et format** : calculés automatiquement à partir du texte (Express ≤ 3 min,
+  Guide 4-5 min, Dossier 6 min et +).
 - **L'essentiel en 30 secondes** : la liste `keyPoints` de l'en-tête (3 à 4 phrases).
 - **Mettre un article à la une** de la page Conseils : `featured: true` (un seul à la fois).
 - **Masquer un article** sans le supprimer : ajouter `draft: true` dans l'en-tête.

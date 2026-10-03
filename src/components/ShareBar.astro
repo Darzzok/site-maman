@@ -1,0 +1,217 @@
+---
+/**
+ * Barre de partage : réseaux sociaux, e-mail, copie du lien, impression / PDF,
+ * et partage natif du téléphone (menu "Partager" d'Android / iOS) quand il existe.
+ */
+import Icon from './Icon.astro';
+
+interface Props {
+  url: string;
+  title: string;
+  text?: string;
+  /** "icons" : ronds compacts ; "full" : boutons avec libellés */
+  variant?: 'icons' | 'full';
+  print?: boolean;
+  class?: string;
+}
+const { url, title, text = '', variant = 'icons', print = false, class: className } = Astro.props;
+
+const u = encodeURIComponent(url);
+const t = encodeURIComponent(title);
+const links = [
+  { key: 'linkedin', label: 'LinkedIn', icon: 'linkedin', href: `https://www.linkedin.com/sharing/share-offsite/?url=${u}` },
+  { key: 'facebook', label: 'Facebook', icon: 'facebook', href: `https://www.facebook.com/sharer/sharer.php?u=${u}` },
+  { key: 'whatsapp', label: 'WhatsApp', icon: 'whatsapp', href: `https://wa.me/?text=${encodeURIComponent(`${title} ${url}`)}` },
+  { key: 'x', label: 'X', icon: 'xLogo', href: `https://twitter.com/intent/tweet?text=${t}&url=${u}` },
+  {
+    key: 'mail',
+    label: 'E-mail',
+    icon: 'mail',
+    href: `mailto:?subject=${t}&body=${encodeURIComponent(`${text ? `${text}\n\n` : ''}${url}`)}`,
+  },
+];
+---
+
+<div
+  class:list={['share', `share--${variant}`, className]}
+  data-share
+  data-share-url={url}
+  data-share-title={title}
+  data-share-text={text}
+>
+  <button type="button" class="sh-btn sh-native" data-share-native hidden aria-label="Partager via mon téléphone">
+    <Icon name="share" size={18} />
+    <span class="sh-label">Partager</span>
+  </button>
+  {
+    links.map((l) => (
+      <a
+        class:list={['sh-btn', `sh-${l.key}`]}
+        href={l.href}
+        target={l.key === 'mail' ? undefined : '_blank'}
+        rel="noopener"
+        aria-label={`Partager sur ${l.label}`}
+        title={`Partager sur ${l.label}`}
+      >
+        <Icon name={l.icon} size={18} />
+        <span class="sh-label">{l.label}</span>
+      </a>
+    ))
+  }
+  <button type="button" class="sh-btn sh-copy" data-share-copy aria-label="Copier le lien" title="Copier le lien">
+    <Icon name="link" size={18} />
+    <span class="sh-label" data-copy-label>Copier le lien</span>
+  </button>
+  {
+    print && (
+      <button type="button" class="sh-btn sh-print" data-share-print aria-label="Imprimer ou enregistrer en PDF" title="Imprimer ou enregistrer en PDF">
+        <Icon name="printer" size={18} />
+        <span class="sh-label">Imprimer / PDF</span>
+      </button>
+    )
+  }
+  <p class="sh-status" role="status" data-share-status></p>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-share]').forEach((root) => {
+    const url = root.dataset.shareUrl ?? location.href;
+    const title = root.dataset.shareTitle ?? document.title;
+    const text = root.dataset.shareText ?? '';
+    const status = root.querySelector<HTMLElement>('[data-share-status]');
+    const say = (msg: string) => {
+      if (!status) return;
+      status.textContent = msg;
+      setTimeout(() => (status.textContent = ''), 2500);
+    };
+
+    // Partage natif (téléphones, certains navigateurs)
+    const native = root.querySelector<HTMLButtonElement>('[data-share-native]');
+    if (native && typeof navigator.share === 'function') {
+      native.hidden = false;
+      native.addEventListener('click', async () => {
+        try {
+          await navigator.share({ title, text, url });
+        } catch {
+          /* partage annulé */
+        }
+      });
+    }
+
+    // Copier le lien
+    const copy = root.querySelector<HTMLButtonElement>('[data-share-copy]');
+    copy?.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(url);
+        copy.classList.add('is-done');
+        say('Lien copié !');
+        setTimeout(() => copy.classList.remove('is-done'), 2500);
+      } catch {
+        say('Copie impossible : sélectionnez l’adresse dans la barre du navigateur.');
+      }
+    });
+
+    // Imprimer / enregistrer en PDF
+    root.querySelector('[data-share-print]')?.addEventListener('click', () => window.print());
+  });
+</script>
+
+<style>
+  .share {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+  .sh-btn[hidden] {
+    display: none;
+  }
+  .sh-btn {
+    --c: var(--blue-700);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    color: var(--c);
+    transition:
+      background 0.3s,
+      color 0.3s,
+      border-color 0.3s,
+      transform 0.4s var(--ease-spring);
+  }
+  .sh-linkedin {
+    --c: #0a66c2;
+  }
+  .sh-facebook {
+    --c: #1877f2;
+  }
+  .sh-whatsapp {
+    --c: #1fa855;
+  }
+  .sh-x {
+    --c: #111111;
+  }
+  .sh-mail,
+  .sh-copy,
+  .sh-print,
+  .sh-native {
+    --c: var(--blue-700);
+  }
+  .share .sh-btn:hover,
+  .share .sh-btn:focus-visible {
+    color: #fff;
+    background: var(--c);
+    border-color: var(--c);
+    transform: translateY(-2px);
+  }
+  .share .sh-copy:global(.is-done) {
+    color: #fff;
+    background: var(--success);
+    border-color: var(--success);
+  }
+
+  /* — Variante ronds compacts — */
+  .share--icons .sh-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #fff;
+    border: 1px solid var(--line);
+  }
+  .share--icons .sh-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  /* — Variante boutons avec libellés — */
+  .share--full {
+    gap: 0.6rem;
+  }
+  .share--full .sh-btn {
+    padding: 0.7rem 1.1rem;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    background: #fff;
+    border: 1.5px solid var(--line);
+  }
+
+  .sh-status {
+    position: absolute;
+    left: 50%;
+    top: calc(100% + 0.4rem);
+    translate: -50% 0;
+    font-size: 0.82rem;
+    font-weight: 700;
+    white-space: nowrap;
+    color: var(--success);
+  }
+  .sh-status:empty {
+    display: none;
+  }
+</style>

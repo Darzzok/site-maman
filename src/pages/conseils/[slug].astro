@@ -1,19 +1,22 @@
 ---
 import { render } from 'astro:content';
-import { Image } from 'astro:assets';
+import { Image, Picture, getImage } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ArticleCard from '../../components/ArticleCard.astro';
 import ArticleCover from '../../components/ArticleCover.astro';
 import Icon from '../../components/Icon.astro';
+import ShareBar from '../../components/ShareBar.astro';
 import nadege from '../../assets/images/nadege.jpg';
 import { site, zone } from '../../data/site';
-import { articleUrl, categories, formatDate, getConseils, readingTime, type Conseil } from '../../utils/conseils';
+import { articleUrl, categories, formatDate, getConseils, lengthFormat, readingTime, type Conseil } from '../../utils/conseils';
 
 export async function getStaticPaths() {
   const articles = await getConseils();
-  return articles.map((entry, i) => ({
+  // Navigation précédent / suivant dans l'ordre chronologique de publication
+  const chrono = [...articles].sort((a, b) => a.data.date.valueOf() - b.data.date.valueOf());
+  return chrono.map((entry, i) => ({
     params: { slug: entry.id },
-    props: { entry, articles, prev: articles[i - 1], next: articles[i + 1] },
+    props: { entry, articles, prev: chrono[i - 1], next: chrono[i + 1] },
   }));
 }
 
@@ -30,17 +33,20 @@ const minutes = readingTime(entry.body);
 const url = `${site.url}${articleUrl(entry)}`;
 const toc = headings.filter((h) => h.depth === 2);
 const theme = categories[category];
+const format = lengthFormat(minutes);
+const { cover, coverAlt, coverCredit } = entry.data;
+
+// Image de partage propre à l'article (1200×630, recadrée)
+const shareImage = cover
+  ? (await getImage({ src: cover, width: 1200, height: 630, fit: 'cover', format: 'jpg' })).src
+  : undefined;
+const shareImageUrl = new URL(shareImage ?? '/images/og-image.jpg', site.url).href;
 
 // Articles associés : même thème d'abord, puis les autres
 const related = articles
   .filter((a) => a.id !== entry.id)
   .sort((a, b) => Number(b.data.category === category) - Number(a.data.category === category))
   .slice(0, 3);
-
-const share = {
-  linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
-  mail: `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(`${description}\n\n${url}`)}`,
-};
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -56,7 +62,7 @@ const jsonLd = {
       inLanguage: 'fr-FR',
       articleSection: category,
       wordCount: entry.body?.trim().split(/\s+/).length,
-      image: `${site.url}/images/og-image.jpg`,
+      image: shareImageUrl,
       author: { '@type': 'Person', name: site.owner, jobTitle: site.role },
       publisher: {
         '@type': 'Organization',
@@ -76,7 +82,7 @@ const jsonLd = {
 };
 ---
 
-<BaseLayout title={`${title} | ${site.name}`} description={description} jsonLd={jsonLd}>
+<BaseLayout title={`${title} | ${site.name}`} description={description} jsonLd={jsonLd} image={shareImageUrl} ogType="article">
   <div class="read-progress" aria-hidden="true"><span data-read-progress></span></div>
 
   <!-- ============ En-tête ============ -->
@@ -99,12 +105,37 @@ const jsonLd = {
             <time datetime={date.toISOString()}>{formatDate(date)}</time>
             <span aria-hidden="true">·</span>
             <span class="a-time"><Icon name="clock" size={14} />{minutes} min de lecture</span>
+            <span aria-hidden="true">·</span>
+            <span class:list={['a-format', `len-${format.key}`]}>{format.label}</span>
           </span>
         </span>
       </div>
+      <ShareBar url={url} title={title} text={description} class="hero-share" />
     </div>
     <div class="container a-cover-wrap">
-      <ArticleCover category={category} size="lg" class="a-cover" />
+      {
+        cover ? (
+          <figure class="a-figure">
+            <Picture
+              src={cover}
+              alt={coverAlt}
+              formats={['avif', 'webp']}
+              widths={[640, 1000, 1600]}
+              sizes="(max-width: 1060px) 100vw, 1000px"
+              loading="eager"
+              fetchpriority="high"
+              class="a-photo"
+            />
+            {coverCredit && (
+              <figcaption>
+                Photo : <a href={coverCredit.url} target="_blank" rel="noopener">{coverCredit.name}</a> / Unsplash
+              </figcaption>
+            )}
+          </figure>
+        ) : (
+          <ArticleCover category={category} size="lg" class="a-cover" />
+        )
+      }
     </div>
   </header>
 
@@ -131,20 +162,9 @@ const jsonLd = {
             </details>
           )
         }
-        <div class="share">
-          <p class="share-title">Partager</p>
-          <div class="share-btns">
-            <a href={share.linkedin} target="_blank" rel="noopener" aria-label="Partager sur LinkedIn">
-              <Icon name="linkedin" size={18} />
-            </a>
-            <a href={share.mail} aria-label="Partager par e-mail">
-              <Icon name="mail" size={18} />
-            </a>
-            <button type="button" aria-label="Copier le lien de l’article" data-copy-link={url}>
-              <Icon name="link" size={18} />
-            </button>
-          </div>
-          <p class="copied" role="status" data-copied></p>
+        <div class="aside-share">
+          <p class="share-title">Partager l’article</p>
+          <ShareBar url={url} title={title} text={description} print />
         </div>
       </aside>
 
@@ -170,6 +190,11 @@ const jsonLd = {
 
         <!-- Fin d'article : partage + autrice -->
         <div class="a-end">
+          <div class="end-share" id="partager">
+            <p class="end-share-title">Cet article vous a été utile ?</p>
+            <p class="end-share-text">Partagez-le avec un dirigeant, un associé ou un collègue à qui il pourrait servir.</p>
+            <ShareBar url={url} title={title} text={description} variant="full" print />
+          </div>
           <div class="author">
             <Image src={nadege} alt={site.owner} width={192} height={192} class="author-photo" loading="lazy" />
             <div>
@@ -239,6 +264,9 @@ const jsonLd = {
       }
     </div>
   </section>
+  <button type="button" class="fab-share" data-fab-share aria-label="Partager l’article">
+    <Icon name="share" size={20} />
+  </button>
 </BaseLayout>
 
 <script>
@@ -280,17 +308,18 @@ const jsonLd = {
     }),
   );
 
-  /* Copier le lien */
-  const copyBtn = document.querySelector<HTMLButtonElement>('[data-copy-link]');
-  const copied = document.querySelector<HTMLElement>('[data-copied]');
-  copyBtn?.addEventListener('click', async () => {
-    try {
-      await navigator.clipboard.writeText(copyBtn.dataset.copyLink ?? location.href);
-      if (copied) copied.textContent = 'Lien copié !';
-    } catch {
-      if (copied) copied.textContent = 'Copie impossible';
+  /* Bouton flottant de partage (mobile) : menu natif du téléphone, sinon bloc de partage */
+  const fab = document.querySelector<HTMLButtonElement>('[data-fab-share]');
+  fab?.addEventListener('click', async () => {
+    if (typeof navigator.share === 'function') {
+      try {
+        await navigator.share({ title: document.title, url: location.href });
+      } catch {
+        /* partage annulé */
+      }
+      return;
     }
-    setTimeout(() => copied && (copied.textContent = ''), 2500);
+    document.getElementById('partager')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   });
 </script>
 
@@ -397,6 +426,35 @@ const jsonLd = {
     margin-top: 2.25rem;
     animation: rise 1s var(--ease-out) 0.15s both;
   }
+  .a-format {
+    font-weight: 700;
+  }
+  .len-express {
+    color: var(--success);
+  }
+  .len-dossier {
+    color: var(--terra-700);
+  }
+  .a-figure :global(picture) {
+    display: block;
+  }
+  .a-figure :global(img) {
+    width: 100%;
+    height: clamp(220px, 38vw, 460px);
+    object-fit: cover;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 30px 60px -34px rgb(13 21 48 / 0.55);
+  }
+  .a-figure figcaption {
+    margin-top: 0.6rem;
+    text-align: center;
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+  .a-figure figcaption a {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
   .a-cover-wrap :global(.a-cover) {
     height: clamp(170px, 26vw, 280px);
     border-radius: var(--radius-lg);
@@ -489,48 +547,56 @@ const jsonLd = {
   }
 
   /* — Partage — */
-  .share {
-    padding: 0 0.25rem;
+  .aside-share {
+    padding: 1.1rem 0.9rem 1.6rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
+    background: #fff;
   }
   .share-title {
-    margin-bottom: 0.6rem;
+    margin-bottom: 0.8rem;
+    text-align: center;
     font-size: 0.72rem;
     font-weight: 800;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--muted);
   }
-  .share-btns {
-    display: flex;
-    gap: 0.5rem;
+  .a-hero-inner :global(.hero-share) {
+    margin-top: 1.5rem;
   }
-  .share-btns a,
-  .share-btns button {
-    display: grid;
-    place-items: center;
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    color: var(--blue-700);
-    background: var(--blue-50);
+  .end-share {
+    margin-bottom: 2rem;
+    padding: 1.75rem 1.5rem 2.4rem;
+    text-align: center;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, var(--blue-50), #fff);
     border: 1px solid var(--blue-100);
-    transition:
-      background 0.3s,
-      color 0.3s,
-      transform 0.4s var(--ease-spring);
   }
-  .share-btns a:hover,
-  .share-btns button:hover {
+  .end-share-title {
+    font-family: var(--font-display);
+    font-size: 1.45rem;
+    color: var(--ink);
+  }
+  .end-share-text {
+    margin: 0.4rem auto 1.25rem;
+    max-width: 30rem;
+    font-size: 0.95rem;
+    color: var(--muted);
+  }
+  .fab-share {
+    position: fixed;
+    left: 1.25rem;
+    bottom: 1.25rem;
+    z-index: 40;
+    display: none;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
     color: #fff;
-    background: var(--blue-700);
-    transform: translateY(-2px);
-  }
-  .copied {
-    min-height: 1.3em;
-    margin-top: 0.4rem;
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: var(--success);
+    background: linear-gradient(135deg, var(--terra-500), var(--terra-700));
+    box-shadow: 0 14px 30px -12px rgb(178 83 31 / 0.7);
   }
 
   /* ============ L'essentiel ============ */
@@ -835,6 +901,48 @@ const jsonLd = {
     margin-top: 2rem;
   }
 
+  /* ============ Impression / PDF ============ */
+  @media print {
+    :global(.site-header),
+    :global(.footer),
+    :global(.to-top),
+    :global(.cookie),
+    .read-progress,
+    .a-aside,
+    .a-cta,
+    .pager,
+    .related,
+    .end-share,
+    .fab-share,
+    .crumbs,
+    .a-hero-inner :global(.hero-share) {
+      display: none !important;
+    }
+    .a-hero {
+      padding-top: 0;
+      background: none;
+    }
+    .a-layout {
+      display: block;
+    }
+    .a-figure :global(img) {
+      height: 260px;
+      box-shadow: none;
+    }
+    .prose {
+      font-size: 11pt;
+    }
+    .prose :global(h2) {
+      break-after: avoid;
+    }
+    .keypoints,
+    .author,
+    .prose :global(blockquote),
+    .prose :global(table) {
+      break-inside: avoid;
+    }
+  }
+
   /* ============ Responsive ============ */
   @media (max-width: 1023px) {
     .a-layout {
@@ -842,13 +950,9 @@ const jsonLd = {
     }
     .a-aside {
       position: static;
-      grid-template-columns: 1fr auto;
-      align-items: start;
+      grid-template-columns: 1fr;
     }
-    .share {
-      padding-top: 0.6rem;
-    }
-    .share-title {
+    .aside-share {
       display: none;
     }
     .related-grid {
@@ -857,12 +961,14 @@ const jsonLd = {
       margin-inline: auto;
     }
   }
+  @media (max-width: 760px) {
+    .fab-share {
+      display: grid;
+    }
+  }
   @media (max-width: 600px) {
     .a-aside {
       grid-template-columns: 1fr;
-    }
-    .share {
-      padding: 0;
     }
     .author {
       flex-direction: column;
