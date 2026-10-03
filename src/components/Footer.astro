@@ -27,30 +27,30 @@ const links = [
 <footer class="footer">
   <div class="footer-glow" aria-hidden="true"></div>
   <div class="container">
-    <div class="footer-cta">
-      <p class="footer-quote">« {site.promise} »</p>
-      <a href={`${base}#rendez-vous`} class="btn btn--soft">
-        Prendre rendez-vous <Icon name="arrowRight" size={18} class="i-arrow" />
+    <!-- Identité et coordonnées -->
+    <div class="footer-brand">
+      <a href={home ? '#accueil' : '/'} class="f-logo" aria-label={`${site.name} — accueil`}>
+        <img src="/images/logo-full-white.png" alt={site.name} width="1200" height="556" loading="lazy" />
+      </a>
+      <p class="f-owner">{site.owner} — {site.role} en gestion administrative et financière</p>
+      <ul class="f-contact">
+        <li>
+          <span><Icon name="mapPin" size={16} />{zone.short}</span>
+        </li>
+        <li>
+          <a href={`mailto:${site.email}`}><Icon name="mail" size={16} />{site.emailLabel}</a>
+        </li>
+        <li>
+          <a href={`tel:${site.phone}`}><Icon name="phone" size={16} />{site.phoneLabel}</a>
+        </li>
+      </ul>
+      <a href={`${base}#rendez-vous`} class="btn btn--soft btn--sm">
+        Prendre rendez-vous <Icon name="arrowRight" size={16} class="i-arrow" />
       </a>
     </div>
 
+    <!-- Liens -->
     <div class="footer-grid">
-      <div class="footer-brand">
-        <a href={home ? '#accueil' : '/'} class="f-logo" aria-label={`${site.name} — accueil`}>
-          <img src="/images/logo-full-white.png" alt={site.name} width="1200" height="556" loading="lazy" />
-        </a>
-        <p class="f-owner">{site.owner} — {site.role}</p>
-        <p class="f-zone"><Icon name="mapPin" size={16} />{zone.short}</p>
-        <ul class="f-contact">
-          <li>
-            <a href={`mailto:${site.email}`}><Icon name="mail" size={17} />{site.emailLabel}</a>
-          </li>
-          <li>
-            <a href={`tel:${site.phone}`}><Icon name="phone" size={17} />{site.phoneLabel}</a>
-          </li>
-        </ul>
-      </div>
-
       <nav aria-label="Navigation du site">
         <p class="f-title">Navigation</p>
         <ul class="f-links">
@@ -78,7 +78,7 @@ const links = [
       </nav>
 
       <nav aria-label="Zones d’intervention">
-        <p class="f-title"><a href="/zone-intervention.html">Zones d’intervention</a></p>
+        <p class="f-title"><a href="/zone-intervention.html">Zones</a></p>
         <ul class="f-links">
           {
             zones.map((z) => (
@@ -94,7 +94,7 @@ const links = [
         <p class="f-title">Informations</p>
         <ul class="f-links">
           <li><a href="/mentions-legales.html">Mentions légales</a></li>
-          <li><a href="/confidentialite.html">Politique de confidentialité</a></li>
+          <li><a href="/confidentialite.html">Confidentialité</a></li>
           <li>
             <button type="button" data-manage-cookies>Gérer les cookies</button>
           </li>
@@ -112,8 +112,9 @@ const links = [
   .footer {
     position: relative;
     overflow: hidden;
-    padding-top: clamp(4rem, 8vw, 6rem);
+    padding-top: clamp(3.5rem, 7vw, 5rem);
     color: #fff;
+    text-align: center;
     background: linear-gradient(180deg, var(--blue-900), var(--blue-950));
   }
   .footer-glow {
@@ -128,86 +129,61 @@ const links = [
   .container {
     position: relative;
   }
-  .footer-cta {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1.5rem 2rem;
-    padding-bottom: clamp(2.5rem, 5vw, 3.5rem);
-    border-bottom: 1px solid rgb(255 255 255 / 0.1);
-  }
-  .footer-quote {
-    max-width: 38rem;
-    font-family: var(--font-display);
-    font-size: clamp(1.5rem, 3vw, 2.1rem);
-    font-style: normal;
-    font-weight: 400;
-    line-height: 1.25;
-    color: #fff;
-  }
-  .footer-grid {
-    display: grid;
-    grid-template-columns: 1.6fr repeat(4, minmax(0, 1fr));
-    gap: 2.5rem;
-    padding-block: clamp(2.5rem, 5vw, 3.5rem);
-  }
-  .f-logo {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.85rem;
-  }
-  .f-logo img {
-    width: 230px;
-    height: auto;
-  }
-  .f-logo > span {
+
+  /* ============ Identité ============ */
+  .footer-brand {
     display: flex;
     flex-direction: column;
-    padding-left: 0.85rem;
-    border-left: 1px solid rgb(255 255 255 / 0.22);
-    line-height: 1.1;
+    align-items: center;
+    padding-bottom: clamp(2.2rem, 4vw, 3rem);
+    border-bottom: 1px solid rgb(255 255 255 / 0.1);
   }
-  .f-name {
-    font-family: var(--font-display);
-    font-size: 1.45rem;
-    color: #fff;
-  }
-  .f-sub {
-    margin-top: 0.2rem;
-    font-size: 0.66rem;
-    font-weight: 700;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: #fff;
+  .f-logo img {
+    width: 210px;
+    height: auto;
   }
   .f-owner {
+    max-width: 34rem;
     margin-top: 1.1rem;
-    font-size: 0.9rem;
-  }
-  .f-zone {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-top: 0.4rem;
-    font-size: 0.9rem;
+    font-size: 0.92rem;
     color: #fff;
   }
   .f-contact {
-    display: grid;
-    gap: 0.5rem;
-    margin-top: 1.1rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem 0.6rem;
+    margin: 1.3rem 0 1.6rem;
   }
-  .f-contact a {
+  .f-contact li > * {
     display: inline-flex;
     align-items: center;
-    gap: 0.6rem;
-    font-size: 0.92rem;
+    gap: 0.5rem;
+    padding: 0.45rem 0.95rem;
+    border-radius: 999px;
+    font-size: 0.88rem;
     color: #fff;
-    transition: color 0.3s;
+    background: rgb(255 255 255 / 0.06);
+    border: 1px solid rgb(255 255 255 / 0.12);
+    transition:
+      background 0.3s,
+      border-color 0.3s;
   }
   .f-contact a:hover {
-    color: var(--terra-400);
+    background: rgb(255 255 255 / 0.12);
+    border-color: rgb(255 255 255 / 0.3);
+  }
+  .f-contact :global(svg) {
+    flex: none;
+    color: var(--terra-300);
+  }
+
+  /* ============ Liens ============ */
+  .footer-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 2rem;
+    padding-block: clamp(2.2rem, 4vw, 3rem);
   }
   .f-title {
     margin-bottom: 1rem;
@@ -215,99 +191,8 @@ const links = [
     font-weight: 700;
     letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: #fff;
+    color: var(--terra-300);
   }
-  .f-links {
-    display: grid;
-    gap: 0.6rem;
-  }
-  .f-links a,
-  .f-links button {
-    position: relative;
-    font-size: 0.94rem;
-    color: #fff;
-    transition:
-      color 0.3s,
-      padding 0.4s var(--ease-out);
-  }
-  .f-links a::before,
-  .f-links button::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 50%;
-    width: 0;
-    height: 1.5px;
-    background: var(--terra-400);
-    transition: width 0.4s var(--ease-out);
-  }
-  .f-links a:hover,
-  .f-links button:hover {
-    color: #fff;
-    padding-left: 1.1rem;
-  }
-  .f-links a:hover::before,
-  .f-links button:hover::before {
-    width: 0.7rem;
-  }
-  .footer-bottom {
-    padding-block: 1.5rem 2rem;
-    border-top: 1px solid rgb(255 255 255 / 0.1);
-    font-size: 0.82rem;
-    color: #fff;
-  }
-  @media (max-width: 760px) {
-    .footer-grid {
-      grid-template-columns: 1fr 1fr;
-    }
-    .footer-brand {
-      grid-column: 1 / -1;
-    }
-  }
-
-  /* ============ Centrage des textes ============ */
-  .footer-cta {
-    flex-direction: column;
-    justify-content: center;
-    text-align: center;
-  }
-  .footer-grid {
-    text-align: center;
-  }
-  .f-logo,
-  .f-zone {
-    justify-content: center;
-  }
-  .footer-brand {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  .f-contact,
-  .f-links {
-    justify-items: center;
-  }
-  /* Survol : simple soulignement, sans décalage du texte */
-  .f-links a:hover,
-  .f-links button:hover {
-    padding-left: 0;
-  }
-  .f-links a::before,
-  .f-links button::before {
-    top: auto;
-    bottom: -3px;
-    left: 50%;
-    translate: -50% 0;
-  }
-  .f-links a:hover::before,
-  .f-links button:hover::before {
-    width: 100%;
-  }
-  .footer-bottom {
-    text-align: center;
-  }
-
-  /* Titres de colonnes cliquables (Métiers, Zones) */
   .f-title a {
     color: inherit;
   }
@@ -315,12 +200,55 @@ const links = [
     text-decoration: underline;
     text-underline-offset: 3px;
   }
-  @media (max-width: 1100px) and (min-width: 761px) {
+  .f-links {
+    display: grid;
+    justify-items: center;
+    gap: 0.6rem;
+  }
+  .f-links a,
+  .f-links button {
+    position: relative;
+    font-size: 0.93rem;
+    color: #fff;
+  }
+  /* Survol : soulignement qui se déploie depuis le centre */
+  .f-links a::before,
+  .f-links button::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: -3px;
+    width: 0;
+    height: 1.5px;
+    translate: -50% 0;
+    background: var(--terra-300);
+    transition: width 0.4s var(--ease-out);
+  }
+  .f-links a:hover::before,
+  .f-links button:hover::before {
+    width: 100%;
+  }
+
+  .footer-bottom {
+    padding-block: 1.5rem 2rem;
+    border-top: 1px solid rgb(255 255 255 / 0.1);
+    font-size: 0.82rem;
+    color: #fff;
+  }
+
+  @media (max-width: 760px) {
     .footer-grid {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      row-gap: 2.4rem;
     }
-    .footer-brand {
-      grid-column: 1 / -1;
+    /* Pastilles sur deux lignes : coins moins arrondis */
+    .f-contact li > * {
+      border-radius: 16px;
+      text-align: center;
+    }
+    /* Laisse la place au bouton « retour en haut » */
+    .footer-bottom {
+      padding-bottom: 5.5rem;
     }
   }
 </style>

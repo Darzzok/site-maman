@@ -110,17 +110,17 @@ export const services = [
   {
     icon: 'shield',
     title: 'Patrimoine & Protection du Dirigeant',
-    text: 'Bilan personnalisé, <strong>optimisation de votre retraite</strong>, prévoyance et conseil en stratégie patrimoniale en collaboration avec notre expert partenaire.',
+    text: 'Bilan personnalisé, <strong>optimisation de votre retraite</strong>, prévoyance et conseil en stratégie patrimoniale en collaboration avec mon expert partenaire.',
     points: ['Bilan personnalisé', 'Retraite', 'Prévoyance', 'Stratégie patrimoniale'],
   },
   {
     icon: 'target',
-    title: 'Accompagnement sur-mesure',
+    title: 'Accompagnement sur mesure',
     text: 'Intervention flexible en <strong>temps partagé</strong> (présentiel ou distanciel), adaptée au rythme et aux besoins réels de votre activité, qu’elle soit artisanale, libérale ou en TPE. Selon vos besoins, je peux également vous mettre en relation avec <strong>mon réseau d’experts partenaires</strong>.',
   },
 ];
 
-/** Modes d'intervention — issus de l'accompagnement sur-mesure, de l'À propos et de la FAQ */
+/** Modes d'intervention — issus de l'accompagnement sur mesure, de l'À propos et de la FAQ */
 export const formulas = {
   intro:
     'Un accompagnement <strong>sans engagement</strong>, adapté au rythme et aux besoins réels de votre activité. La facturation est définie ensemble lors du devis.',
@@ -156,7 +156,7 @@ export const about = {
     'Forte d’un <strong>parcours chevronné en direction d’exploitation et en gestion d’entreprise</strong>, j’ai fondé Sérénité Gestion Conseils avec une conviction : chaque dirigeant mérite un <strong>soutien fiable et expert</strong> pour faire grandir son activité en toute sérénité.',
   paragraphs: [
     'En tant que <strong>partenaire clé de votre quotidien</strong>, je mets mon exigence et ma maîtrise du terrain au service de votre structure. Mon engagement est de vous apporter un <strong>accompagnement immédiatement opérationnel</strong> pour fluidifier vos processus, sécuriser vos décisions et vous redonner la maîtrise de votre temps.',
-    'Parce que vos enjeux sont uniques, mes interventions <strong>s’ajustent sur-mesure</strong> à votre rythme : du <strong>renfort ponctuel</strong> pour passer un cap au <strong>suivi stratégique au long cours</strong>.',
+    'Parce que vos enjeux sont uniques, mes interventions <strong>s’ajustent sur mesure</strong> à votre rythme : du <strong>renfort ponctuel</strong> pour passer un cap au <strong>suivi stratégique au long cours</strong>.',
   ],
   highlights: ['Renfort ponctuel', 'Suivi stratégique au long cours', 'Présentiel ou distanciel'],
 };
@@ -208,7 +208,7 @@ export const steps = [
   },
   {
     icon: 'fileCheck',
-    title: 'Proposition sur-mesure',
+    title: 'Proposition sur mesure',
     text: 'Je vous transmets un devis clair et sans engagement, adapté à votre besoin réel.',
   },
   {

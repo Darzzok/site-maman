@@ -394,16 +394,16 @@ const trust = ['Premier échange offert', 'Sans engagement', 'Sur site ou à dis
       <div class="cta-card" data-reveal>
         <div class="cta-glow" aria-hidden="true"></div>
         <Image src={nadege} alt={site.owner} width={176} height={176} class="cta-photo" loading="lazy" />
-        <p class="eyebrow eyebrow--dark">{site.owner}</p>
+        <p class="eyebrow">{site.owner}</p>
         <h2>Parlons de votre <em>entreprise</em></h2>
         <p class="cta-text">
           Un premier échange gratuit de 30 minutes pour faire le point sur votre situation{isZone ? ` à ${data.name.replace(/ \(\d+\)$/, '')}` : ''}, sans engagement.
         </p>
         <div class="cta-actions">
-          <a href="/#rendez-vous" class="btn btn--soft">
+          <a href="/#rendez-vous" class="btn">
             Réserver un échange gratuit <Icon name="arrowRight" size={18} class="i-arrow" />
           </a>
-          <a href="/#devis" class="btn-outline">
+          <a href="/#devis" class="btn btn--ghost">
             <Icon name="file" size={18} /> Demander un devis
           </a>
         </div>
@@ -1164,5 +1164,32 @@ const trust = ['Premier échange offert', 'Sans engagement', 'Sur site ou à dis
       width: 32px;
       height: 32px;
     }
+  }
+
+  /* ============ Version claire (se distingue du pied de page prune) ============ */
+  .cta-card {
+    color: var(--text);
+    background:
+      radial-gradient(60% 80% at 0% 0%, rgb(229 129 188 / 0.16), transparent 70%),
+      radial-gradient(55% 70% at 100% 100%, rgb(246 181 91 / 0.2), transparent 70%),
+      #fff;
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-lg);
+  }
+  .cta-card h2 {
+    color: var(--blue-700);
+  }
+  .cta-card h2 em {
+    color: var(--accent-text);
+  }
+  .cta-glow {
+    display: none;
+  }
+  .cta-text {
+    color: var(--text);
+  }
+  .cta-card :global(.cta-photo) {
+    border-color: #fff;
+    box-shadow: 0 12px 26px -12px rgb(97 25 58 / 0.45);
   }
 </style>

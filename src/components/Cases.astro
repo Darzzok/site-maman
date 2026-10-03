@@ -2,6 +2,10 @@
 import Icon from './Icon.astro';
 import CollapseToggle from './CollapseToggle.astro';
 import { cases } from '../data/site';
+import { getMetiers, metierUrl } from '../utils/landings';
+
+// Nom de la page métier associée à chaque cas client
+const metierNames = Object.fromEntries((await getMetiers()).map((m) => [m.id, m.data.name]));
 ---
 
 <section id="cas-clients" class="section cases">
@@ -36,8 +40,8 @@ import { cases } from '../data/site';
               </div>
             </div>
             {c.metier && (
-              <a href={`/metiers/${c.metier}.html`} class="case-more">
-                Accompagnement {c.tag.toLowerCase().includes('btp') ? 'des artisans du BTP' : c.metier === 'professions-de-sante' ? 'des professions de santé' : c.metier === 'professions-liberales' ? 'des professions libérales' : 'des commerces'}
+              <a href={metierUrl(c.metier)} class="case-more">
+                {metierNames[c.metier]}
                 <Icon name="arrowRight" size={15} />
               </a>
             )}
@@ -151,11 +155,16 @@ import { cases } from '../data/site';
 
   /* Lien vers la page métier */
   .case-more {
+    align-self: center;
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+    background: var(--blue-50);
+    border: 1px solid var(--blue-100);
+    white-space: nowrap;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.35rem;
-    margin-top: 1rem;
     font-size: 0.86rem;
     font-weight: 700;
     color: var(--blue-700);

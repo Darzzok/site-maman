@@ -77,7 +77,7 @@ document.addEventListener('keydown', (e) => {
     menuToggle?.focus();
   }
 });
-window.matchMedia('(min-width: 1024px)').addEventListener('change', (e) => e.matches && setMenu(false));
+window.matchMedia('(min-width: 1200px)').addEventListener('change', (e) => e.matches && setMenu(false));
 
 /* ---------- Lien actif (menu + fil conducteur) selon la section visible ---------- */
 const navLinks = document.querySelectorAll<HTMLAnchorElement>('[data-nav]');

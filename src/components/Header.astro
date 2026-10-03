@@ -132,7 +132,7 @@ const isCurrent = (item: { href?: string }) => {
       width 0.6s var(--ease-out);
   }
   .site-header.is-scrolled .bar {
-    width: min(100%, 1120px);
+    width: min(100%, 1200px);
     background: rgb(255 255 255 / 0.78);
     border-color: rgb(42 9 22 / 0.07);
     box-shadow:
@@ -192,7 +192,7 @@ const isCurrent = (item: { href?: string }) => {
   .nav-link {
     position: relative;
     display: block;
-    padding: 0.55rem 0.95rem;
+    padding: 0.55rem 0.8rem;
     border-radius: 999px;
     font-size: 0.95rem;
     font-weight: 400;
@@ -342,7 +342,17 @@ const isCurrent = (item: { href?: string }) => {
     color: var(--blue-700);
   }
 
-  @media (max-width: 1023px) {
+  /* Écrans intermédiaires : menu un peu plus resserré pour que tout tienne */
+  @media (max-width: 1320px) {
+    .bar {
+      gap: 1rem;
+    }
+    .nav-link {
+      padding-inline: 0.68rem;
+    }
+  }
+  /* Menu complet à partir de 1200 px, menu mobile en dessous */
+  @media (max-width: 1199px) {
     .nav {
       display: none;
     }
@@ -361,7 +371,7 @@ const isCurrent = (item: { href?: string }) => {
       height: 34px;
     }
   }
-  @media (min-width: 1024px) {
+  @media (min-width: 1200px) {
     .mobile-menu {
       display: none;
     }
