@@ -1,5 +1,10 @@
 ---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
 import Icon from './Icon.astro';
+
+const photos = import.meta.glob<{ default: ImageMetadata }>('../assets/images/*.jpg', { eager: true });
+const photoFor = (path: string) => photos[`../assets/images/${path.split('/').pop()}`].default;
 import CollapseToggle from './CollapseToggle.astro';
 import { network, partners } from '../data/site';
 ---
@@ -23,7 +28,7 @@ import { network, partners } from '../data/site';
             </div>
             <div class="identity">
               <div class="avatar-wrap">
-                <img src={p.photo} alt={`Photo de ${p.name}`} width="400" height="400" loading="lazy" decoding="async" />
+                <Image src={photoFor(p.photo)} alt={`Photo de ${p.name}`} width={192} height={192} loading="lazy" />
                 <span class="avatar-badge">
                   <Icon name={p.icon} size={14} strokeWidth={2} />
                 </span>
@@ -123,7 +128,7 @@ import { network, partners } from '../data/site';
     position: relative;
     flex: none;
   }
-  .avatar-wrap img {
+  .avatar-wrap :global(img) {
     width: 96px;
     height: 96px;
     border-radius: 28px;
@@ -134,7 +139,7 @@ import { network, partners } from '../data/site';
       transform 0.6s var(--ease-spring),
       border-radius 0.6s var(--ease-out);
   }
-  .partner:hover .avatar-wrap img {
+  .partner:hover .avatar-wrap :global(img) {
     transform: rotate(-4deg) scale(1.04);
     border-radius: 50%;
   }

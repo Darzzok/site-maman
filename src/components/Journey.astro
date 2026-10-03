@@ -26,11 +26,11 @@ import { steps } from '../data/site';
         {
           steps.map((s, i) => (
             <li class="tl-step" data-step>
-              <div class="tl-node" data-node>
+              <button type="button" class="tl-node" data-node aria-label={`Afficher l’étape ${i + 1} : ${s.title}`}>
                 <span class="tl-node-ring" />
                 <Icon name={s.icon} size={24} />
                 <span class="tl-num">{String(i + 1).padStart(2, '0')}</span>
-              </div>
+              </button>
               <div class="tl-card">
                 <h3>{s.title}</h3>
                 <p class="tl-text">{s.text}</p>
@@ -39,6 +39,18 @@ import { steps } from '../data/site';
           ))
         }
       </ol>
+    </div>
+
+    <div class="tl-controls" data-reveal>
+      <button type="button" class="tl-ctrl" data-tl-prev aria-label="Étape précédente">
+        <Icon name="arrowLeft" size={18} />
+      </button>
+      <p class="tl-counter" aria-live="polite">
+        Étape <strong data-tl-current>1</strong> sur {steps.length}
+      </p>
+      <button type="button" class="tl-ctrl" data-tl-next aria-label="Étape suivante">
+        <Icon name="arrowRight" size={18} />
+      </button>
     </div>
 
     <div class="journey-cta" data-reveal>
@@ -293,7 +305,73 @@ import { steps } from '../data/site';
   .journey-cta {
     display: flex;
     justify-content: center;
-    margin-top: clamp(3rem, 6vw, 4rem);
+    margin-top: 2rem;
+  }
+
+  /* ========== Navigation au clic ========== */
+  .tl-node {
+    padding: 0;
+    cursor: pointer;
+  }
+  .tl-node:hover {
+    border-color: rgb(255 255 255 / 0.5);
+  }
+  .tl-node:focus-visible {
+    outline: 2px solid var(--blue-300);
+    outline-offset: 4px;
+  }
+  /* En mode clic, la ligne glisse en douceur jusqu'à l'étape choisie */
+  .timeline:global(.is-manual) .tl-fill {
+    transition: transform 0.8s var(--ease-out);
+  }
+  .timeline:global(.is-manual) .tl-comet {
+    transition:
+      left 0.8s var(--ease-out),
+      top 0.8s var(--ease-out);
+  }
+  .tl-step:global(.is-current) .tl-card {
+    background: rgb(255 255 255 / 0.11);
+    border-color: rgb(157 177 236 / 0.55);
+    box-shadow: 0 20px 40px -24px rgb(0 0 0 / 0.6);
+  }
+  .tl-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.25rem;
+    margin-top: clamp(2.5rem, 5vw, 3.25rem);
+  }
+  .tl-ctrl {
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    color: #fff;
+    border: 1.5px solid rgb(255 255 255 / 0.3);
+    transition:
+      background 0.3s,
+      border-color 0.3s,
+      opacity 0.3s,
+      transform 0.4s var(--ease-out);
+  }
+  .tl-ctrl:hover:not(:disabled) {
+    background: rgb(255 255 255 / 0.12);
+    border-color: #fff;
+    transform: scale(1.06);
+  }
+  .tl-ctrl:disabled {
+    opacity: 0.3;
+    cursor: default;
+  }
+  .tl-counter {
+    min-width: 8.5rem;
+    text-align: center;
+    font-size: 0.92rem;
+    color: rgb(255 255 255 / 0.65);
+  }
+  .tl-counter strong {
+    color: #fff;
   }
 
   /* ========== Mobile : frise verticale ========== */

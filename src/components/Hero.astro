@@ -1,5 +1,7 @@
 ---
+import { Image } from 'astro:assets';
 import Icon from './Icon.astro';
+import nadege from '../assets/images/nadege.jpg';
 import { hero, site } from '../data/site';
 
 // Le titre est découpé mot par mot pour l'animation d'entrée
@@ -67,7 +69,7 @@ const bars = [38, 52, 44, 63, 58, 76, 88];
 
       <div class="panel" style="--depth:14">
         <div class="panel-head">
-          <img src="/images/nadege.jpg" alt="" width="800" height="640" class="avatar" />
+          <Image src={nadege} alt="" width={96} height={96} class="avatar" loading="eager" />
           <div>
             <p class="panel-kicker">Votre interlocutrice unique</p>
             <p class="panel-name">{site.ownerFirstName}</p>
@@ -370,7 +372,7 @@ const bars = [38, 52, 44, 63, 58, 76, 88];
     padding-bottom: 1.1rem;
     border-bottom: 1px solid var(--line-soft);
   }
-  .avatar {
+  .panel-head :global(.avatar) {
     width: 46px;
     height: 46px;
     border-radius: 50%;

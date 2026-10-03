@@ -172,23 +172,70 @@ function measureTimeline() {
   updateTimeline();
 }
 
+// Étape choisie au clic (null = la frise suit le défilement)
+let tlManual: number | null = null;
+const tlPrev = document.querySelector<HTMLButtonElement>('[data-tl-prev]');
+const tlNext = document.querySelector<HTMLButtonElement>('[data-tl-next]');
+const tlCurrent = document.querySelector<HTMLElement>('[data-tl-current]');
+
 function updateTimeline() {
   if (!timeline || !tlThresholds.length) return;
-  const box = timeline.getBoundingClientRect();
-  const vh = window.innerHeight;
   let p: number;
-  if (reduceMotion) p = 1;
-  else if (tlVertical) p = (vh * 0.62 - (box.top + tlStart)) / tlLength;
-  else p = (vh * 0.85 - box.top) / (vh * 0.5);
+  if (tlManual !== null) p = Math.max(0.001, tlThresholds[tlManual]);
+  else if (reduceMotion) p = 1;
+  else {
+    const box = timeline.getBoundingClientRect();
+    const vh = window.innerHeight;
+    p = tlVertical ? (vh * 0.62 - (box.top + tlStart)) / tlLength : (vh * 0.85 - box.top) / (vh * 0.5);
+  }
   p = Math.min(1, Math.max(0, p));
   timeline.style.setProperty('--p', p.toFixed(4));
-  tlSteps.forEach((step, i) => step.classList.toggle('is-active', p > 0 && p >= tlThresholds[i] - 0.002));
+
+  let current = 0;
+  tlSteps.forEach((step, i) => {
+    const active = p > 0 && p >= tlThresholds[i] - 0.002;
+    step.classList.toggle('is-active', active);
+    if (active) current = i;
+  });
+  tlSteps.forEach((step, i) => step.classList.toggle('is-current', p > 0 && i === current));
+  if (tlCurrent) tlCurrent.textContent = String(current + 1);
+  if (tlPrev) tlPrev.disabled = p > 0 && current === 0;
+  if (tlNext) tlNext.disabled = current === tlSteps.length - 1 && p > 0;
+}
+
+function currentStep() {
+  const active = tlSteps.filter((s) => s.classList.contains('is-active')).length;
+  return Math.max(0, active - 1);
+}
+
+function goToStep(index: number) {
+  if (!timeline) return;
+  tlManual = Math.max(0, Math.min(tlSteps.length - 1, index));
+  timeline.classList.add('is-manual');
+  updateTimeline();
 }
 
 if (timeline) {
   new ResizeObserver(measureTimeline).observe(timeline);
   document.fonts?.ready.then(measureTimeline);
   measureTimeline();
+
+  // Clic sur une pastille ou sur les flèches
+  tlNodes.forEach((node, i) => node.addEventListener('click', () => goToStep(i)));
+  tlPrev?.addEventListener('click', () => goToStep(currentStep() - 1));
+  tlNext?.addEventListener('click', () => {
+    const anyActive = tlSteps.some((s) => s.classList.contains('is-active'));
+    goToStep(anyActive ? currentStep() + 1 : 0);
+  });
+
+  // Dès que la frise sort de l'écran, elle reprend le suivi du défilement
+  new IntersectionObserver((entries) => {
+    if (entries.some((e) => !e.isIntersecting) && tlManual !== null) {
+      tlManual = null;
+      timeline.classList.remove('is-manual');
+      updateTimeline();
+    }
+  }).observe(timeline);
 }
 
 /* ---------- Année du pied de page ---------- */

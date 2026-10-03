@@ -1,5 +1,7 @@
 ---
+import { Picture } from 'astro:assets';
 import Icon from './Icon.astro';
+import nadege from '../assets/images/nadege.jpg';
 import { about, site } from '../data/site';
 ---
 
@@ -7,13 +9,13 @@ import { about, site } from '../data/site';
   <div class="container about-grid">
     <div class="about-media" data-reveal="left">
       <div class="photo">
-        <img
-          src="/images/nadege.jpg"
+        <Picture
+          src={nadege}
+          formats={['avif', 'webp']}
+          widths={[400, 640, 800]}
+          sizes="(max-width: 960px) 400px, 480px"
           alt={`${site.owner}, fondatrice de ${site.name}`}
-          width="800"
-          height="640"
           loading="lazy"
-          decoding="async"
         />
       </div>
       <span class="corner corner-tr" aria-hidden="true"></span>
@@ -90,7 +92,11 @@ import { about, site } from '../data/site';
     aspect-ratio: 4 / 5;
     box-shadow: 0 40px 80px -40px rgb(13 21 48 / 0.5);
   }
-  .photo img {
+  .photo :global(picture) {
+    display: block;
+    height: 100%;
+  }
+  .photo :global(img) {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -98,7 +104,7 @@ import { about, site } from '../data/site';
     scale: 1.08;
     transition: scale 1.6s var(--ease-out);
   }
-  .about-media:global(.is-in) .photo img {
+  .about-media:global(.is-in) .photo :global(img) {
     scale: 1;
   }
   .photo::after {

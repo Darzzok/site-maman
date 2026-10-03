@@ -27,12 +27,31 @@ export const site = {
   promise: 'Concentrez-vous sur votre métier, je m’occupe du reste.',
 };
 
+/** Zone d'intervention (référencement local) */
+export const zone = {
+  region: 'Normandie',
+  short: 'Normandie — Eure (27) & Seine-Maritime (76)',
+  departments: [
+    {
+      name: 'Eure',
+      code: '27',
+      cities: ['Évreux', 'Vernon', 'Louviers', 'Bernay', 'Pont-Audemer', 'Les Andelys'],
+    },
+    {
+      name: 'Seine-Maritime',
+      code: '76',
+      cities: ['Rouen', 'Le Havre', 'Dieppe', 'Fécamp', 'Elbeuf', 'Yvetot'],
+    },
+  ],
+};
+
 /** Liens du menu principal (id = ancre de section sur la page d'accueil) */
 export const nav: { label: string; id?: string; href?: string }[] = [
   { label: 'Accueil', id: 'accueil' },
   { label: 'Services', id: 'services' },
   { label: 'À propos', id: 'a-propos' },
   { label: 'Cas clients', id: 'cas-clients' },
+  { label: 'Conseils', href: '/conseils.html' },
   { label: 'FAQ', href: '/faq.html' },
 ];
 
@@ -40,10 +59,12 @@ export const nav: { label: string; id?: string; href?: string }[] = [
 export const sections = [
   { id: 'accueil', label: 'Accueil' },
   { id: 'services', label: 'Services' },
+  { id: 'formules', label: 'Modes d’intervention' },
   { id: 'a-propos', label: 'À propos' },
   { id: 'pourquoi', label: 'Pourquoi moi' },
   { id: 'parcours', label: 'Parcours' },
   { id: 'cas-clients', label: 'Cas clients' },
+  { id: 'zone', label: 'Zone d’intervention' },
   { id: 'reseau-experts', label: 'Réseau' },
   { id: 'contact', label: 'Contact' },
 ];
@@ -52,7 +73,7 @@ export const hero = {
   eyebrow: 'Optimisation d’exploitation & gestion externalisée',
   lead:
     'Je suis Nadège MONZAT-MARECHAL, consultante indépendante spécialisée en <strong>gestion de trésorerie</strong>, <strong>organisation opérationnelle</strong> et accompagnement des TPE, artisans et professions libérales. Mon objectif : vous <strong>libérer de la charge administrative</strong> et <strong>sécuriser votre organisation</strong>, pour vous permettre de vous concentrer pleinement sur le développement de votre activité.',
-  trust: ['Échange découverte gratuit', 'Réponse sous 24h', 'Sans engagement'],
+  trust: ['Échange découverte gratuit', 'Réponse sous 24h', 'Sans engagement', 'Eure (27) & Seine-Maritime (76)'],
 };
 
 export const services = [
@@ -61,26 +82,31 @@ export const services = [
     title: 'Trésorerie & Recouvrement',
     badge: 'Spécialité',
     text: 'Suivi rigoureux des factures, <strong>relances clients diplomatiques</strong>, gestion des litiges et <strong>prévention des impayés</strong> pour sécuriser votre cash.',
+    points: ['Suivi des factures et des échéances', 'Relances clients diplomatiques', 'Gestion des litiges', 'Prévention des impayés', 'Visibilité sur la trésorerie'],
   },
   {
     icon: 'file',
     title: 'Gestion administrative & ADV',
     text: 'Émission des devis et factures, <strong>suivi des commandes</strong>, relation clients/fournisseurs et organisation du secrétariat quotidien.',
+    points: ['Devis et factures', 'Suivi des commandes', 'Relation clients / fournisseurs', 'Secrétariat quotidien', 'Situations de travaux (BTP)'],
   },
   {
     icon: 'chart',
     title: 'Pilotage & Optimisation',
     text: 'Analyse de rentabilité, <strong>optimisation des coûts fixes/fournisseurs</strong>, mise en place de tableaux de bord et structuration des processus.',
+    points: ['Analyse de rentabilité', 'Optimisation des coûts fixes', 'Optimisation des coûts fournisseurs', 'Tableaux de bord', 'Structuration des processus'],
   },
   {
     icon: 'users',
     title: 'Ressources Humaines & Paie',
     text: 'Gestion administrative du personnel, <strong>contrats de travail, DPAE</strong>, préparation des éléments de paie et suivi des variables.',
+    points: ['Dossiers du personnel', 'Contrats de travail', 'DPAE', 'Éléments de paie', 'Suivi des variables'],
   },
   {
     icon: 'shield',
     title: 'Patrimoine & Protection du Dirigeant',
     text: 'Bilan personnalisé, <strong>optimisation de votre retraite</strong>, prévoyance et conseil en stratégie patrimoniale en collaboration avec notre expert partenaire.',
+    points: ['Bilan personnalisé', 'Retraite', 'Prévoyance', 'Stratégie patrimoniale'],
   },
   {
     icon: 'target',
@@ -88,6 +114,36 @@ export const services = [
     text: 'Intervention flexible en <strong>temps partagé</strong> (présentiel ou distanciel), adaptée au rythme et aux besoins réels de votre activité, qu’elle soit artisanale, libérale ou en TPE. Selon vos besoins, je peux également vous mettre en relation avec <strong>mon réseau d’experts partenaires</strong>.',
   },
 ];
+
+/** Modes d'intervention — issus de l'accompagnement sur-mesure, de l'À propos et de la FAQ */
+export const formulas = {
+  intro:
+    'Un accompagnement <strong>sans engagement</strong>, adapté au rythme et aux besoins réels de votre activité. La facturation est définie ensemble lors du devis.',
+  items: [
+    {
+      icon: 'zap',
+      title: 'Renfort ponctuel',
+      for: 'Pour un besoin précis ou passer un cap',
+      text: 'Relances, mise à jour d’un suivi, structuration d’un process : une mission ciblée, avec un <strong>effet rapide</strong>.',
+      billing: 'Au forfait ou à la mission',
+    },
+    {
+      icon: 'calendar',
+      title: 'Suivi régulier',
+      for: 'Pour garder la maîtrise dans la durée',
+      text: 'Un accompagnement sur plusieurs mois, au rythme défini ensemble, avec des <strong>points réguliers</strong> sur l’avancement.',
+      billing: 'Rythme mensuel',
+    },
+    {
+      icon: 'users',
+      title: 'Temps partagé',
+      for: 'Pour déléguer sans recruter',
+      text: 'Une <strong>interlocutrice unique</strong> pour votre gestion, sans les contraintes d’un recrutement salarié : du renfort ponctuel au suivi stratégique au long cours.',
+      billing: 'Rythme mensuel',
+    },
+  ],
+  terms: ['Présentiel, distanciel ou les deux', 'Devis personnalisé après le premier échange', 'Sans engagement'],
+};
 
 export const about = {
   role: 'Fondatrice de Sérénité Gestion Conseils',
@@ -281,6 +337,10 @@ export const faqs = [
   {
     q: 'Intervenez-vous à distance ou en présentiel ?',
     a: 'Les deux sont possibles. Mon accompagnement s’adapte à votre rythme et à vos préférences : intervention ponctuelle sur site, suivi régulier à distance, ou une combinaison des deux.',
+  },
+  {
+    q: 'Où intervenez-vous ?',
+    a: 'J’interviens en Normandie, dans l’Eure (27) et en Seine-Maritime (76) : Rouen, Le Havre, Évreux, Dieppe, Vernon, Louviers et leurs environs. L’accompagnement peut aussi se faire à distance, ou en combinant les deux.',
   },
   {
     q: 'Combien coûte votre accompagnement ?',

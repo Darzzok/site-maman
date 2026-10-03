@@ -1,0 +1,119 @@
+---
+import Icon from './Icon.astro';
+import { zone } from '../data/site';
+---
+
+<section id="zone" class="section zone">
+  <div class="container">
+    <header class="section-head" data-reveal>
+      <p class="eyebrow">Zone d’intervention</p>
+      <h2 class="h2">Votre partenaire de gestion en <em>Normandie</em></h2>
+      <p>
+        J’accompagne les TPE, artisans et professions libérales de <strong>l’Eure (27)</strong> et de
+        <strong>Seine-Maritime (76)</strong>, sur site ou à distance, selon ce qui vous convient le mieux.
+      </p>
+    </header>
+
+    <div class="z-grid">
+      {
+        zone.departments.map((d, i) => (
+          <article class="card dept" data-reveal style={`--d:${i}`}>
+            <span class="icon-tile">
+              <Icon name="mapPin" />
+            </span>
+            <h3>
+              {d.name} <span class="code">({d.code})</span>
+            </h3>
+            <p class="dept-text">Interventions en présentiel dans tout le département, notamment :</p>
+            <ul class="cities">
+              {d.cities.map((c) => (
+                <li>{c}</li>
+              ))}
+            </ul>
+          </article>
+        ))
+      }
+      <article class="card dept dept--remote" data-reveal style="--d:2">
+        <span class="icon-tile icon-tile--terra">
+          <Icon name="globe" />
+        </span>
+        <h3>À distance</h3>
+        <p class="dept-text">
+          Suivi régulier en visioconférence, par téléphone et par e-mail, ou une <strong>combinaison</strong> de
+          présentiel et de distanciel.
+        </p>
+        <a href="#rendez-vous" class="link">
+          Réserver un échange gratuit <Icon name="arrowRight" size={16} />
+        </a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<style>
+  .zone {
+    background:
+      radial-gradient(45% 40% at 0% 100%, rgb(58 98 211 / 0.08), transparent 70%),
+      var(--sand);
+  }
+  .z-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+  .dept {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .dept h3 {
+    margin: 1.25rem 0 0.6rem;
+    font-size: 1.55rem;
+  }
+  .code {
+    color: var(--blue-700);
+  }
+  .dept-text {
+    font-size: 0.95rem;
+    color: var(--muted);
+  }
+  .cities {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.4rem;
+    margin-top: 1.1rem;
+  }
+  .cities li {
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--blue-800);
+    background: var(--blue-50);
+    border: 1px solid var(--blue-100);
+  }
+  .link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: auto;
+    padding-top: 1.25rem;
+    font-weight: 700;
+    color: var(--terra-600);
+  }
+  .link :global(svg) {
+    transition: transform 0.4s var(--ease-out);
+  }
+  .link:hover :global(svg) {
+    transform: translateX(4px);
+  }
+  @media (max-width: 960px) {
+    .z-grid {
+      grid-template-columns: 1fr;
+      max-width: 560px;
+      margin-inline: auto;
+    }
+  }
+</style>

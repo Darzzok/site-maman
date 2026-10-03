@@ -45,9 +45,19 @@ import { services } from '../data/site';
                 <h3>{s.title}</h3>
                 <p set:html={s.text} />
               </div>
+              {s.points && (
+                <ul class="points" aria-label={`Ce que comprend : ${s.title}`}>
+                  {s.points.map((p) => (
+                    <li>
+                      <Icon name="check" size={13} strokeWidth={2.6} />
+                      {p}
+                    </li>
+                  ))}
+                </ul>
+              )}
               {wide && (
-                <a href="#rendez-vous" class="btn wide-cta">
-                  Parlons de vos besoins <Icon name="arrowRight" size={18} class="i-arrow" />
+                <a href="#formules" class="btn wide-cta">
+                  Découvrir les modes d’intervention <Icon name="arrowRight" size={18} class="i-arrow" />
                 </a>
               )}
             </article>
@@ -91,6 +101,44 @@ import { services } from '../data/site';
   .service p {
     font-size: 0.97rem;
     color: var(--muted);
+  }
+
+  /* Ce que comprend chaque service */
+  .points {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.45rem;
+    margin-top: auto;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--line-soft);
+    width: 100%;
+  }
+  .points li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.7rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--blue-800);
+    background: var(--blue-50);
+    border: 1px solid var(--blue-100);
+  }
+  .points li :global(svg) {
+    color: var(--blue-600);
+  }
+  .service--featured .points {
+    border-top-color: rgb(255 255 255 / 0.15);
+  }
+  .service--featured .points li {
+    color: #fff;
+    background: rgb(255 255 255 / 0.1);
+    border-color: rgb(255 255 255 / 0.18);
+  }
+  .service--featured .points li :global(svg) {
+    color: var(--blue-200);
   }
 
   /* Carte vedette : Trésorerie (spécialité) */
