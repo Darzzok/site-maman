@@ -1,8 +1,6 @@
 ---
-import { Image } from 'astro:assets';
 import Icon from './Icon.astro';
-import nadege from '../assets/images/nadege.jpg';
-import { hero, site } from '../data/site';
+import { hero } from '../data/site';
 
 // Le titre est découpé mot par mot pour l'animation d'entrée
 const segments = [
@@ -14,7 +12,6 @@ const segments = [
 ];
 let n = 0;
 const words = segments.flatMap((s) => s.t.split(' ').map((w) => ({ w, em: !!s.em, i: n++ })));
-const bars = [38, 52, 44, 63, 58, 76, 88];
 ---
 
 <section id="accueil" class="hero" data-parallax-root>
@@ -64,61 +61,6 @@ const bars = [38, 52, 44, 63, 58, 76, 88];
       </ul>
     </div>
 
-    <div class="hero-visual" aria-hidden="true">
-      <div class="halo"></div>
-
-      <div class="panel" style="--depth:14">
-        <div class="panel-head">
-          <Image src={nadege} alt="" width={96} height={96} class="avatar" loading="eager" />
-          <div>
-            <p class="panel-kicker">Votre interlocutrice unique</p>
-            <p class="panel-name">{site.ownerFirstName}</p>
-          </div>
-          <img src="/images/logo-mark.png" alt="" width="600" height="205" class="panel-mark" />
-        </div>
-
-        <div class="panel-chart">
-          <div class="chart-top">
-            <p class="panel-label">Trésorerie</p>
-            <span class="trend"><Icon name="chart" size={14} strokeWidth={2.2} /> Maîtrisée</span>
-          </div>
-          <div class="bars">
-            {bars.map((h, i) => <span style={`--h:${h}%;--b:${i}`} />)}
-          </div>
-          <svg class="curve" viewBox="0 0 280 90" preserveAspectRatio="none">
-            <path d="M4 70 C 40 66, 60 52, 92 56 S 150 44, 180 36 S 240 18, 276 10" pathLength="1"></path>
-          </svg>
-        </div>
-
-        <ul class="panel-list">
-          <li style="--r:0">
-            <span class="li-ic"><Icon name="file" size={16} /></span>
-            Factures &amp; relances
-            <span class="pill ok"><Icon name="check" size={12} strokeWidth={3} />À jour</span>
-          </li>
-          <li style="--r:1">
-            <span class="li-ic"><Icon name="users" size={16} /></span>
-            Dossiers RH
-            <span class="pill ok"><Icon name="check" size={12} strokeWidth={3} />Sécurisés</span>
-          </li>
-          <li style="--r:2">
-            <span class="li-ic"><Icon name="chart" size={16} /></span>
-            Tableau de bord
-            <span class="pill">Suivi régulier</span>
-          </li>
-        </ul>
-      </div>
-
-      <div class="chip chip-a" style="--depth:30">
-        <span class="chip-ic terra"><Icon name="calendar" size={18} /></span>
-        <span><strong>Échange offert</strong><small>30 min, sans engagement</small></span>
-      </div>
-
-      <div class="chip chip-b" style="--depth:24">
-        <span class="chip-ic blue"><Icon name="clock" size={18} /></span>
-        <span><strong>Réponse sous 24h</strong><small>Devis personnalisé</small></span>
-      </div>
-    </div>
   </div>
 
   <a href="#services" class="scroll-hint" aria-label="Défiler vers la suite">
@@ -311,274 +253,6 @@ const bars = [38, 52, 44, 63, 58, 76, 88];
     background: var(--success);
   }
 
-  /* — Illustration — */
-  .hero-visual {
-    position: relative;
-    width: min(100%, 460px);
-    justify-self: center;
-    padding: 2.5rem 0;
-  }
-  .halo {
-    position: absolute;
-    inset: 8% -6%;
-    border-radius: 40px;
-    background: linear-gradient(140deg, rgb(97 25 58 / 0.12), rgb(246 181 91 / 0.12));
-    filter: blur(30px);
-    animation: enter 1.4s var(--ease-out) 0.4s both;
-  }
-  .panel,
-  .chip {
-    translate: calc(var(--px, 0) * var(--depth) * 1px) calc(var(--py, 0) * var(--depth) * 1px);
-    transition: translate 0.8s var(--ease-out);
-  }
-  .panel {
-    position: relative;
-    padding: 1.4rem;
-    border-radius: 28px;
-    background: rgb(255 255 255 / 0.82);
-    border: 1px solid rgb(255 255 255 / 0.9);
-    box-shadow:
-      0 40px 80px -40px rgb(97 25 58 / 0.45),
-      0 10px 30px -15px rgb(42 9 22 / 0.15),
-      inset 0 1px 0 #fff;
-    backdrop-filter: blur(16px);
-    animation:
-      panel-in 1.2s var(--ease-out) 0.35s both,
-      float 9s ease-in-out 1.6s infinite;
-  }
-  @keyframes panel-in {
-    from {
-      opacity: 0;
-      transform: perspective(1200px) rotateX(14deg) rotateY(-10deg) translateY(40px);
-    }
-    to {
-      opacity: 1;
-      transform: none;
-    }
-  }
-  @keyframes float {
-    0%,
-    100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(-10px);
-    }
-  }
-  .panel-head {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-    padding-bottom: 1.1rem;
-    border-bottom: 1px solid var(--line-soft);
-  }
-  .panel-head :global(.avatar) {
-    width: 46px;
-    height: 46px;
-    border-radius: 50%;
-    object-fit: cover;
-    object-position: 51% 28%;
-    border: 2px solid #fff;
-    box-shadow: 0 0 0 2px var(--terra-200);
-  }
-  .panel-kicker {
-    font-size: 0.72rem;
-    font-weight: 600;
-    color: var(--muted);
-  }
-  .panel-name {
-    font-family: var(--font-display);
-    font-size: 1.15rem;
-    color: var(--ink);
-    line-height: 1.2;
-  }
-  .panel-mark {
-    width: auto;
-    height: 24px;
-    margin-left: auto;
-    opacity: 0.9;
-  }
-  .panel-chart {
-    position: relative;
-    margin-top: 1.1rem;
-    padding: 1rem 1rem 0.8rem;
-    border-radius: 18px;
-    background: linear-gradient(180deg, var(--blue-50), #fff);
-    border: 1px solid var(--blue-100);
-  }
-  .chart-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .panel-label {
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: var(--ink);
-  }
-  .trend {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3rem;
-    padding: 0.2rem 0.55rem;
-    border-radius: 999px;
-    font-size: 0.7rem;
-    font-weight: 700;
-    color: var(--success);
-    background: var(--success-bg);
-  }
-  .bars {
-    display: flex;
-    align-items: flex-end;
-    gap: 7px;
-    height: 92px;
-    margin-top: 0.8rem;
-  }
-  .bars span {
-    flex: 1;
-    height: var(--h);
-    border-radius: 6px 6px 3px 3px;
-    background: linear-gradient(180deg, var(--blue-500), var(--blue-700));
-    transform-origin: bottom;
-    animation: bar-grow 1s var(--ease-out) both;
-    animation-delay: calc(0.9s + var(--b) * 0.08s);
-  }
-  .bars span:last-child {
-    background: linear-gradient(180deg, var(--terra-300), var(--terra-400));
-  }
-  @keyframes bar-grow {
-    from {
-      scale: 1 0;
-    }
-  }
-  .curve {
-    position: absolute;
-    left: 1rem;
-    right: 1rem;
-    bottom: 0.8rem;
-    width: calc(100% - 2rem);
-    height: 92px;
-    overflow: visible;
-  }
-  .curve path {
-    fill: none;
-    stroke: var(--terra-500);
-    stroke-width: 2.5;
-    stroke-linecap: round;
-    stroke-dasharray: 1;
-    stroke-dashoffset: 1;
-    filter: drop-shadow(0 4px 6px rgb(97 25 58 / 0.25));
-    animation: draw 1.6s var(--ease-in-out) 1.5s forwards;
-    vector-effect: non-scaling-stroke;
-  }
-  @keyframes draw {
-    to {
-      stroke-dashoffset: 0;
-    }
-  }
-  .panel-list {
-    display: grid;
-    gap: 0.55rem;
-    margin-top: 1rem;
-  }
-  .panel-list li {
-    display: flex;
-    align-items: center;
-    gap: 0.65rem;
-    padding: 0.6rem 0.7rem;
-    border-radius: 14px;
-    background: #fff;
-    border: 1px solid var(--line-soft);
-    font-size: 0.84rem;
-    font-weight: 600;
-    color: var(--ink);
-    animation: enter 0.8s var(--ease-out) both;
-    animation-delay: calc(1.2s + var(--r) * 0.15s);
-  }
-  .li-ic {
-    display: grid;
-    place-items: center;
-    width: 30px;
-    height: 30px;
-    border-radius: 10px;
-    color: var(--blue-700);
-    background: var(--blue-50);
-  }
-  .pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    margin-left: auto;
-    padding: 0.2rem 0.55rem;
-    border-radius: 999px;
-    font-size: 0.7rem;
-    font-weight: 700;
-    color: var(--blue-700);
-    background: var(--blue-100);
-  }
-  .pill.ok {
-    color: var(--success);
-    background: var(--success-bg);
-  }
-
-  .chip {
-    position: absolute;
-    display: flex;
-    align-items: center;
-    gap: 0.7rem;
-    padding: 0.7rem 1rem 0.7rem 0.7rem;
-    border-radius: 18px;
-    background: rgb(255 255 255 / 0.9);
-    border: 1px solid #fff;
-    box-shadow: 0 24px 40px -20px rgb(42 9 22 / 0.35);
-    backdrop-filter: blur(12px);
-    white-space: nowrap;
-    animation:
-      chip-in 0.9s var(--ease-spring) both,
-      float 7s ease-in-out infinite;
-  }
-  .chip strong {
-    display: block;
-    font-size: 0.86rem;
-    line-height: 1.2;
-  }
-  .chip small {
-    display: block;
-    font-size: 0.72rem;
-    font-weight: 600;
-    color: var(--muted);
-  }
-  .chip-a {
-    top: 0;
-    right: -2.2rem;
-    animation-delay: 1.5s, 2.4s;
-  }
-  .chip-b {
-    bottom: 0.4rem;
-    left: -2.6rem;
-    animation-delay: 1.75s, 3.2s;
-  }
-  @keyframes chip-in {
-    from {
-      opacity: 0;
-      scale: 0.6;
-    }
-  }
-  .chip-ic {
-    display: grid;
-    place-items: center;
-    width: 38px;
-    height: 38px;
-    border-radius: 12px;
-    color: #fff;
-  }
-  .chip-ic.terra {
-    background: linear-gradient(135deg, var(--blue-500), var(--blue-700));
-  }
-  .chip-ic.blue {
-    background: linear-gradient(135deg, var(--blue-500), var(--blue-700));
-  }
-
   /* — Indicateur de défilement — */
   .scroll-hint {
     position: absolute;
@@ -638,9 +312,6 @@ const bars = [38, 52, 44, 63, 58, 76, 88];
     .hero-trust {
       justify-content: center;
     }
-    .hero-visual {
-      width: min(100% - 3rem, 420px);
-    }
   }
   @media (max-width: 640px) {
     .hero {
@@ -649,12 +320,6 @@ const bars = [38, 52, 44, 63, 58, 76, 88];
     .hero-actions .btn {
       width: 100%;
     }
-    .chip-a {
-      right: -1.2rem;
-    }
-    .chip-b {
-      left: -1.2rem;
-    }
     .scroll-hint {
       display: none;
     }
@@ -662,10 +327,6 @@ const bars = [38, 52, 44, 63, 58, 76, 88];
 
   /* ============ Mobile : en-tête compact ============ */
   @media (max-width: 640px) {
-    /* La maquette du tableau de bord alourdit l'écran : on garde l'essentiel */
-    .hero-visual {
-      display: none;
-    }
     .hero {
       padding-bottom: 2.5rem;
       min-height: 0;
@@ -694,56 +355,25 @@ const bars = [38, 52, 44, 63, 58, 76, 88];
     }
   }
 
-  /* ============ Maquette animée : plus grande, centrée, réservée aux écrans à 2 colonnes ============ */
-  /* Deux colonnes : titre un peu plus compact pour que texte et maquette tiennent dans l'écran */
+  /* ============ Texte d'accueil en pleine largeur ============ */
+  .hero-inner {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .hero-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .hero-title {
+    max-width: 22ch;
+  }
+  .hero-lead {
+    max-width: 52rem;
+  }
   @media (min-width: 1024px) {
     .hero-title {
-      font-size: clamp(2.6rem, 4.5vw, 4.1rem);
-    }
-    .hero-lead {
-      margin-top: 1.3rem;
-    }
-    .hero-actions {
-      margin-top: 1.8rem;
-    }
-  }
-  .hero-visual {
-    /* Marges latérales : les pastilles flottantes débordent de façon symétrique */
-    width: min(100%, 470px);
-    padding: 2.6rem 1.6rem;
-    justify-self: center;
-    align-self: center;
-    /* Agrandissement de l'ensemble (panneau + pastilles) sans décaler la mise en page */
-    scale: var(--mock-scale, 1);
-    transform-origin: center;
-  }
-  .chip-a {
-    top: 0;
-    right: 0;
-  }
-  .chip-b {
-    bottom: 0.4rem;
-    left: 0;
-  }
-  @media (min-width: 1200px) {
-    .hero-visual {
-      --mock-scale: 1.08;
-    }
-  }
-  @media (min-width: 1360px) {
-    .hero-visual {
-      --mock-scale: 1.15;
-    }
-  }
-  @media (min-width: 1600px) {
-    .hero-visual {
-      --mock-scale: 1.22;
-    }
-  }
-  /* Une seule colonne : la maquette serait trop petite, on la retire */
-  @media (max-width: 1023px) {
-    .hero-visual {
-      display: none;
+      max-width: none;
+      font-size: clamp(3.4rem, 5.6vw, 5.4rem);
     }
   }
 </style>
