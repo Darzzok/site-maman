@@ -1,0 +1,26 @@
+---
+/** Bouton "Voir toutes les cartes" — visible uniquement sur mobile */
+import Icon from './Icon.astro';
+
+interface Props {
+  controls: string;
+  total: number;
+  more?: string;
+  less?: string;
+}
+const { controls, total, more = 'Voir toutes les cartes', less = 'Réduire' } = Astro.props;
+---
+
+<button
+  type="button"
+  class="collapse-toggle"
+  aria-expanded="false"
+  aria-controls={controls}
+  data-collapse-toggle
+  data-more={more}
+  data-less={less}
+>
+  <span data-label>{more}</span>
+  <span class="count">+{total - 1}</span>
+  <Icon name="chevronDown" size={18} strokeWidth={2.2} />
+</button>

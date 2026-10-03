@@ -1,0 +1,119 @@
+---
+/**
+ * Consentement pour les cookies tiers déposés par Calendly.
+ * Tant que la personne n'a pas accepté, le script Calendly n'est jamais chargé.
+ * Le choix est mémorisé dans le navigateur et diffusé via l'évènement "sgc:consent".
+ */
+import Icon from './Icon.astro';
+---
+
+<div id="cookie-banner" class="cookie" role="region" aria-label="Consentement aux cookies" inert>
+  <span class="cookie-ic"><Icon name="cookie" size={22} /></span>
+  <p>
+    Ce site utilise Calendly pour la prise de rendez-vous en ligne, qui dépose des cookies tiers. Vous pouvez les
+    accepter ou les refuser — le reste du site fonctionne normalement dans les deux cas.
+    <a href="/confidentialite.html#cookies">En savoir plus</a>.
+  </p>
+  <div class="cookie-actions">
+    <button id="decline-cookies" type="button" class="btn btn--ghost btn--sm">Refuser</button>
+    <button id="accept-cookies" type="button" class="btn btn--blue btn--sm">Accepter</button>
+  </div>
+</div>
+
+<script>
+  const COOKIE_CONSENT_KEY = 'sgc_cookie_consent'; // "accepted" | "declined"
+  const banner = document.getElementById('cookie-banner');
+
+  function getConsent() {
+    try {
+      return localStorage.getItem(COOKIE_CONSENT_KEY);
+    } catch {
+      return null;
+    }
+  }
+  function show(visible: boolean) {
+    if (!banner) return;
+    banner.classList.toggle('is-visible', visible);
+    banner.inert = !visible;
+  }
+  function choose(value: 'accepted' | 'declined') {
+    try {
+      localStorage.setItem(COOKIE_CONSENT_KEY, value);
+    } catch {
+      /* stockage indisponible : le choix ne sera simplement pas mémorisé */
+    }
+    show(false);
+    window.dispatchEvent(new CustomEvent('sgc:consent', { detail: value }));
+  }
+
+  if (!getConsent()) setTimeout(() => show(true), 1200);
+
+  document.getElementById('accept-cookies')?.addEventListener('click', () => choose('accepted'));
+  document.getElementById('decline-cookies')?.addEventListener('click', () => choose('declined'));
+  document.querySelectorAll('[data-manage-cookies]').forEach((btn) => btn.addEventListener('click', () => show(true)));
+  // Demande d'acceptation venant d'ailleurs (ex. bouton intégré à la carte Calendly)
+  window.addEventListener('sgc:consent-request', (e) => choose((e as CustomEvent).detail));
+</script>
+
+<style>
+  .cookie {
+    position: fixed;
+    left: 1rem;
+    bottom: 1rem;
+    z-index: 70;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.9rem 1rem;
+    width: min(calc(100% - 2rem), 440px);
+    padding: 1.25rem;
+    border-radius: 22px;
+    background: rgb(255 255 255 / 0.94);
+    border: 1px solid var(--line);
+    box-shadow: 0 30px 60px -24px rgb(13 21 48 / 0.45);
+    backdrop-filter: blur(16px);
+    opacity: 0;
+    visibility: hidden;
+    translate: 0 30px;
+    transition:
+      opacity 0.5s,
+      translate 0.7s var(--ease-out),
+      visibility 0s linear 0.7s;
+  }
+  .cookie:global(.is-visible) {
+    opacity: 1;
+    visibility: visible;
+    translate: none;
+    transition-delay: 0s;
+  }
+  .cookie-ic {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    color: var(--terra-600);
+    background: var(--terra-100);
+  }
+  .cookie p {
+    font-size: 0.86rem;
+    line-height: 1.55;
+    color: var(--text);
+  }
+  .cookie a {
+    font-weight: 700;
+    color: var(--terra-600);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .cookie-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.6rem;
+  }
+  @media (max-width: 480px) {
+    .cookie-actions .btn {
+      flex: 1;
+    }
+  }
+</style>

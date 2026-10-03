@@ -1,0 +1,52 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import Services from '../components/Services.astro';
+import About from '../components/About.astro';
+import Reasons from '../components/Reasons.astro';
+import Journey from '../components/Journey.astro';
+import Cases from '../components/Cases.astro';
+import Network from '../components/Network.astro';
+import PromiseBand from '../components/PromiseBand.astro';
+import Contact from '../components/Contact.astro';
+import SideRail from '../components/SideRail.astro';
+import { services, site } from '../data/site';
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfessionalService',
+  name: site.name,
+  alternateName: site.owner,
+  description:
+    'Conseil et accompagnement en gestion administrative, trésorerie, ressources humaines et pilotage d’exploitation pour TPE, artisans et professions libérales.',
+  url: `${site.url}/`,
+  logo: `${site.url}/images/logo.png`,
+  image: `${site.url}/images/nadege.jpg`,
+  email: site.email,
+  telephone: site.phone,
+  areaServed: 'FR',
+  priceRange: '€€',
+  founder: { '@type': 'Person', name: site.owner },
+  makesOffer: services.map((s) => ({ '@type': 'Offer', itemOffered: { '@type': 'Service', name: s.title } })),
+};
+---
+
+<BaseLayout
+  home
+  title={`${site.name} — Externalisation de la gestion administrative pour TPE, artisans et professions libérales`}
+  description="Nadège MONZAT-MARECHAL, consultante indépendante, accompagne les TPE, artisans et professions libérales dans la gestion administrative, la trésorerie, les RH et le pilotage d’exploitation."
+  ogTitle={`${site.name} — ${site.promise}`}
+  ogDescription="Gestion administrative, trésorerie, RH, gestion de chantiers : un accompagnement opérationnel pour les TPE, artisans et professions libérales."
+  jsonLd={jsonLd}
+>
+  <SideRail />
+  <Hero />
+  <Services />
+  <About />
+  <Reasons />
+  <Journey />
+  <Cases />
+  <Network />
+  <PromiseBand />
+  <Contact />
+</BaseLayout>

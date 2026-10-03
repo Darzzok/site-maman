@@ -1,0 +1,117 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import LegalPage from '../components/LegalPage.astro';
+import { site } from '../data/site';
+
+const toc = [
+  { id: 'responsable', title: 'Responsable du traitement' },
+  { id: 'donnees', title: 'Données collectées' },
+  { id: 'prestataires', title: 'Prestataires tiers' },
+  { id: 'finalite', title: 'Finalité du traitement' },
+  { id: 'conservation', title: 'Durée de conservation' },
+  { id: 'droits', title: 'Vos droits' },
+  { id: 'cookies', title: 'Cookies' },
+  { id: 'securite', title: 'Sécurité' },
+];
+---
+
+<BaseLayout
+  title={`Politique de confidentialité — ${site.name}`}
+  description={`Politique de confidentialité du site de ${site.name}, gestion administrative et pilotage d’exploitation pour TPE, artisans et professions libérales.`}
+  noindex
+>
+  <PageHero eyebrow="Vos données" title="Politique de <em>confidentialité</em>" crumb="Confidentialité" />
+
+  <LegalPage toc={toc}>
+    <section id="responsable">
+      <h2>Responsable du traitement</h2>
+      <p>
+        {site.owner}, auto-entrepreneuse exerçant sous le nom commercial {site.name}, est responsable du traitement des
+        données personnelles collectées sur ce site. Pour toute question, vous pouvez la contacter à l’adresse
+        <a href={`mailto:${site.email}`}>{site.emailLabel}</a>.
+      </p>
+    </section>
+
+    <section id="donnees">
+      <h2>Données collectées</h2>
+      <p>
+        Lorsque vous utilisez le formulaire de contact, les données suivantes peuvent être collectées : nom, entreprise,
+        téléphone, adresse e-mail et contenu de votre message. Ces informations sont fournies volontairement par vous.
+      </p>
+      <p>
+        Si vous réservez un rendez-vous via le calendrier intégré, les informations que vous renseignez (nom, e-mail, et
+        tout autre champ demandé par l’outil de réservation) sont collectées directement par Calendly, prestataire tiers
+        présenté ci-dessous.
+      </p>
+    </section>
+
+    <section id="prestataires">
+      <h2>Prestataires tiers</h2>
+      <p>Ce site fait appel à des prestataires tiers pour certaines fonctionnalités :</p>
+      <ul class="list">
+        <li>
+          <strong>Formspree</strong> (traitement du formulaire de contact) : les informations que vous saisissez dans le
+          formulaire transitent par ce service pour me parvenir par e-mail.
+        </li>
+        <li>
+          <strong>Calendly</strong> (prise de rendez-vous en ligne) : lorsque vous acceptez les cookies proposés et
+          utilisez le calendrier intégré, vos informations de réservation sont traitées directement par Calendly.
+        </li>
+      </ul>
+      <p>
+        Ces deux prestataires sont basés aux États-Unis ; le transfert de données correspondant est encadré par leurs
+        garanties contractuelles respectives. Je vous invite à consulter leurs propres politiques de confidentialité pour
+        plus de détails sur leurs traitements.
+      </p>
+    </section>
+
+    <section id="finalite">
+      <h2>Finalité du traitement</h2>
+      <p>
+        Ces données sont utilisées exclusivement pour répondre à votre demande de contact et échanger avec vous dans le
+        cadre d’une éventuelle prestation de conseil ou d’accompagnement. Elles ne sont ni revendues, ni cédées à des tiers
+        à des fins commerciales.
+      </p>
+    </section>
+
+    <section id="conservation">
+      <h2>Durée de conservation</h2>
+      <p>
+        Les données transmises via le formulaire sont conservées le temps nécessaire au traitement de votre demande, puis
+        pour une durée n’excédant pas celle requise par les obligations légales et commerciales applicables.
+      </p>
+    </section>
+
+    <section id="droits">
+      <h2>Vos droits</h2>
+      <p>
+        Conformément au Règlement Général sur la Protection des Données (RGPD), vous disposez d’un droit d’accès, de
+        rectification, d’effacement et d’opposition concernant vos données personnelles. Vous pouvez exercer ces droits en
+        écrivant à <a href={`mailto:${site.email}`}>{site.emailLabel}</a>.
+      </p>
+    </section>
+
+    <section id="cookies">
+      <h2>Cookies</h2>
+      <p>
+        Ce site n’utilise aucun cookie de mesure d’audience ni de publicité. Le seul cookie tiers concerné est celui
+        déposé par <strong>Calendly</strong>, lorsque le calendrier de prise de rendez-vous est affiché.
+      </p>
+      <p>
+        Ce calendrier n’est chargé qu’après votre consentement explicite, via le bandeau affiché en bas de page ou l’écran
+        dédié dans la section de réservation. Si vous refusez, le calendrier ne se charge pas : vous pouvez alors réserver
+        directement depuis le site de Calendly via le lien fourni, ou me contacter par le formulaire de devis. Vous pouvez
+        modifier votre choix à tout moment via le lien « Gérer les cookies » présent en pied de page.
+      </p>
+    </section>
+
+    <section id="securite">
+      <h2>Sécurité</h2>
+      <p>
+        Des mesures raisonnables sont mises en œuvre pour protéger vos données contre tout accès, modification ou
+        divulgation non autorisés.
+      </p>
+    </section>
+  </LegalPage>
+</BaseLayout>

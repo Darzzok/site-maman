@@ -1,0 +1,103 @@
+---
+import Icon from './Icon.astro';
+import CollapseToggle from './CollapseToggle.astro';
+import { reasons } from '../data/site';
+---
+
+<section id="pourquoi" class="section reasons">
+  <div class="dots" aria-hidden="true"></div>
+  <div class="container">
+    <header class="section-head" data-reveal>
+      <p class="eyebrow">Pourquoi travailler avec moi</p>
+      <h2 class="h2">Un accompagnement pensé pour <em>durer</em></h2>
+    </header>
+
+    <div class="reason-grid" id="reasons-list" data-collapsible>
+      {
+        reasons.map((r, i) => (
+          <article class="card reason" data-reveal style={`--d:${i % 3}`}>
+            <span class="icon-tile">
+              <Icon name={r.icon} />
+            </span>
+            <div>
+              <h3>{r.title}</h3>
+              <p set:html={r.text} />
+            </div>
+            <span class="reason-line" aria-hidden="true" />
+          </article>
+        ))
+      }
+    </div>
+
+    <CollapseToggle controls="reasons-list" total={reasons.length} more="Voir tous les engagements" />
+  </div>
+</section>
+
+<style>
+  .reasons {
+    background: linear-gradient(180deg, var(--white), var(--blue-50));
+    overflow: hidden;
+  }
+  .dots {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgb(0 44 150 / 0.12) 1px, transparent 1.2px);
+    background-size: 22px 22px;
+    mask-image: radial-gradient(60% 50% at 50% 0%, #000, transparent 70%);
+    pointer-events: none;
+  }
+  .container {
+    position: relative;
+  }
+  .reason-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+  .reason {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    text-align: center;
+    padding: 1.6rem;
+    border-radius: var(--radius);
+    background: rgb(255 255 255 / 0.85);
+    backdrop-filter: blur(6px);
+  }
+  .reason h3 {
+    font-size: 1.2rem;
+    margin: 0.2rem 0 0.45rem;
+  }
+  .reason p {
+    font-size: 0.95rem;
+    color: var(--muted);
+  }
+  /* Trait de couleur qui se dessine au survol */
+  .reason-line {
+    position: absolute;
+    left: 1.6rem;
+    right: 1.6rem;
+    bottom: 0;
+    height: 3px;
+    border-radius: 3px 3px 0 0;
+    background: linear-gradient(90deg, var(--blue-600), var(--terra-400));
+    transform-origin: left;
+    scale: 0 1;
+    transition: scale 0.6s var(--ease-out);
+  }
+  .reason:hover .reason-line {
+    scale: 1 1;
+  }
+
+  @media (max-width: 1023px) {
+    .reason-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 767px) {
+    .reason-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

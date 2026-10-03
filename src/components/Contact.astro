@@ -1,0 +1,580 @@
+---
+import Icon from './Icon.astro';
+import { site } from '../data/site';
+
+const fields = [
+  { id: 'nom', type: 'text', label: 'Nom complet', icon: 'user', required: true, autocomplete: 'name', half: true },
+  { id: 'telephone', type: 'tel', label: 'Téléphone', icon: 'phone', required: true, autocomplete: 'tel', half: true },
+  { id: 'email', type: 'email', label: 'Adresse e-mail', icon: 'mail', required: true, autocomplete: 'email' },
+  { id: 'entreprise', type: 'text', label: 'Entreprise', icon: 'building', required: false, autocomplete: 'organization' },
+];
+
+const chips = [
+  { href: `mailto:${site.email}`, icon: 'mail', label: site.emailLabel },
+  { href: `tel:${site.phone}`, icon: 'phone', label: site.phoneLabel },
+  { href: site.linkedin, icon: 'linkedin', label: `LinkedIn — ${site.name}` },
+  { href: '/faq.html', icon: 'help', label: 'Des questions ? Consultez la FAQ' },
+];
+---
+
+<section id="contact" class="section contact">
+  <div class="container">
+    <header class="section-head" data-reveal>
+      <p class="eyebrow">Contact</p>
+      <h2 class="h2">Parlons de votre <em>projet</em></h2>
+      <p>Deux options s’offrent à vous pour lancer notre échange.</p>
+    </header>
+
+    <div class="contact-grid">
+      <!-- Carte 1 : demande de devis -->
+      <article id="devis" class="card contact-card" data-reveal style="--d:0">
+        <div class="cc-top">
+          <span class="icon-tile"><Icon name="file" /></span>
+          <span class="pill"><Icon name="clock" size={14} strokeWidth={2} /> Réponse sous 24h</span>
+        </div>
+        <h3>Demander un devis personnalisé</h3>
+        <p class="cc-desc">
+          Décrivez votre besoin à l’aide du formulaire. Je vous répondrai rapidement avec une proposition adaptée.
+        </p>
+
+        <form id="contact-form" action={site.formspree} method="POST" class="form" novalidate>
+          <input type="hidden" name="_subject" value={`Nouvelle demande de devis — ${site.name}`} />
+          <div class="fields">
+            {
+              fields.map((f) => (
+                <div class:list={['field', { half: f.half }]}>
+                  <input
+                    type={f.type}
+                    id={f.id}
+                    name={f.id}
+                    required={f.required}
+                    autocomplete={f.autocomplete}
+                    placeholder=" "
+                  />
+                  <label for={f.id}>
+                    {f.label} {f.required && <span class="req">*</span>}
+                  </label>
+                  <span class="field-ic">
+                    <Icon name={f.icon} size={18} />
+                  </span>
+                </div>
+              ))
+            }
+            <div class="field">
+              <textarea id="message" name="message" rows="4" required placeholder=" "></textarea>
+              <label for="message">Message <span class="req">*</span></label>
+              <span class="field-ic top"><Icon name="message" size={18} /></span>
+            </div>
+          </div>
+
+          <div class="form-foot">
+            <p class="hint"><span class="req">*</span> Champs obligatoires</p>
+            <button type="submit" class="btn" id="submit-btn">
+              <span id="submit-label">Envoyer ma demande de devis</span>
+              <Icon name="send" size={17} class="i-arrow" />
+            </button>
+          </div>
+
+          <p id="form-feedback" class="feedback" role="status" aria-live="polite" hidden></p>
+        </form>
+      </article>
+
+      <!-- Carte 2 : prise de rendez-vous Calendly -->
+      <article id="rendez-vous" class="card contact-card" data-reveal style="--d:1">
+        <div class="cc-top">
+          <span class="icon-tile icon-tile--terra"><Icon name="calendar" /></span>
+          <span class="pill terra"><Icon name="sparkles" size={14} strokeWidth={2} /> Gratuit · 30 min</span>
+        </div>
+        <h3>Réserver un échange gratuit de 30 minutes</h3>
+        <p class="cc-desc">Choisissez directement un créneau dans mon agenda Calendly pour échanger sur votre projet.</p>
+
+        <div class="calendly-box">
+          <!-- Écran de consentement, affiché tant que les cookies Calendly ne sont pas acceptés -->
+          <div id="calendly-consent-required" class="cal-layer">
+            <span class="cal-ic"><Icon name="calendar" size={28} /></span>
+            <p>
+              Ce calendrier est fourni par Calendly, qui dépose des cookies tiers. Acceptez-les pour l’afficher directement
+              ici.
+            </p>
+            <button id="accept-cookies-inline" type="button" class="btn btn--blue btn--sm">
+              Accepter et afficher le calendrier
+            </button>
+            <a id="calendly-direct-link" href={site.calendly} target="_blank" rel="noopener" class="direct-link">
+              Ou réservez directement sur Calendly.com <Icon name="arrowRight" size={14} />
+            </a>
+          </div>
+
+          <!-- Chargement -->
+          <div id="calendly-loading" class="cal-layer" hidden>
+            <span class="spinner" aria-hidden="true"></span>
+            <p>Chargement du calendrier…</p>
+          </div>
+
+          <div id="calendly-widget" class="calendly-inline-widget" data-url=""></div>
+        </div>
+      </article>
+    </div>
+
+    <ul class="chips">
+      {
+        chips.map((c, i) => (
+          <li data-reveal style={`--d:${i}`}>
+            <a href={c.href} class="chip">
+              <span class="chip-ic">
+                <Icon name={c.icon} size={18} />
+              </span>
+              <span>{c.label}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<script>
+  import { site } from '../data/site';
+
+  /* ---------------------------------------------------------------
+     Réservation Calendly : widget officiel chargé en différé,
+     et uniquement après consentement aux cookies tiers.
+     --------------------------------------------------------------- */
+  const COOKIE_CONSENT_KEY = 'sgc_cookie_consent'; // géré par CookieBanner.astro
+
+  const calendlySection = document.getElementById('rendez-vous');
+  const calendlyWidget = document.getElementById('calendly-widget');
+  const calendlyLoading = document.getElementById('calendly-loading');
+  const consentRequired = document.getElementById('calendly-consent-required');
+
+  let calendlyLoaded = false;
+  let lazyObserver: IntersectionObserver | null = null;
+
+  function getConsent() {
+    try {
+      return localStorage.getItem(COOKIE_CONSENT_KEY);
+    } catch {
+      return null;
+    }
+  }
+
+  function loadCalendly() {
+    if (calendlyLoaded || !calendlyWidget) return;
+    calendlyLoaded = true;
+    if (consentRequired) consentRequired.hidden = true;
+    if (calendlyLoading) calendlyLoading.hidden = false;
+    calendlyWidget.setAttribute('data-url', site.calendly);
+    const script = document.createElement('script');
+    script.src = 'https://assets.calendly.com/assets/external/widget.js';
+    script.async = true;
+    script.onload = () => {
+      if (calendlyLoading) calendlyLoading.hidden = true;
+    };
+    document.body.appendChild(script);
+  }
+
+  function armLazyLoad() {
+    if (lazyObserver || !calendlySection) return;
+    lazyObserver = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          loadCalendly();
+          lazyObserver?.disconnect();
+        }
+      },
+      { threshold: 0.15 },
+    );
+    lazyObserver.observe(calendlySection);
+  }
+
+  if (getConsent() === 'accepted') armLazyLoad();
+
+  // Acceptation depuis le bandeau → chargement immédiat
+  window.addEventListener('sgc:consent', (e) => {
+    if ((e as CustomEvent).detail === 'accepted') loadCalendly();
+  });
+  // Acceptation depuis l'écran intégré à la carte
+  document.getElementById('accept-cookies-inline')?.addEventListener('click', () => {
+    window.dispatchEvent(new CustomEvent('sgc:consent-request', { detail: 'accepted' }));
+  });
+
+  /* ---------------------------------------------------------------
+     Formulaire de devis : envoi via Formspree
+     --------------------------------------------------------------- */
+  const form = document.getElementById('contact-form') as HTMLFormElement | null;
+  const feedback = document.getElementById('form-feedback');
+  const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement | null;
+  const submitLabel = document.getElementById('submit-label');
+
+  function showFeedback(type: 'ok' | 'error', message: string) {
+    if (!feedback) return;
+    feedback.textContent = message;
+    feedback.dataset.type = type;
+    feedback.hidden = false;
+  }
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!form.checkValidity()) {
+      form.classList.add('was-validated');
+      form.reportValidity();
+      return;
+    }
+    if (!submitBtn || !submitLabel) return;
+    submitBtn.disabled = true;
+    const original = submitLabel.textContent;
+    submitLabel.textContent = 'Envoi en cours…';
+
+    try {
+      const response = await fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { Accept: 'application/json' },
+      });
+      if (!response.ok) throw new Error('Réponse non valide du serveur');
+      showFeedback('ok', 'Merci, votre demande de devis a bien été envoyée. Je vous répondrai rapidement.');
+      form.reset();
+      form.classList.remove('was-validated');
+    } catch {
+      showFeedback(
+        'error',
+        `Une erreur est survenue lors de l’envoi. Merci de réessayer, ou écrivez-moi directement à ${site.emailLabel}.`,
+      );
+    } finally {
+      submitBtn.disabled = false;
+      submitLabel.textContent = original;
+    }
+  });
+</script>
+
+<style>
+  .contact {
+    background:
+      radial-gradient(45% 35% at 0% 100%, rgb(58 98 211 / 0.08), transparent 70%),
+      radial-gradient(45% 35% at 100% 0%, rgb(226 137 90 / 0.1), transparent 70%),
+      linear-gradient(180deg, var(--white), var(--cream));
+  }
+  .contact-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem;
+    align-items: stretch;
+  }
+  .contact-card {
+    display: flex;
+    flex-direction: column;
+    padding: clamp(1.6rem, 3.5vw, 2.4rem);
+  }
+  .contact-card:hover {
+    transform: none;
+  }
+  .cc-top {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.9rem;
+    margin-bottom: 1.4rem;
+  }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.85rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--blue-700);
+    background: var(--blue-50);
+    border: 1px solid var(--blue-100);
+  }
+  .pill.terra {
+    color: var(--terra-700);
+    background: var(--terra-100);
+    border-color: rgb(178 83 31 / 0.14);
+  }
+  .contact-card h3 {
+    font-size: clamp(1.4rem, 2.2vw, 1.7rem);
+    text-align: center;
+  }
+  .cc-desc {
+    margin: 0.6rem 0 1.6rem;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.97rem;
+  }
+
+  /* — Formulaire — */
+  .form {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+  .fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.9rem;
+  }
+  .field {
+    position: relative;
+    grid-column: 1 / -1;
+  }
+  .field.half {
+    grid-column: span 1;
+  }
+  .field input,
+  .field textarea {
+    width: 100%;
+    padding: 1.45rem 1rem 0.55rem 2.9rem;
+    border-radius: 14px;
+    border: 1.5px solid var(--line);
+    background: var(--cream);
+    font-size: 0.97rem;
+    color: var(--ink);
+    outline: none;
+    transition:
+      border-color 0.3s,
+      background 0.3s,
+      box-shadow 0.3s;
+  }
+  .field textarea {
+    resize: vertical;
+    min-height: 140px;
+    padding-top: 1.7rem;
+  }
+  .field input:hover,
+  .field textarea:hover {
+    border-color: var(--sand-300);
+  }
+  .field input:focus,
+  .field textarea:focus {
+    border-color: var(--blue-600);
+    background: #fff;
+    box-shadow: 0 0 0 4px rgb(29 67 181 / 0.12);
+  }
+  .form:global(.was-validated) input:invalid,
+  .form:global(.was-validated) textarea:invalid {
+    border-color: var(--danger);
+    background: var(--danger-bg);
+  }
+  .field label {
+    position: absolute;
+    left: 2.9rem;
+    top: 1rem;
+    font-size: 0.95rem;
+    color: var(--muted);
+    pointer-events: none;
+    transform-origin: left top;
+    transition:
+      transform 0.35s var(--ease-out),
+      color 0.3s;
+  }
+  .field input:focus + label,
+  .field input:not(:placeholder-shown) + label,
+  .field textarea:focus + label,
+  .field textarea:not(:placeholder-shown) + label {
+    transform: translateY(-0.6rem) scale(0.78);
+    color: var(--blue-700);
+    font-weight: 600;
+  }
+  .req {
+    color: var(--terra-600);
+  }
+  .field-ic {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    translate: 0 -50%;
+    color: var(--muted);
+    transition: color 0.3s;
+  }
+  .field-ic.top {
+    top: 1.05rem;
+    translate: none;
+  }
+  .field:focus-within .field-ic {
+    color: var(--blue-700);
+  }
+  .form-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: auto;
+    padding-top: 1.5rem;
+  }
+  .hint {
+    font-size: 0.82rem;
+    color: var(--muted);
+  }
+  .feedback {
+    margin-top: 1rem;
+    padding: 0.9rem 1rem;
+    border-radius: 14px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    animation: reveal-up 0.6s var(--ease-out);
+  }
+  .feedback[data-type='ok'] {
+    color: var(--success);
+    background: var(--success-bg);
+  }
+  .feedback[data-type='error'] {
+    color: var(--danger);
+    background: var(--danger-bg);
+  }
+
+  /* — Calendly — */
+  .calendly-box {
+    position: relative;
+    flex: 1;
+    min-height: 560px;
+    overflow: hidden;
+    border-radius: 18px;
+    background: var(--cream);
+    border: 1.5px dashed var(--sand-300);
+  }
+  .cal-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.1rem;
+    padding: 2rem;
+    text-align: center;
+    background:
+      radial-gradient(60% 50% at 50% 30%, rgb(29 67 181 / 0.06), transparent 70%),
+      var(--cream);
+  }
+  .cal-layer[hidden] {
+    display: none;
+  }
+  .cal-layer p {
+    max-width: 22rem;
+    font-size: 0.92rem;
+    color: var(--muted);
+  }
+  .cal-ic {
+    display: grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 20px;
+    color: var(--blue-700);
+    background: #fff;
+    box-shadow: var(--shadow-md);
+    animation: cal-bob 4s ease-in-out infinite;
+  }
+  @keyframes cal-bob {
+    50% {
+      transform: translateY(-6px) rotate(-4deg);
+    }
+  }
+  .direct-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--blue-700);
+  }
+  .direct-link:hover {
+    text-decoration: underline;
+  }
+  .spinner {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 3px solid var(--blue-100);
+    border-top-color: var(--blue-700);
+    animation: spin 0.9s linear infinite;
+  }
+  @keyframes spin {
+    to {
+      rotate: 360deg;
+    }
+  }
+  .calendly-inline-widget {
+    width: 100%;
+    height: 100%;
+    min-width: 260px;
+    min-height: 560px;
+  }
+
+  /* — Coordonnées — */
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.8rem;
+    margin-top: clamp(2.5rem, 5vw, 3.5rem);
+  }
+  .chip {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.55rem 1.2rem 0.55rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--ink);
+    background: #fff;
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-sm);
+    transition:
+      transform 0.45s var(--ease-out),
+      box-shadow 0.45s,
+      border-color 0.3s,
+      color 0.3s;
+  }
+  .chip-ic {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    color: var(--blue-700);
+    background: var(--blue-50);
+    transition:
+      background 0.4s,
+      color 0.4s,
+      transform 0.6s var(--ease-spring);
+  }
+  .chip:hover {
+    transform: translateY(-3px);
+    color: var(--blue-700);
+    border-color: rgb(0 44 150 / 0.25);
+    box-shadow: var(--shadow-md);
+  }
+  .chip:hover .chip-ic {
+    color: #fff;
+    background: var(--blue-700);
+    transform: rotate(-10deg);
+  }
+
+  @media (max-width: 960px) {
+    .contact-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 520px) {
+    .fields {
+      grid-template-columns: 1fr;
+    }
+    .field.half {
+      grid-column: 1 / -1;
+    }
+    .form-foot .btn {
+      width: 100%;
+    }
+    .chip {
+      width: 100%;
+    }
+    .chips li {
+      width: 100%;
+    }
+  }
+</style>

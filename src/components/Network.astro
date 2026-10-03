@@ -1,0 +1,236 @@
+---
+import Icon from './Icon.astro';
+import CollapseToggle from './CollapseToggle.astro';
+import { network, partners } from '../data/site';
+---
+
+<section id="reseau-experts" class="section network">
+  <div class="container">
+    <header class="section-head" data-reveal>
+      <p class="eyebrow">Notre réseau d’experts</p>
+      <h2 class="h2">Des compétences <em>complémentaires</em> au service de votre entreprise</h2>
+      <p>{network.intro}</p>
+    </header>
+
+    <div class="partner-grid" id="partners-list" data-collapsible>
+      {
+        partners.map((p, i) => (
+          <article class="card partner" data-reveal style={`--d:${i}`}>
+            <div class="cover" aria-hidden="true">
+              <span class="cover-ic">
+                <Icon name={p.icon} size={120} strokeWidth={0.8} />
+              </span>
+            </div>
+            <div class="identity">
+              <div class="avatar-wrap">
+                <img src={p.photo} alt={`Photo de ${p.name}`} width="400" height="400" loading="lazy" decoding="async" />
+                <span class="avatar-badge">
+                  <Icon name={p.icon} size={14} strokeWidth={2} />
+                </span>
+              </div>
+              <div>
+                <h3>{p.name}</h3>
+                <p class="role">{p.role}</p>
+              </div>
+            </div>
+            <div class="desc">
+              {p.paragraphs.map((t) => (
+                <p>{t}</p>
+              ))}
+            </div>
+            <div class="tags-block">
+              <p class="tags-title">{p.tagsTitle}</p>
+              <ul class="tags">
+                {p.tags.map((t) => (
+                  <li class="tag">{t}</li>
+                ))}
+              </ul>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+
+    <CollapseToggle controls="partners-list" total={partners.length} more="Voir tous les partenaires" />
+
+    <div class="outro" data-reveal>
+      <span class="icon-tile icon-tile--terra"><Icon name="network" /></span>
+      <div>
+        <h3>{network.outroTitle}</h3>
+        <p>{network.outro}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .network {
+    background: linear-gradient(180deg, var(--cream), var(--white));
+  }
+  .partner-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem;
+    align-items: stretch;
+  }
+  .partner {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+  }
+  .cover {
+    position: relative;
+    height: 120px;
+    overflow: hidden;
+    background:
+      radial-gradient(70% 120% at 100% 0%, rgb(226 137 90 / 0.5), transparent 60%),
+      linear-gradient(135deg, var(--blue-700), var(--blue-900));
+  }
+  .cover::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgb(255 255 255 / 0.18) 1px, transparent 1.2px);
+    background-size: 18px 18px;
+    mask-image: linear-gradient(90deg, transparent, #000);
+  }
+  .cover-ic {
+    position: absolute;
+    right: 1.5rem;
+    top: -1.2rem;
+    color: rgb(255 255 255 / 0.18);
+    transition:
+      transform 1.2s var(--ease-out),
+      color 0.6s;
+  }
+  .partner:hover .cover-ic {
+    transform: rotate(-10deg) scale(1.1);
+    color: rgb(255 255 255 / 0.3);
+  }
+  .identity {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.9rem;
+    text-align: center;
+    margin-top: -46px;
+    padding: 0 clamp(1.6rem, 3vw, 2.2rem);
+  }
+  .identity > div {
+    padding-top: 0;
+  }
+  .avatar-wrap {
+    position: relative;
+    flex: none;
+  }
+  .avatar-wrap img {
+    width: 96px;
+    height: 96px;
+    border-radius: 28px;
+    object-fit: cover;
+    border: 4px solid #fff;
+    box-shadow: 0 14px 30px -14px rgb(13 21 48 / 0.5);
+    transition:
+      transform 0.6s var(--ease-spring),
+      border-radius 0.6s var(--ease-out);
+  }
+  .partner:hover .avatar-wrap img {
+    transform: rotate(-4deg) scale(1.04);
+    border-radius: 50%;
+  }
+  .avatar-badge {
+    position: absolute;
+    right: -6px;
+    bottom: -6px;
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    color: #fff;
+    background: linear-gradient(135deg, var(--terra-400), var(--terra-600));
+    border: 3px solid #fff;
+  }
+  .partner h3 {
+    font-size: 1.6rem;
+  }
+  .role {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--blue-700);
+    line-height: 1.4;
+  }
+  .desc {
+    display: grid;
+    gap: 0.8rem;
+    padding: 1.4rem clamp(1.6rem, 3vw, 2.2rem) 0;
+    font-size: 0.97rem;
+    text-align: center;
+    color: var(--muted);
+  }
+  .tags-block {
+    margin-top: auto;
+    text-align: center;
+    padding: 1.6rem clamp(1.6rem, 3vw, 2.2rem) clamp(1.6rem, 3vw, 2.2rem);
+  }
+  .tags-title {
+    margin-bottom: 0.8rem;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.45rem;
+  }
+  .tags .tag {
+    font-weight: 600;
+    transition:
+      transform 0.35s var(--ease-out),
+      background 0.3s,
+      color 0.3s;
+  }
+  .tags .tag:hover {
+    transform: translateY(-2px);
+    color: #fff;
+    background: var(--terra-600);
+  }
+
+  .outro {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1.4rem;
+    max-width: 56rem;
+    margin: clamp(3rem, 6vw, 4.5rem) auto 0;
+    padding: clamp(1.6rem, 3vw, 2.2rem);
+    border-radius: var(--radius-lg);
+    background: linear-gradient(120deg, var(--sand), var(--terra-100));
+    border: 1px solid rgb(178 83 31 / 0.12);
+  }
+  .outro h3 {
+    font-size: 1.45rem;
+    margin-bottom: 0.5rem;
+  }
+  .outro p {
+    color: var(--text);
+  }
+
+  @media (max-width: 860px) {
+    .partner-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 560px) {
+    .outro {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+  }
+</style>

@@ -1,0 +1,97 @@
+---
+/** Fil conducteur : points de navigation sur le côté (grands écrans) */
+import { sections } from '../data/site';
+---
+
+<nav class="rail" aria-label="Sections de la page">
+  <ul>
+    {
+      sections.map((s) => (
+        <li>
+          <a href={`#${s.id}`} data-rail={s.id}>
+            <span class="rail-label">{s.label}</span>
+            <span class="rail-dot" />
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</nav>
+
+<style>
+  .rail {
+    position: fixed;
+    right: 1.4rem;
+    top: 50%;
+    z-index: 30;
+    translate: 0 -50%;
+    padding: 0.7rem 0.45rem;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.7);
+    border: 1px solid rgb(13 21 48 / 0.06);
+    box-shadow: 0 10px 30px -14px rgb(13 21 48 / 0.3);
+    backdrop-filter: blur(12px);
+    animation: rail-in 1s var(--ease-out) 1.6s both;
+  }
+  @keyframes rail-in {
+    from {
+      opacity: 0;
+      translate: 20px -50%;
+    }
+  }
+  .rail ul {
+    display: grid;
+    gap: 0.15rem;
+  }
+  .rail a {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+  }
+  .rail-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: rgb(0 44 150 / 0.25);
+    transition:
+      height 0.5s var(--ease-out),
+      background 0.4s,
+      width 0.4s;
+  }
+  .rail a:hover .rail-dot {
+    background: var(--blue-600);
+  }
+  .rail a:global(.is-active) .rail-dot {
+    height: 20px;
+    background: linear-gradient(180deg, var(--blue-600), var(--terra-500));
+  }
+  .rail-label {
+    position: absolute;
+    right: calc(100% + 0.9rem);
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    white-space: nowrap;
+    color: #fff;
+    background: var(--blue-900);
+    opacity: 0;
+    translate: 8px 0;
+    pointer-events: none;
+    transition:
+      opacity 0.3s,
+      translate 0.4s var(--ease-out);
+  }
+  .rail a:hover .rail-label,
+  .rail a:focus-visible .rail-label {
+    opacity: 1;
+    translate: none;
+  }
+  @media (max-width: 1359px) {
+    .rail {
+      display: none;
+    }
+  }
+</style>

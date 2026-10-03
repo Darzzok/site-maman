@@ -1,0 +1,146 @@
+---
+import '@fontsource-variable/fraunces/opsz.css';
+import '@fontsource-variable/fraunces/opsz-italic.css';
+import '@fontsource-variable/manrope';
+import '../styles/global.css';
+
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import Icon from '../components/Icon.astro';
+import CookieBanner from '../components/CookieBanner.astro';
+import { site } from '../data/site';
+
+interface Props {
+  title: string;
+  description: string;
+  home?: boolean;
+  noindex?: boolean;
+  ogTitle?: string;
+  ogDescription?: string;
+  jsonLd?: object;
+}
+
+const { title, description, home = false, noindex = false, ogTitle, ogDescription, jsonLd } = Astro.props;
+const canonical = new URL(Astro.url.pathname === '/index.html' ? '/' : Astro.url.pathname, site.url).href;
+const ogImage = new URL('/images/logo.png', site.url).href;
+---
+
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#002c96" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="author" content={site.owner} />
+    <meta name="robots" content={noindex ? 'noindex, follow' : 'index, follow'} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/favicon.png" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <meta property="og:title" content={ogTitle ?? title} />
+    <meta property="og:description" content={ogDescription ?? description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:site_name" content={site.name} />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={ogTitle ?? title} />
+    <meta name="twitter:description" content={ogDescription ?? description} />
+
+    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+
+    <!-- Active les animations uniquement si JavaScript est disponible -->
+    <script is:inline>document.documentElement.classList.add('js');</script>
+  </head>
+  <body>
+    <a href="#contenu" class="skip-link">Aller au contenu principal</a>
+
+    <Header home={home} />
+
+    <main id="contenu">
+      <slot />
+    </main>
+
+    <Footer home={home} />
+
+    <CookieBanner />
+
+    <button type="button" class="to-top" aria-label="Retour en haut de page" data-back-to-top>
+      <svg class="to-top-ring" viewBox="0 0 48 48" aria-hidden="true">
+        <circle cx="24" cy="24" r="22" pathLength="100"></circle>
+        <circle class="progress" cx="24" cy="24" r="22" pathLength="100"></circle>
+      </svg>
+      <Icon name="arrowUp" size={18} strokeWidth={2.2} />
+    </button>
+
+    <script>
+      import '../scripts/main.ts';
+    </script>
+  </body>
+</html>
+
+<style>
+  .to-top {
+    position: fixed;
+    right: 1.25rem;
+    bottom: 1.25rem;
+    z-index: 40;
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    color: #fff;
+    background: var(--blue-700);
+    box-shadow: 0 14px 30px -12px rgb(0 44 150 / 0.7);
+    opacity: 0;
+    visibility: hidden;
+    translate: 0 16px;
+    scale: 0.8;
+    transition:
+      opacity 0.4s,
+      translate 0.5s var(--ease-out),
+      scale 0.5s var(--ease-spring),
+      visibility 0s linear 0.5s,
+      background 0.3s;
+  }
+  .to-top:global(.is-visible) {
+    opacity: 1;
+    visibility: visible;
+    translate: none;
+    scale: 1;
+    transition-delay: 0s;
+  }
+  .to-top:hover {
+    background: var(--blue-800);
+    scale: 1.08;
+  }
+  .to-top :global(svg:not(.to-top-ring)) {
+    transition: translate 0.4s var(--ease-out);
+  }
+  .to-top:hover :global(svg:not(.to-top-ring)) {
+    translate: 0 -2px;
+  }
+  .to-top-ring {
+    position: absolute;
+    inset: -3px;
+    width: calc(100% + 6px);
+    height: calc(100% + 6px);
+    rotate: -90deg;
+    fill: none;
+    stroke-width: 2.5;
+  }
+  .to-top-ring circle {
+    stroke: rgb(255 255 255 / 0);
+  }
+  .to-top-ring .progress {
+    stroke: var(--terra-400);
+    stroke-linecap: round;
+    stroke-dasharray: 100;
+    stroke-dashoffset: calc(100 - var(--progress, 0) * 100);
+  }
+</style>

@@ -1,0 +1,231 @@
+---
+import { site } from '../data/site';
+import Icon from './Icon.astro';
+
+interface Props {
+  home?: boolean;
+}
+const { home = false } = Astro.props;
+const base = home ? '' : '/';
+const year = new Date().getFullYear();
+
+const links = [
+  { label: 'Accueil', href: `${base}#accueil` },
+  { label: 'Services', href: `${base}#services` },
+  { label: 'À propos', href: `${base}#a-propos` },
+  { label: 'Cas clients', href: `${base}#cas-clients` },
+  { label: 'FAQ', href: '/faq.html' },
+  { label: 'Contact', href: `${base}#contact` },
+];
+---
+
+<footer class="footer">
+  <div class="footer-glow" aria-hidden="true"></div>
+  <div class="container">
+    <div class="footer-cta">
+      <p class="footer-quote">« {site.promise} »</p>
+      <a href={`${base}#rendez-vous`} class="btn">
+        Prendre rendez-vous <Icon name="arrowRight" size={18} class="i-arrow" />
+      </a>
+    </div>
+
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href={home ? '#accueil' : '/'} class="f-logo" aria-label={`${site.name} — accueil`}>
+          <img src="/images/logo-mark-white.png" alt="" width="262" height="204" loading="lazy" />
+          <span>
+            <span class="f-name">{site.shortName}</span>
+            <span class="f-sub">{site.tagline}</span>
+          </span>
+        </a>
+        <p class="f-owner">{site.owner} — {site.role}</p>
+        <ul class="f-contact">
+          <li>
+            <a href={`mailto:${site.email}`}><Icon name="mail" size={17} />{site.emailLabel}</a>
+          </li>
+          <li>
+            <a href={`tel:${site.phone}`}><Icon name="phone" size={17} />{site.phoneLabel}</a>
+          </li>
+        </ul>
+      </div>
+
+      <nav aria-label="Navigation du site">
+        <p class="f-title">Navigation</p>
+        <ul class="f-links">
+          {
+            links.map((l) => (
+              <li>
+                <a href={l.href}>{l.label}</a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+
+      <nav aria-label="Liens légaux">
+        <p class="f-title">Informations</p>
+        <ul class="f-links">
+          <li><a href="/mentions-legales.html">Mentions légales</a></li>
+          <li><a href="/confidentialite.html">Politique de confidentialité</a></li>
+          <li>
+            <button type="button" data-manage-cookies>Gérer les cookies</button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+
+    <div class="footer-bottom">
+      <p>© <span data-year>{year}</span> {site.name} — {site.owner}. Tous droits réservés.</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    position: relative;
+    overflow: hidden;
+    padding-top: clamp(4rem, 8vw, 6rem);
+    color: rgb(255 255 255 / 0.72);
+    background: linear-gradient(180deg, var(--blue-900), var(--blue-950));
+  }
+  .footer-glow {
+    position: absolute;
+    inset: -40% -10% auto auto;
+    width: 60vw;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgb(203 106 51 / 0.2), transparent 60%);
+    pointer-events: none;
+  }
+  .container {
+    position: relative;
+  }
+  .footer-cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem 2rem;
+    padding-bottom: clamp(2.5rem, 5vw, 3.5rem);
+    border-bottom: 1px solid rgb(255 255 255 / 0.1);
+  }
+  .footer-quote {
+    max-width: 38rem;
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 3vw, 2.1rem);
+    font-style: italic;
+    font-weight: 400;
+    line-height: 1.25;
+    color: #fff;
+  }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr;
+    gap: 2.5rem;
+    padding-block: clamp(2.5rem, 5vw, 3.5rem);
+  }
+  .f-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.85rem;
+  }
+  .f-logo img {
+    width: auto;
+    height: 46px;
+  }
+  .f-logo > span {
+    display: flex;
+    flex-direction: column;
+    padding-left: 0.85rem;
+    border-left: 1px solid rgb(255 255 255 / 0.22);
+    line-height: 1.1;
+  }
+  .f-name {
+    font-family: var(--font-display);
+    font-size: 1.45rem;
+    color: #fff;
+  }
+  .f-sub {
+    margin-top: 0.2rem;
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgb(255 255 255 / 0.6);
+  }
+  .f-owner {
+    margin-top: 1.1rem;
+    font-size: 0.9rem;
+  }
+  .f-contact {
+    display: grid;
+    gap: 0.5rem;
+    margin-top: 1.1rem;
+  }
+  .f-contact a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.92rem;
+    color: #fff;
+    transition: color 0.3s;
+  }
+  .f-contact a:hover {
+    color: var(--terra-400);
+  }
+  .f-title {
+    margin-bottom: 1rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgb(255 255 255 / 0.5);
+  }
+  .f-links {
+    display: grid;
+    gap: 0.6rem;
+  }
+  .f-links a,
+  .f-links button {
+    position: relative;
+    font-size: 0.94rem;
+    color: rgb(255 255 255 / 0.8);
+    transition:
+      color 0.3s,
+      padding 0.4s var(--ease-out);
+  }
+  .f-links a::before,
+  .f-links button::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 0;
+    height: 1.5px;
+    background: var(--terra-400);
+    transition: width 0.4s var(--ease-out);
+  }
+  .f-links a:hover,
+  .f-links button:hover {
+    color: #fff;
+    padding-left: 1.1rem;
+  }
+  .f-links a:hover::before,
+  .f-links button:hover::before {
+    width: 0.7rem;
+  }
+  .footer-bottom {
+    padding-block: 1.5rem 2rem;
+    border-top: 1px solid rgb(255 255 255 / 0.1);
+    font-size: 0.82rem;
+    color: rgb(255 255 255 / 0.5);
+  }
+  @media (max-width: 760px) {
+    .footer-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .footer-brand {
+      grid-column: 1 / -1;
+    }
+  }
+</style>

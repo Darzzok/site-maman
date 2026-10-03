@@ -1,0 +1,184 @@
+---
+/** Gabarit des pages légales : sommaire collant + contenu */
+interface Props {
+  toc: { id: string; title: string }[];
+}
+const { toc } = Astro.props;
+---
+
+<section class="legal section">
+  <div class="container legal-grid">
+    <aside class="toc" aria-label="Sommaire">
+      <p class="toc-title">Sommaire</p>
+      <ol>
+        {
+          toc.map((t, i) => (
+            <li>
+              <a href={`#${t.id}`}>
+                {t.title}
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </aside>
+    <div class="legal-body" data-reveal>
+      <slot />
+    </div>
+  </div>
+</section>
+
+<style>
+  .legal {
+    padding-top: clamp(3rem, 6vw, 4.5rem);
+    background: var(--white);
+  }
+  .legal-grid {
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr);
+    gap: clamp(2rem, 5vw, 4rem);
+    max-width: 1080px;
+    align-items: start;
+  }
+  .toc {
+    position: sticky;
+    top: calc(var(--header-h) + 1.5rem);
+    padding: 1.4rem;
+    border-radius: var(--radius);
+    background: var(--cream);
+    border: 1px solid var(--line);
+  }
+  .toc-title {
+    margin-bottom: 0.8rem;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .toc ol {
+    display: grid;
+    gap: 0.15rem;
+  }
+  .toc a {
+    display: flex;
+    gap: 0.6rem;
+    padding: 0.45rem 0.6rem;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--text);
+    transition:
+      background 0.3s,
+      color 0.3s,
+      padding 0.3s var(--ease-out);
+  }
+  .toc a:hover {
+    color: var(--blue-700);
+    background: #fff;
+    padding-left: 0.85rem;
+  }
+  .legal-body {
+    display: grid;
+    gap: 1.25rem;
+  }
+  .legal-body :global(section) {
+    padding: clamp(1.5rem, 3vw, 2rem);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--line);
+    background: #fff;
+    box-shadow: var(--shadow-sm);
+    transition:
+      border-color 0.4s,
+      box-shadow 0.4s;
+  }
+  .legal-body :global(section:target) {
+    border-color: var(--terra-400);
+    box-shadow: 0 0 0 4px rgb(226 137 90 / 0.15);
+  }
+  .legal-body :global(h2) {
+    margin-bottom: 0.9rem;
+    text-align: center;
+    font-size: 1.4rem;
+  }
+  .legal-body :global(p),
+  .legal-body :global(li) {
+    font-size: 0.98rem;
+    color: var(--text);
+  }
+  .legal-body :global(p + p),
+  .legal-body :global(ul + p),
+  .legal-body :global(p + ul) {
+    margin-top: 0.8rem;
+  }
+  .legal-body :global(ul.list) {
+    display: grid;
+    gap: 0.5rem;
+  }
+  .legal-body :global(ul.list li) {
+    position: relative;
+    padding-left: 1.2rem;
+  }
+  .legal-body :global(ul.list li::before) {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.72em;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--terra-500);
+  }
+  .legal-body :global(dl) {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.55rem 1.4rem;
+    margin-top: 1rem;
+    padding: 1.1rem 1.25rem;
+    border-radius: var(--radius-sm);
+    background: var(--cream);
+  }
+  .legal-body :global(dt) {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--muted);
+  }
+  .legal-body :global(dd) {
+    font-size: 0.95rem;
+    color: var(--ink);
+  }
+  .legal-body :global(a) {
+    font-weight: 600;
+    color: var(--terra-600);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+  .legal-body :global(.todo) {
+    padding: 0.1rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--terra-700);
+    background: var(--terra-100);
+  }
+
+  @media (max-width: 860px) {
+    .legal-grid {
+      grid-template-columns: 1fr;
+    }
+    .toc {
+      position: static;
+    }
+  }
+  @media (max-width: 520px) {
+    .legal-body :global(dl) {
+      grid-template-columns: 1fr;
+      gap: 0.15rem;
+    }
+    .legal-body :global(dd) {
+      margin-bottom: 0.6rem;
+    }
+  }
+</style>

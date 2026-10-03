@@ -1,0 +1,84 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHero from '../components/PageHero.astro';
+import LegalPage from '../components/LegalPage.astro';
+import { site } from '../data/site';
+
+const toc = [
+  { id: 'editeur', title: 'Éditeur du site' },
+  { id: 'publication', title: 'Directrice de la publication' },
+  { id: 'hebergement', title: 'Hébergement' },
+  { id: 'propriete', title: 'Propriété intellectuelle' },
+  { id: 'responsabilite', title: 'Responsabilité' },
+  { id: 'donnees', title: 'Données personnelles' },
+];
+---
+
+<BaseLayout
+  title={`Mentions légales — ${site.name}`}
+  description={`Mentions légales du site de ${site.name}, gestion administrative et pilotage d’exploitation pour TPE, artisans et professions libérales.`}
+  noindex
+>
+  <PageHero eyebrow="Informations légales" title="Mentions <em>légales</em>" crumb="Mentions légales" />
+
+  <LegalPage toc={toc}>
+    <section id="editeur">
+      <h2>Éditeur du site</h2>
+      <p>
+        Le présent site est édité par <strong>{site.owner}</strong>, exerçant sous le nom commercial
+        <strong>{site.name}</strong>, en tant qu’auto-entrepreneuse (micro-entreprise) sous le statut d’entrepreneur
+        individuel.
+      </p>
+      <dl>
+        <dt>Nom</dt>
+        <dd>{site.owner}</dd>
+        <dt>Statut</dt>
+        <dd>Auto-entrepreneuse — Conseil et accompagnement</dd>
+        <dt>SIRET</dt>
+        <dd><span class="todo">À compléter</span></dd>
+        <dt>Adresse du siège</dt>
+        <dd><span class="todo">À compléter</span></dd>
+        <dt>E-mail</dt>
+        <dd><a href={`mailto:${site.email}`}>{site.emailLabel}</a></dd>
+        <dt>Téléphone</dt>
+        <dd>{site.phoneLabel}</dd>
+      </dl>
+    </section>
+
+    <section id="publication">
+      <h2>Directrice de la publication</h2>
+      <p>{site.owner}, en qualité d’éditrice du site.</p>
+    </section>
+
+    <section id="hebergement">
+      <h2>Hébergement</h2>
+      <p>Le site est hébergé par : <span class="todo">À compléter</span> (nom de l’hébergeur, adresse, contact).</p>
+    </section>
+
+    <section id="propriete">
+      <h2>Propriété intellectuelle</h2>
+      <p>
+        L’ensemble des contenus présents sur ce site (textes, visuels, logo, mise en page) est la propriété de {site.owner},
+        sauf mention contraire. Toute reproduction, représentation ou diffusion, totale ou partielle, sans autorisation
+        préalable, est interdite.
+      </p>
+    </section>
+
+    <section id="responsabilite">
+      <h2>Responsabilité</h2>
+      <p>
+        {site.owner} s’efforce d’assurer l’exactitude des informations diffusées sur ce site, sans garantir qu’elles soient
+        exemptes d’erreurs ou d’inexactitudes. L’utilisateur reste seul responsable de l’usage qu’il fait des informations
+        fournies.
+      </p>
+    </section>
+
+    <section id="donnees">
+      <h2>Données personnelles</h2>
+      <p>
+        Le traitement des données personnelles collectées via ce site (notamment via le formulaire de contact) est
+        détaillé dans la <a href="/confidentialite.html">Politique de confidentialité</a>.
+      </p>
+    </section>
+  </LegalPage>
+</BaseLayout>

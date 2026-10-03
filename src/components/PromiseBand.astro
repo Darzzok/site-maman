@@ -1,0 +1,123 @@
+---
+import Icon from './Icon.astro';
+import { promise } from '../data/site';
+---
+
+<section id="message" class="promise">
+  <div class="aurora" aria-hidden="true">
+    <span></span><span></span><span></span>
+  </div>
+  <div class="container inner" data-reveal="scale">
+    <span class="quote-mark" aria-hidden="true">“</span>
+    <blockquote>
+      <p>
+        Concentrez-vous sur <span class="hl">votre métier</span>,<br class="br" /> je m’occupe du <em>reste</em>.
+      </p>
+    </blockquote>
+    <p class="sub">{promise.text}</p>
+    <a href="#rendez-vous" class="btn">
+      Prendre rendez-vous <Icon name="arrowRight" size={18} class="i-arrow" />
+    </a>
+  </div>
+</section>
+
+<style>
+  .promise {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    padding-block: clamp(5.5rem, 12vw, 9rem);
+    text-align: center;
+    color: rgb(255 255 255 / 0.75);
+    background: var(--blue-900);
+  }
+  .aurora {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    filter: blur(60px) saturate(1.2);
+  }
+  .aurora span {
+    position: absolute;
+    border-radius: 50%;
+    mix-blend-mode: screen;
+    animation: aurora 16s ease-in-out infinite alternate;
+  }
+  .aurora span:nth-child(1) {
+    width: 55%;
+    height: 90%;
+    left: -10%;
+    top: -20%;
+    background: rgb(29 67 181 / 0.9);
+  }
+  .aurora span:nth-child(2) {
+    width: 45%;
+    height: 80%;
+    right: -8%;
+    bottom: -30%;
+    background: rgb(203 106 51 / 0.65);
+    animation-duration: 20s;
+    animation-delay: -5s;
+  }
+  .aurora span:nth-child(3) {
+    width: 35%;
+    height: 60%;
+    left: 35%;
+    top: 30%;
+    background: rgb(0 44 150 / 0.9);
+    animation-duration: 24s;
+    animation-delay: -10s;
+  }
+  @keyframes aurora {
+    0% {
+      transform: translate(0, 0) rotate(0deg) scale(1);
+    }
+    100% {
+      transform: translate(12%, 8%) rotate(25deg) scale(1.2);
+    }
+  }
+  .inner {
+    position: relative;
+    max-width: 58rem;
+  }
+  .quote-mark {
+    display: block;
+    height: 0.55em;
+    font-family: var(--font-display);
+    font-size: clamp(7rem, 14vw, 11rem);
+    line-height: 1;
+    color: var(--terra-400);
+    opacity: 0.9;
+  }
+  blockquote p {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 5vw, 3.6rem);
+    font-weight: 450;
+    line-height: 1.12;
+    letter-spacing: -0.025em;
+    color: #fff;
+    text-wrap: balance;
+  }
+  blockquote em {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--blue-300);
+  }
+  .hl {
+    background: linear-gradient(90deg, rgb(157 177 236 / 0.6), rgb(157 177 236 / 0.25)) no-repeat 0 88% / 0% 0.28em;
+    transition: background-size 1.4s var(--ease-out) 0.6s;
+  }
+  .inner:global(.is-in) .hl {
+    background-size: 100% 0.28em;
+  }
+  .sub {
+    max-width: 38rem;
+    margin: 1.8rem auto 2.4rem;
+    font-size: 1.08rem;
+  }
+  @media (max-width: 640px) {
+    .br {
+      display: none;
+    }
+  }
+</style>

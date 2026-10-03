@@ -1,0 +1,207 @@
+---
+import Icon from './Icon.astro';
+import CollapseToggle from './CollapseToggle.astro';
+import { services } from '../data/site';
+---
+
+<section id="services" class="section services">
+  <div class="container">
+    <header class="section-head" data-reveal>
+      <p class="eyebrow">Nos expertises sur-mesure</p>
+      <h2 class="h2">Des prestations pensées pour la <em>réalité</em> de votre entreprise</h2>
+    </header>
+
+    <div class="bento" id="services-list" data-collapsible>
+      {
+        services.map((s, i) => {
+          const featured = i === 0;
+          const wide = i === services.length - 1;
+          return (
+            <article
+              class:list={['card', 'service', { 'service--featured': featured, 'service--wide': wide }]}
+              data-reveal
+              style={`--d:${i % 3}`}
+            >
+              {featured && (
+                <div class="feat-deco" aria-hidden="true">
+                  <svg viewBox="0 0 400 160" preserveAspectRatio="none">
+                    <path d="M0 130 C 60 120, 90 90, 140 98 S 230 60, 280 52 S 360 24, 400 14" />
+                    <path d="M0 150 C 70 146, 120 128, 170 130 S 260 104, 320 96 S 380 80, 400 76" />
+                  </svg>
+                </div>
+              )}
+              <div class="service-top">
+                <span class:list={['icon-tile', { 'icon-tile--terra': wide }]}>
+                  <Icon name={s.icon} />
+                </span>
+                {s.badge ? (
+                  <span class="badge">
+                    <Icon name="sparkles" size={13} strokeWidth={2} />
+                    {s.badge}
+                  </span>
+                ) : null}
+              </div>
+              <div class="service-body">
+                <h3>{s.title}</h3>
+                <p set:html={s.text} />
+              </div>
+              {wide && (
+                <a href="#rendez-vous" class="btn wide-cta">
+                  Parlons de vos besoins <Icon name="arrowRight" size={18} class="i-arrow" />
+                </a>
+              )}
+            </article>
+          );
+        })
+      }
+    </div>
+
+    <CollapseToggle controls="services-list" total={services.length} more="Voir toutes les prestations" />
+  </div>
+</section>
+
+<style>
+  .services {
+    background:
+      radial-gradient(50% 40% at 0% 0%, rgb(58 98 211 / 0.07), transparent 70%),
+      linear-gradient(180deg, var(--cream), var(--white) 30%, var(--white) 70%, var(--cream));
+  }
+  .bento {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+  .service {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.6rem;
+    text-align: center;
+  }
+  .service-top {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+  .service h3 {
+    font-size: 1.38rem;
+    margin-bottom: 0.7rem;
+  }
+  .service p {
+    font-size: 0.97rem;
+    color: var(--muted);
+  }
+
+  /* Carte vedette : Trésorerie (spécialité) */
+  .service--featured {
+    grid-column: span 2;
+    justify-content: space-between;
+    min-height: 300px;
+    color: rgb(255 255 255 / 0.78);
+    background:
+      radial-gradient(80% 90% at 100% 0%, rgb(203 106 51 / 0.35), transparent 60%),
+      linear-gradient(140deg, var(--blue-700), var(--blue-900));
+    border-color: transparent;
+  }
+  .service--featured h3 {
+    font-size: clamp(1.6rem, 2.6vw, 2.1rem);
+    color: #fff;
+  }
+  .service--featured p {
+    max-width: 34rem;
+    margin-inline: auto;
+    font-size: 1.04rem;
+    color: rgb(255 255 255 / 0.78);
+  }
+  .service--featured :global(strong) {
+    color: #fff;
+  }
+  .service--featured::before {
+    background: radial-gradient(480px circle at var(--mx, 50%) var(--my, 0%), rgb(255 255 255 / 0.1), transparent 60%);
+  }
+  .service--featured .icon-tile {
+    color: #fff;
+    background: rgb(255 255 255 / 0.12);
+    border-color: rgb(255 255 255 / 0.2);
+    box-shadow: none;
+    backdrop-filter: blur(6px);
+  }
+  .service--featured:hover .icon-tile {
+    color: var(--blue-700);
+    background: #fff;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.4rem 0.85rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #fff;
+    background: linear-gradient(135deg, var(--terra-400), var(--terra-600));
+    box-shadow: 0 8px 18px -8px rgb(203 106 51 / 0.8);
+  }
+  .feat-deco {
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 55%;
+    z-index: -1;
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  .feat-deco svg {
+    width: 100%;
+    height: 100%;
+  }
+  .feat-deco path {
+    fill: none;
+    stroke: rgb(255 255 255 / 0.25);
+    stroke-width: 1.5;
+    vector-effect: non-scaling-stroke;
+    stroke-dasharray: 600;
+    stroke-dashoffset: 600;
+    transition: stroke-dashoffset 2.2s var(--ease-in-out);
+  }
+  .feat-deco path:last-child {
+    stroke: rgb(226 137 90 / 0.5);
+    transition-delay: 0.25s;
+  }
+  .service--featured:global(.is-in) .feat-deco path {
+    stroke-dashoffset: 0;
+  }
+
+  /* Carte large : accompagnement sur-mesure */
+  .service--wide {
+    grid-column: 1 / -1;
+    gap: 1.4rem;
+    background:
+      radial-gradient(60% 120% at 0% 50%, rgb(249 232 220 / 0.9), transparent 70%),
+      linear-gradient(120deg, var(--sand), #fff);
+  }
+  .service--wide p {
+    max-width: 46rem;
+    margin-inline: auto;
+  }
+
+  @media (max-width: 1023px) {
+    .bento {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 767px) {
+    .bento {
+      grid-template-columns: 1fr;
+    }
+    .service--featured {
+      grid-column: auto;
+      min-height: 0;
+    }
+    .wide-cta {
+      width: 100%;
+    }
+  }
+</style>

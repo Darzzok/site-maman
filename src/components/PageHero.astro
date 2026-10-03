@@ -1,0 +1,120 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  eyebrow: string;
+  title: string;
+  crumb: string;
+}
+const { eyebrow, title, crumb } = Astro.props;
+---
+
+<section class="page-hero">
+  <div class="bg" aria-hidden="true">
+    <span class="orb a"></span><span class="orb b"></span>
+  </div>
+  <div class="container inner">
+    <nav class="crumbs" aria-label="Fil d’Ariane">
+      <a href="/"><Icon name="arrowLeft" size={15} strokeWidth={2} /> Accueil</a>
+      <span aria-hidden="true">/</span>
+      <span aria-current="page">{crumb}</span>
+    </nav>
+    <p class="eyebrow">{eyebrow}</p>
+    <h1 set:html={title} />
+    <slot />
+  </div>
+</section>
+
+<style>
+  .page-hero {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    padding: calc(var(--header-h) + 4rem) 0 clamp(3.5rem, 7vw, 5rem);
+    background: linear-gradient(180deg, var(--cream), var(--sand));
+  }
+  .bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image:
+      linear-gradient(rgb(0 44 150 / 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(0 44 150 / 0.045) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(70% 80% at 30% 20%, #000, transparent 80%);
+  }
+  .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(70px);
+    animation: drift 20s ease-in-out infinite alternate;
+  }
+  .orb.a {
+    width: 420px;
+    height: 420px;
+    top: -160px;
+    right: -80px;
+    background: rgb(226 137 90 / 0.35);
+  }
+  .orb.b {
+    width: 360px;
+    height: 360px;
+    bottom: -220px;
+    left: 10%;
+    background: rgb(58 98 211 / 0.22);
+    animation-delay: -8s;
+  }
+  @keyframes drift {
+    to {
+      transform: translate(60px, 40px) scale(1.12);
+    }
+  }
+  .inner {
+    max-width: 960px;
+    text-align: center;
+    animation: rise 1s var(--ease-out) both;
+  }
+  @keyframes rise {
+    from {
+      opacity: 0;
+      translate: 0 24px;
+      filter: blur(6px);
+    }
+  }
+  .crumbs {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    margin-bottom: 1.6rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .crumbs a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--blue-700);
+    transition: gap 0.3s var(--ease-out);
+  }
+  .crumbs a:hover {
+    gap: 0.6rem;
+  }
+  h1 {
+    margin-top: 1.1rem;
+    font-size: clamp(2.4rem, 5.5vw, 4rem);
+    letter-spacing: -0.03em;
+  }
+  h1 :global(em) {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--blue-700);
+  }
+  .inner :global(.page-intro) {
+    max-width: 40rem;
+    margin: 1.2rem auto 0;
+    font-size: 1.1rem;
+    color: var(--muted);
+  }
+</style>
