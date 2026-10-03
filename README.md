@@ -17,11 +17,11 @@ node scripts/og-image.mjs    # régénère l'image de partage (réseaux sociaux)
 
 | Couleur | Code | Usage sur le site |
 | --- | --- | --- |
-| Prune | `#61193a` | couleur dominante : titres, mots importants, boutons, fonds sombres |
+| Prune | `#61193a` | couleur dominante : titres, mots importants, boutons, fonds sombres (jamais éclaircie : elle tirerait vers le fuchsia) |
 | Orange | `#e97e0d` | petites touches seulement (mots accentués des titres, puces) |
-| Rose | `#e581bc` | teintes douces : halos discrets, encadrés « résultat » |
-| Abricot | `#f6b55b` | boutons et badges sur fond prune, reflets |
-| Blanc / Noir | `#ffffff` / `#000000` | fonds et texte |
+| Rose | `#e581bc` | toute petite touche décorative uniquement |
+| Abricot | `#f6b55b` | boutons et badges sur fond prune, halos, fonds doux et encadrés |
+| Blanc / Noir | `#ffffff` / `#000000` | fonds et texte ; gris clairs d’interface (bordures, pastilles) |
 
 - **Polices** : MADE Mirage (titres) et Garet (texte), dans `public/fonts/`.
 - **Logo** : source dans `scripts/logo-source.png` ; toutes les déclinaisons (prune, blanc,

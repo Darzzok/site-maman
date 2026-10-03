@@ -43,8 +43,8 @@ const background = Buffer.from(`
       <stop offset="1" stop-color="#2a0916"/>
     </linearGradient>
     <radialGradient id="glow" cx="0.1" cy="0.05" r="0.75">
-      <stop offset="0" stop-color="#e581bc" stop-opacity="0.35"/>
-      <stop offset="1" stop-color="#e581bc" stop-opacity="0"/>
+      <stop offset="0" stop-color="#f6b55b" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#f6b55b" stop-opacity="0"/>
     </radialGradient>
     <linearGradient id="fade" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0" stop-color="#3d0f23" stop-opacity="1"/>
