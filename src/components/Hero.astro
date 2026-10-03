@@ -693,4 +693,57 @@ const bars = [38, 52, 44, 63, 58, 76, 88];
       border: 1px solid var(--line);
     }
   }
+
+  /* ============ Maquette animée : plus grande, centrée, réservée aux écrans à 2 colonnes ============ */
+  /* Deux colonnes : titre un peu plus compact pour que texte et maquette tiennent dans l'écran */
+  @media (min-width: 1024px) {
+    .hero-title {
+      font-size: clamp(2.6rem, 4.5vw, 4.1rem);
+    }
+    .hero-lead {
+      margin-top: 1.3rem;
+    }
+    .hero-actions {
+      margin-top: 1.8rem;
+    }
+  }
+  .hero-visual {
+    /* Marges latérales : les pastilles flottantes débordent de façon symétrique */
+    width: min(100%, 470px);
+    padding: 2.6rem 1.6rem;
+    justify-self: center;
+    align-self: center;
+    /* Agrandissement de l'ensemble (panneau + pastilles) sans décaler la mise en page */
+    scale: var(--mock-scale, 1);
+    transform-origin: center;
+  }
+  .chip-a {
+    top: 0;
+    right: 0;
+  }
+  .chip-b {
+    bottom: 0.4rem;
+    left: 0;
+  }
+  @media (min-width: 1200px) {
+    .hero-visual {
+      --mock-scale: 1.08;
+    }
+  }
+  @media (min-width: 1360px) {
+    .hero-visual {
+      --mock-scale: 1.15;
+    }
+  }
+  @media (min-width: 1600px) {
+    .hero-visual {
+      --mock-scale: 1.22;
+    }
+  }
+  /* Une seule colonne : la maquette serait trop petite, on la retire */
+  @media (max-width: 1023px) {
+    .hero-visual {
+      display: none;
+    }
+  }
 </style>
