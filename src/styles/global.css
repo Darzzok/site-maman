@@ -317,7 +317,10 @@
   h2 em,
   .h2 em,
   .accent-italic {
-    font-style: normal;
+    /* Mots clés en italique : MADE Mirage n'a pas d'italique, le navigateur incline la police */
+    font-style: italic;
+    font-synthesis: style;
+    padding-right: 0.06em;
     font-weight: inherit;
     color: var(--accent-text);
     /* Mots clés en capitales : plus visuels, légèrement réduits pour rester équilibrés */
