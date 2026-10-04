@@ -1129,4 +1129,79 @@ const jsonLd = {
   :global(body.has-mobile-bar) .fab-share {
     bottom: calc(5.1rem + env(safe-area-inset-bottom));
   }
+
+  /* ============ Listes : bloc centré, puces alignées les unes sous les autres ============ */
+  .keypoints ul,
+  .prose :global(ul),
+  .prose :global(ol) {
+    width: fit-content;
+    max-width: 100%;
+    margin-inline: auto;
+    text-align: left;
+  }
+  .keypoints li,
+  .prose :global(ul > li) {
+    padding-left: 1.6rem;
+  }
+  .prose :global(ol > li) {
+    padding-left: 2.4rem;
+  }
+  .keypoints li::before,
+  .prose :global(ul > li::before) {
+    position: absolute;
+    left: 0.3rem;
+    top: 0.72em;
+    margin: 0;
+  }
+  .prose :global(ol > li::before) {
+    position: absolute;
+    left: 0;
+    top: 0.15em;
+    margin: 0;
+  }
+
+  /* ============ Tableaux ============ */
+  .prose :global(table) {
+    width: 100%;
+    margin: 1.4rem 0;
+    border-collapse: separate;
+    border-spacing: 0;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    font-size: 0.94rem;
+    line-height: 1.45;
+  }
+  .prose :global(th),
+  .prose :global(td) {
+    padding: 0.7rem 0.9rem;
+    text-align: center;
+    border-bottom: 1px solid var(--line);
+  }
+  .prose :global(th) {
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: #fff;
+    background: var(--blue-700);
+  }
+  .prose :global(tbody tr:nth-child(even)) {
+    background: var(--cream);
+  }
+  .prose :global(tbody tr:last-child td) {
+    border-bottom: 0;
+  }
+  .prose :global(td:first-child) {
+    font-weight: 600;
+    color: var(--ink);
+  }
+  @media (max-width: 680px) {
+    /* Tableau large : défilement horizontal dans son cadre */
+    .prose :global(table) {
+      display: block;
+      overflow-x: auto;
+      white-space: nowrap;
+      font-size: 0.86rem;
+    }
+  }
 </style>

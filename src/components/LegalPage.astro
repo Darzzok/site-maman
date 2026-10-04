@@ -230,4 +230,22 @@ const { toc } = Astro.props;
       overflow-wrap: anywhere;
     }
   }
+
+  /* Listes : bloc centré, puces alignées */
+  .legal-body :global(ul.list) {
+    width: fit-content;
+    max-width: 100%;
+    margin-inline: auto;
+    justify-items: stretch;
+    text-align: left;
+  }
+  .legal-body :global(ul.list li) {
+    padding-left: 1.2rem;
+  }
+  .legal-body :global(ul.list li::before) {
+    position: absolute;
+    left: 0;
+    top: 0.72em;
+    margin: 0;
+  }
 </style>

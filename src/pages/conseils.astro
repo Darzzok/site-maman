@@ -98,6 +98,27 @@ const jsonLd = {
 
   <section class="section c-main">
     <div class="container">
+      <!-- ============ Explorer par thème ============ -->
+      <div class="themes">
+        <h2 class="themes-title" data-reveal>Explorer par thème</h2>
+        <div class="t-grid" data-carousel>
+          {
+            themes.map((t, i) => (
+              <button type="button" class:list={['card', 'theme', `tone-${t.tone}`]} data-theme={t.name} data-reveal style={`--d:${i}`}>
+                <span class="theme-ic">
+                  <Icon name={t.icon} size={24} />
+                </span>
+                <span class="theme-name">{t.name}</span>
+                <span class="theme-text">{t.text}</span>
+                <span class="theme-count">
+                  {t.count} article{t.count > 1 ? 's' : ''} <Icon name="arrowRight" size={15} />
+                </span>
+              </button>
+            ))
+          }
+        </div>
+      </div>
+
       <!-- ============ À la une ============ -->
       {
         featured && (
@@ -154,27 +175,6 @@ const jsonLd = {
         </div>
       </div>
 
-      </div>
-
-      <!-- ============ Explorer par thème ============ -->
-      <div class="themes">
-        <h2 class="themes-title" data-reveal>Explorer par thème</h2>
-        <div class="t-grid" data-carousel>
-          {
-            themes.map((t, i) => (
-              <button type="button" class:list={['card', 'theme', `tone-${t.tone}`]} data-theme={t.name} data-reveal style={`--d:${i}`}>
-                <span class="theme-ic">
-                  <Icon name={t.icon} size={24} />
-                </span>
-                <span class="theme-name">{t.name}</span>
-                <span class="theme-text">{t.text}</span>
-                <span class="theme-count">
-                  {t.count} article{t.count > 1 ? 's' : ''} <Icon name="arrowRight" size={15} />
-                </span>
-              </button>
-            ))
-          }
-        </div>
       </div>
 
       <!-- ============ Appel à l'action ============ -->
@@ -270,7 +270,13 @@ const jsonLd = {
   function setTheme(name: string, scroll = false) {
     theme = name;
     apply();
-    if (scroll) toolbar.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (scroll) {
+      // On vise le haut de la liste (la barre de filtres, « collante », fausserait le calcul)
+      const listing = document.querySelector<HTMLElement>('.listing');
+      const top = (listing ?? toolbar).getBoundingClientRect().top + window.scrollY - 96;
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      window.scrollTo({ top, behavior: reduce ? 'auto' : 'smooth' });
+    }
   }
 
   filters.forEach((f) => f.addEventListener('click', () => setTheme(f.dataset.filter ?? 'all')));
@@ -702,8 +708,9 @@ const jsonLd = {
   }
 
   /* — Explorer par thème — */
+  /* Placé en haut de la page : accès direct aux thèmes */
   .themes {
-    margin-top: clamp(4rem, 8vw, 5.5rem);
+    margin-bottom: clamp(2.5rem, 5vw, 3.5rem);
   }
   .themes-title {
     margin-bottom: 1.75rem;
