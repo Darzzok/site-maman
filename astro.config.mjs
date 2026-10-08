@@ -24,7 +24,7 @@ export default defineConfig({
   devToolbar: { enabled: false },
   integrations: [
     sitemap({
-      filter: (page) => !/mentions-legales|confidentialite|404/.test(page),
+      filter: (page) => !/mentions-legales|confidentialite|404|rapport-diagnostic/.test(page),
       serialize: (item) => {
         if (!item.url.endsWith('/') && !item.url.endsWith('.html')) item.url += '.html';
         const path = new URL(item.url).pathname;

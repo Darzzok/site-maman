@@ -118,6 +118,21 @@ administrative, pilotage & personnel).
   (« 🔥 À rappeler (l’après-midi) — Nom — 41/100 », « 🔥 Contact à relancer vite » si le score est sous 50,
   sinon « Diagnostic — … »). En tête de l’e-mail, une **fiche d’appel** : téléphone et créneau, phrase d’accroche toute
   prête, enjeu chiffré, points forts à valoriser et 3 priorités. Suivent les scores et toutes les réponses.
+- **Rapport client (PDF à remettre lors du bilan)** : chaque e-mail contient un lien « 📄 Rapport à remettre au
+  client » vers `/rapport-diagnostic.html#…`. Le lien ne contient que les réponses (aucune coordonnée) ; la page
+  recalcule le diagnostic et affiche 4 pages A4 aux couleurs SGC :
+  1. couverture (nom du client à saisir, profil, score, niveau) ;
+  2. synthèse (4 domaines, enjeux chiffrés, points forts) ;
+  3. plan sur 90 jours (une priorité par mois, avec la prestation correspondante), actions à consolider, notes d’entretien ;
+  4. proposition d’accompagnement (formule recommandée, prestations concernées, **tarif / volume / démarrage à
+     compléter**, prochaines étapes, « Bon pour accord » à signer).
+
+  Les zones en pointillés se complètent en cliquant dessus (mémorisées sur l’ordinateur utilisé) ; « Enregistrer en PDF »
+  ouvre l’impression (choisir « Enregistrer au format PDF »). Les zones laissées vides s’impriment comme des lignes à
+  compléter à la main. Page non indexée par Google. Le lien fonctionne sur le site en ligne (il reprend l’adresse du
+  site sur lequel le diagnostic a été fait). Formule recommandée : `recommendFormula` dans `src/utils/diagnostic.ts` ;
+  prestation par question : `serviceByQuestion` dans `src/data/diagnostic.ts`.
+  (Une vraie pièce jointe PDF dans l’e-mail demanderait une formule Formspree payante ou un outil d’e-mailing.)
 - **Modifier les questions, conseils, recommandations, niveaux, accroches du bilan, créneaux** : `src/data/diagnostic.ts`
   (chaque réponse vaut de 0 à 3 points ; `null` = « non concerné », exclu du calcul). Cas clients : `cases` dans
   `src/data/site.ts` (`focus` = domaine illustré).

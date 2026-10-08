@@ -415,3 +415,19 @@ export const levels = [
     text: 'Votre gestion vous expose à des risques réels (trésorerie, retards, pénalités). Agir maintenant vous évitera bien des difficultés.',
   },
 ];
+
+/** Prestation de Sérénité Gestion Conseils qui répond à chaque question (titres de `services` dans site.ts) */
+export const serviceByQuestion: Record<string, string> = {
+  previsionnel: 'Trésorerie & Recouvrement',
+  delai: 'Trésorerie & Recouvrement',
+  impayes: 'Trésorerie & Recouvrement',
+  facturation: 'Gestion administrative & ADV',
+  relances: 'Trésorerie & Recouvrement',
+  efacture: 'Gestion administrative & ADV',
+  temps: 'Accompagnement sur mesure',
+  classement: 'Gestion administrative & ADV',
+  echeances: 'Gestion administrative & ADV',
+  marges: 'Pilotage & Optimisation',
+  tableau: 'Pilotage & Optimisation',
+  personnel: 'Ressources Humaines & Paie',
+};

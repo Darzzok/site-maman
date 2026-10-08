@@ -492,7 +492,7 @@ const analysisSteps = [
           </div>
           <h3 class="lock-title" data-lock-title>Débloquez votre plan d’action complet</h3>
           <p class="lock-text">
-            Recevez toutes vos recommandations, classées par priorité, et la possibilité d’en parler lors d’un <strong>bilan offert de 30 minutes</strong>.
+            Recevez toutes vos recommandations, classées par priorité. Lors d’un <strong>bilan offert de 30 minutes</strong>, je vous remets votre rapport de diagnostic complet.
           </p>
           <form action={site.formspree} method="POST" class="lead" novalidate data-lead-form>
             <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" class="hp" aria-hidden="true" />
@@ -571,13 +571,14 @@ const analysisSteps = [
           <ol class="bilan-steps">
             <li><span>1</span>On relit votre score ensemble</li>
             <li><span>2</span>On choisit vos 3 actions prioritaires</li>
-            <li><span>3</span>Vous repartez avec votre plan des 90 jours</li>
+            <li><span>3</span>Je vous remets votre rapport complet et votre plan des 90 jours</li>
           </ol>
           <ul class="bilan-facts">
             <li><Icon name="check" size={14} strokeWidth={3} /> Gratuit</li>
             <li><Icon name="check" size={14} strokeWidth={3} /> 30 minutes</li>
             <li><Icon name="check" size={14} strokeWidth={3} /> Visio, téléphone ou sur place</li>
             <li><Icon name="check" size={14} strokeWidth={3} /> Sans engagement</li>
+            <li><Icon name="check" size={14} strokeWidth={3} /> Rapport complet remis</li>
           </ul>
           <figure class="bilan-case" data-bilan-case hidden>
             <span class="bc-ic"><Icon name="quote" size={18} /></span>
@@ -682,7 +683,6 @@ const analysisSteps = [
       </section>
 
       <div class="r-foot">
-        <button type="button" class="link-btn" data-print><Icon name="printer" size={16} /> Imprimer / enregistrer en PDF</button>
         <button type="button" class="link-btn" data-redo><Icon name="arrowLeft" size={16} /> Refaire le diagnostic</button>
       </div>
 
@@ -709,21 +709,17 @@ const analysisSteps = [
 </section>
 
 <script>
+  import { activites, bilanFocus, chiffresAffaires, domains, levels, questions, targetDays } from '../data/diagnostic';
   import {
-    activites,
-    bilanFocus,
-    chiffresAffaires,
-    domains,
-    hoursPerDay,
-    hoursPerWeek,
-    invoiceLagDays,
-    levels,
-    paymentDays,
-    questions,
-    targetDays,
-    workWeeks,
-    type DomainId,
-  } from '../data/diagnostic';
+    computeDiagnostic,
+    encodeDiagnostic,
+    levelLabel,
+    levelOf,
+    money,
+    roundMoney,
+    type DiagnosticResult,
+    type Level,
+  } from '../utils/diagnostic';
   import { cases, site } from '../data/site';
 
   const root = document.querySelector<HTMLElement>('[data-diag]');
@@ -744,8 +740,9 @@ const analysisSteps = [
     /** Créneau de rappel demandé */
     rappel?: string;
     booked?: boolean;
+    /** Code du diagnostic, pour le lien vers le rapport */
+    code?: string;
   };
-  type Level = 'high' | 'mid' | 'low';
 
   function initDiagnostic(root: HTMLElement) {
     const $ = <T extends Element = HTMLElement>(sel: string, el: ParentNode = root) => el.querySelector<T>(sel)!;
@@ -963,55 +960,18 @@ const analysisSteps = [
       });
     }
 
-    /* ================= Calcul ================= */
-    function levelOf(pct: number): Level {
-      return pct >= 75 ? 'high' : pct >= 45 ? 'mid' : 'low';
+    /* ================= Calcul (src/utils/diagnostic.ts) ================= */
+    const compute = () => computeDiagnostic(state);
+    type Result = DiagnosticResult;
+
+    /** Lien vers le rapport du client (A4, à enregistrer en PDF) : il ne contient que les réponses, aucune coordonnée */
+    function reportUrl() {
+      if (!state.code) {
+        state.code = encodeDiagnostic(state);
+        save();
+      }
+      return `${location.origin}/rapport-diagnostic.html#${state.code}`;
     }
-    function compute() {
-      const items = questions.map((q) => {
-        const opt = q.options[state.answers[q.id]];
-        return { q, score: opt ? opt.score : null, answer: opt?.label ?? '—' };
-      });
-      const dom = domains.map((d) => {
-        const own = items.filter((x) => x.q.domain === d.id && x.score !== null);
-        const sum = own.reduce((a, x) => a + (x.score ?? 0), 0);
-        const pct = own.length ? Math.round((sum / (own.length * 3)) * 100) : 100;
-        return { d, pct, level: levelOf(pct), todo: own.filter((x) => (x.score ?? 3) < 3).length };
-      });
-      const pctOf = (id: DomainId) => dom.find((x) => x.d.id === id)!.pct;
-      const global = Math.round(dom.reduce((a, x) => a + x.pct, 0) / dom.length);
-      const level = levels.find((l) => global >= l.min)!;
-      const todo = items
-        .filter((x) => x.score !== null && x.score < 3)
-        .sort((a, b) => a.score! - b.score! || pctOf(a.q.domain) - pctOf(b.q.domain));
-      const strengths = items.filter((x) => x.score === 3);
-
-      // Temps administratif : par mois et en journées de travail par an
-      const t = state.answers.temps;
-      const hours = t === undefined ? null : Math.round(hoursPerWeek[t] * 4.33);
-      const daysYear = t === undefined ? null : Math.round((hoursPerWeek[t] * workWeeks) / hoursPerDay);
-
-      // Trésorerie qui dort chez les clients : jours de chiffre d'affaires au-delà d'une facture
-      // envoyée tout de suite et payée à 30 jours
-      const caValue = state.ca === undefined ? null : (chiffresAffaires[state.ca]?.value ?? null);
-      const lag = invoiceLagDays[state.answers.facturation] ?? 0;
-      const pay = paymentDays[state.answers.delai] ?? targetDays;
-      const totalDays = lag + pay;
-      const extraDays = Math.max(0, totalDays - targetDays);
-      const cash = caValue === null ? null : roundMoney((caValue / 365) * extraDays);
-
-      // Domaine prioritaire : le plus faible, s'il n'est pas déjà un point fort
-      const weakest = [...dom].sort((a, b) => a.pct - b.pct)[0];
-      const priority = weakest.level === 'high' ? null : weakest.d;
-
-      return { items, dom, global, level, todo, strengths, hours, daysYear, cash, totalDays, priority, pctOf };
-    }
-    function roundMoney(v: number) {
-      const step = v < 1000 ? 100 : v < 10000 ? 500 : 1000;
-      return Math.round(v / step) * step;
-    }
-    const money = (v: number) => `${new Intl.NumberFormat('fr-FR').format(v)} €`;
-    type Result = ReturnType<typeof compute>;
 
     /* ================= Analyse animée ================= */
     const anSteps = $$('[data-an-step]');
@@ -1112,6 +1072,7 @@ const analysisSteps = [
       await wait(reduce ? 200 : 1300);
       if (id !== run) return;
       state.done = true;
+      state.code = encodeDiagnostic(state);
       save();
       showResults(true);
     }
@@ -1122,7 +1083,6 @@ const analysisSteps = [
     const gDot = $<SVGCircleElement>('[data-g-dot]');
     const gGlow = $<SVGCircleElement>('[data-g-glow]');
     const scoreEl = $('[data-score]');
-    const levelLabel: Record<Level, string> = { high: 'Point fort', mid: 'À consolider', low: 'Prioritaire' };
 
     function setGauge(v: number) {
       gValue.style.strokeDasharray = `${(v * 0.75).toFixed(2)} 100`;
@@ -1421,6 +1381,7 @@ const analysisSteps = [
       const data = new FormData();
       data.set('_subject', `${prefix} — ${contact.nom} — ${r.global}/100`);
       data.set('_gotcha', opts.gotcha ?? '');
+      data.set('rapport_pdf', `📄 Rapport à remettre au client (ouvrir, compléter le tarif, enregistrer en PDF) : ${reportUrl()}`);
       data.set('fiche_appel', callSheet(r, contact, opts.rappel));
       data.set('nom', contact.nom);
       data.set('email', contact.email);
@@ -1730,7 +1691,6 @@ const analysisSteps = [
       { rootMargin: '400px 0px' },
     ).observe(bilan);
 
-    $('[data-print]').addEventListener('click', () => window.print());
     $('[data-redo]').addEventListener('click', () => reset(true));
 
     /* ================= Démarrage ================= */

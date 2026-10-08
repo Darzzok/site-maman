@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /rapport-diagnostic.html
 
 Sitemap: https://www.xn--srnitgestionconseils-b2bbd.fr/sitemap-index.xml
