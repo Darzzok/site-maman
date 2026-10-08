@@ -53,6 +53,7 @@ export const zone = {
 export const nav: { label: string; id?: string; href?: string }[] = [
   { label: 'Accueil', id: 'accueil' },
   { label: 'Services', id: 'services' },
+  { label: 'Diagnostic', href: '/diagnostic-gestion.html' },
   { label: 'Métiers', href: '/metiers.html' },
   { label: 'À propos', id: 'a-propos' },
   { label: 'Cas clients', id: 'cas-clients' },
@@ -64,6 +65,7 @@ export const nav: { label: string; id?: string; href?: string }[] = [
 export const sections = [
   { id: 'accueil', label: 'Accueil' },
   { id: 'services', label: 'Services' },
+  { id: 'diagnostic', label: 'Diagnostic gratuit' },
   { id: 'formules', label: 'Modes d’intervention' },
   { id: 'a-propos', label: 'À propos' },
   { id: 'pourquoi', label: 'Pourquoi moi' },

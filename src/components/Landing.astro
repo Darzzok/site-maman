@@ -416,6 +416,9 @@ const devisUrl = !isZone && activiteKey[entry.id] ? `/?activite=${activiteKey[en
             <Icon name="file" size={18} /> Demander un devis
           </a>
         </div>
+        <a href="/diagnostic-gestion.html" class="cta-diag">
+          <Icon name="chart" size={16} /> Pas encore décidé ? Faites le diagnostic gratuit de votre gestion
+        </a>
       </div>
     </div>
   </section>
@@ -1095,6 +1098,19 @@ const devisUrl = !isZone && activiteKey[entry.id] ? `/?activite=${activiteKey[en
     justify-content: center;
     gap: 0.8rem;
     margin-top: 2rem;
+  }
+  .cta-diag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 1.2rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--blue-700);
+    text-decoration: underline;
+    text-decoration-color: var(--apricot);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
   }
   .btn-outline {
     display: inline-flex;

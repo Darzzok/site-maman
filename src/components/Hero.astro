@@ -47,6 +47,12 @@ const words = segments.flatMap((s) => s.t.split(' ').map((w) => ({ w, em: !!s.em
         <a href="#devis" class="btn btn--ghost">Demander un devis</a>
       </div>
 
+      <a href="/diagnostic-gestion.html" class="hero-diag enter" style="--i:10">
+        <span class="hd-badge">Gratuit</span>
+        <span class="hd-text">Faites le diagnostic de votre gestion en 3 minutes</span>
+        <Icon name="arrowRight" size={16} class="hd-arrow" />
+      </a>
+
       <ul class="hero-trust enter" style="--i:11">
         {
           hero.trust.map((t) => (
@@ -228,6 +234,48 @@ const words = segments.flatMap((s) => s.t.split(' ').map((w) => ({ w, em: !!s.em
     gap: 0.85rem;
     margin-top: 2.2rem;
   }
+  /* — Invitation au diagnostic — */
+  .hero-diag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin-top: 1.4rem;
+    padding: 0.4rem 1rem 0.4rem 0.4rem;
+    border-radius: 999px;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--blue-700);
+    background: rgb(255 255 255 / 0.85);
+    border: 1px solid var(--rose-200);
+    box-shadow: var(--shadow-sm);
+    transition:
+      border-color 0.3s,
+      box-shadow 0.3s,
+      transform 0.4s var(--ease-out);
+  }
+  .hero-diag:hover {
+    border-color: var(--apricot);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+  .hd-badge {
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink);
+    background: var(--apricot);
+  }
+  .hero-diag :global(.hd-arrow) {
+    flex: none;
+    transition: translate 0.3s var(--ease-out);
+  }
+  .hero-diag:hover :global(.hd-arrow) {
+    translate: 4px 0;
+  }
+
   .hero-trust {
     display: flex;
     flex-wrap: wrap;
@@ -333,6 +381,11 @@ const words = segments.flatMap((s) => s.t.split(' ').map((w) => ({ w, em: !!s.em
     }
     .hero-lead {
       font-size: 1rem;
+    }
+    .hero-diag {
+      margin-top: 1rem;
+      font-size: 0.84rem;
+      text-align: left;
     }
     .hero-actions {
       gap: 0.6rem;

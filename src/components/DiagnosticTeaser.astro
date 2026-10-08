@@ -1,0 +1,416 @@
+---
+/** Accueil : bandeau d'invitation au diagnostic de gestion gratuit */
+import Icon from './Icon.astro';
+import { domains } from '../data/diagnostic';
+
+// Aperçu illustratif d'un résultat (valeurs d'exemple)
+const sample = [68, 41, 57, 82];
+---
+
+<section id="diagnostic" class="dteaser">
+  <div class="glow" aria-hidden="true"><span></span><span></span></div>
+  <div class="container inner">
+    <div class="copy" data-reveal>
+      <p class="eyebrow eyebrow--dark">Diagnostic gratuit · 3 minutes</p>
+      <h2 class="h2">Votre gestion est-elle vraiment <em>sous contrôle</em> ?</h2>
+      <p class="lead">
+        Répondez à 12 questions et obtenez immédiatement votre <strong>score de gestion</strong>, le détail de vos
+        points forts et un <strong>plan d’action personnalisé</strong>.
+      </p>
+      <ul class="chips">
+        {
+          domains.map((d) => (
+            <li>
+              <Icon name={d.icon} size={16} /> {d.short}
+            </li>
+          ))
+        }
+      </ul>
+      <div class="actions">
+        <a href="/diagnostic-gestion.html" class="btn btn--soft">
+          Faire mon diagnostic <Icon name="arrowRight" size={18} class="i-arrow" />
+        </a>
+        <span class="note"><Icon name="lock" size={15} /> Gratuit, confidentiel, sans inscription</span>
+      </div>
+    </div>
+
+    <a href="/diagnostic-gestion.html" class="preview" data-reveal="right" aria-label="Commencer le diagnostic de gestion">
+      <span class="pv-top">
+        <span class="pv-kicker">Exemple de résultat</span>
+        <span class="pv-live"><i></i> Analyse</span>
+      </span>
+      <span class="pv-gauge" aria-hidden="true">
+        <svg viewBox="0 0 200 200">
+          <defs>
+            <linearGradient id="dt-grad" gradientUnits="userSpaceOnUse" x1="16" y1="0" x2="184" y2="0" gradientTransform="rotate(-135 100 100)">
+              <stop offset="0" stop-color="#e97e0d"></stop>
+              <stop offset="0.5" stop-color="#f6b55b"></stop>
+              <stop offset="1" stop-color="#61193a"></stop>
+            </linearGradient>
+          </defs>
+          <circle class="pv-track" cx="100" cy="100" r="84" pathLength="100"></circle>
+          <circle class="pv-value" cx="100" cy="100" r="84" pathLength="100" stroke="url(#dt-grad)"></circle>
+        </svg>
+        <span class="pv-num"></span>
+      </span>
+      <span class="pv-bars" aria-hidden="true">
+        {
+          domains.map((d, i) => (
+            <span class="pv-row" style={`--v:${sample[i]}%; --i:${i}`}>
+              <span class="pv-label">{d.short}</span>
+              <span class="pv-bar">
+                <span />
+              </span>
+            </span>
+          ))
+        }
+      </span>
+      <span class="pv-cta">Découvrir mon score <Icon name="arrowRight" size={16} /></span>
+    </a>
+  </div>
+</section>
+
+<style>
+  .dteaser {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    padding-block: clamp(4rem, 9vw, 6.5rem);
+    color: #fff;
+    background: linear-gradient(135deg, var(--blue-700), var(--blue-950));
+  }
+  .glow span {
+    position: absolute;
+    z-index: -1;
+    border-radius: 50%;
+    filter: blur(80px);
+    animation: dt-drift 18s ease-in-out infinite alternate;
+  }
+  .glow span:nth-child(1) {
+    width: 40vw;
+    height: 40vw;
+    top: -18vw;
+    right: -8vw;
+    background: rgb(246 181 91 / 0.22);
+  }
+  .glow span:nth-child(2) {
+    width: 30vw;
+    height: 30vw;
+    bottom: -16vw;
+    left: -8vw;
+    background: rgb(233 126 13 / 0.14);
+    animation-delay: -6s;
+  }
+  @keyframes dt-drift {
+    to {
+      transform: translate(-3vw, 2vw) scale(1.1);
+    }
+  }
+  .inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    align-items: center;
+    gap: clamp(2rem, 5vw, 4.5rem);
+  }
+  .copy {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .copy .h2 {
+    color: #fff;
+  }
+  .copy .h2 em {
+    color: var(--apricot);
+  }
+  .lead {
+    max-width: 34rem;
+    margin-top: 1.1rem;
+    font-size: 1.06rem;
+    color: rgb(255 255 255 / 0.9);
+  }
+  .lead strong {
+    color: #fff;
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+  }
+  .chips li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.9rem;
+    border-radius: 999px;
+    font-size: 0.86rem;
+    font-weight: 700;
+    background: rgb(255 255 255 / 0.08);
+    border: 1px solid rgb(255 255 255 / 0.16);
+  }
+  .chips :global(svg) {
+    color: var(--apricot);
+  }
+  .actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.8rem;
+    margin-top: 1.9rem;
+  }
+  .note {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.84rem;
+    color: rgb(255 255 255 / 0.8);
+  }
+
+  /* Aperçu de résultat */
+  @property --dt-n {
+    syntax: '<integer>';
+    inherits: false;
+    initial-value: 0;
+  }
+  .preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: min(100%, 380px);
+    margin-inline: auto;
+    padding: 1.4rem 1.5rem 1.3rem;
+    border-radius: var(--radius-xl);
+    color: var(--ink);
+    background: #fff;
+    box-shadow: 0 40px 80px -36px rgb(0 0 0 / 0.6);
+    transition:
+      transform 0.5s var(--ease-out),
+      box-shadow 0.5s;
+  }
+  .preview:hover {
+    transform: translateY(-6px) rotate(-0.6deg);
+    box-shadow: 0 50px 90px -36px rgb(0 0 0 / 0.7);
+  }
+  .pv-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+  .pv-kicker {
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .pv-live {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--terra-700);
+  }
+  .pv-live i {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--terra-500);
+    animation: dt-blink 1.4s ease-in-out infinite;
+  }
+  @keyframes dt-blink {
+    50% {
+      opacity: 0.25;
+    }
+  }
+  .pv-gauge {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 180px;
+    aspect-ratio: 1;
+    margin-top: 0.6rem;
+  }
+  .pv-gauge svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .pv-track,
+  .pv-value {
+    fill: none;
+    stroke-width: 13;
+    stroke-linecap: round;
+    transform: rotate(135deg);
+    transform-origin: 100px 100px;
+  }
+  .pv-track {
+    stroke: var(--blue-100);
+    stroke-dasharray: 75 100;
+  }
+  .pv-value {
+    stroke-dasharray: 0 100;
+  }
+  .pv-num {
+    font-family: var(--font-display);
+    font-size: 3.2rem;
+    line-height: 1;
+    color: var(--blue-700);
+    counter-reset: dtn var(--dt-n);
+  }
+  .pv-num::before {
+    content: counter(dtn);
+  }
+  .pv-num::after {
+    content: '/100';
+    font-family: var(--font-body);
+    font-size: 0.32em;
+    font-weight: 700;
+    color: var(--muted);
+  }
+  .pv-bars {
+    display: grid;
+    gap: 0.55rem;
+    width: 100%;
+    margin-top: 0.4rem;
+  }
+  .pv-row {
+    display: grid;
+    grid-template-columns: 6.2rem minmax(0, 1fr);
+    align-items: center;
+    gap: 0.7rem;
+  }
+  .pv-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-align: right;
+  }
+  .pv-bar {
+    position: relative;
+    height: 8px;
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--blue-50);
+  }
+  .pv-bar span {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 0;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--terra-500), var(--apricot) 60%, var(--blue-700));
+    background-size: 280px 100%;
+  }
+  .pv-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 1.2rem;
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: var(--blue-700);
+  }
+  .preview:hover .pv-cta :global(svg) {
+    translate: 4px 0;
+  }
+  .pv-cta :global(svg) {
+    transition: translate 0.3s var(--ease-out);
+  }
+
+  /* L'animation démarre quand l'aperçu apparaît, puis rejoue en boucle */
+  .preview:global(.is-in) .pv-value {
+    animation: dt-fill 7s var(--ease-in-out) 0.4s infinite;
+  }
+  .preview:global(.is-in) .pv-num {
+    animation: dt-count 7s var(--ease-in-out) 0.4s infinite;
+  }
+  .preview:global(.is-in) .pv-bar span {
+    animation: dt-bar 7s var(--ease-out) calc(0.6s + var(--i) * 0.12s) infinite;
+  }
+  @keyframes dt-fill {
+    0% {
+      stroke-dasharray: 0 100;
+    }
+    30%,
+    85% {
+      stroke-dasharray: 47.25 100;
+    }
+    100% {
+      stroke-dasharray: 0 100;
+    }
+  }
+  @keyframes dt-count {
+    0% {
+      --dt-n: 0;
+    }
+    30%,
+    85% {
+      --dt-n: 63;
+    }
+    100% {
+      --dt-n: 0;
+    }
+  }
+  @keyframes dt-bar {
+    0% {
+      width: 0;
+    }
+    30%,
+    85% {
+      width: var(--v);
+    }
+    100% {
+      width: 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .preview:global(.is-in) .pv-value,
+    .preview:global(.is-in) .pv-num,
+    .preview:global(.is-in) .pv-bar span {
+      animation: none;
+    }
+    .pv-value {
+      stroke-dasharray: 47.25 100;
+    }
+    .pv-num {
+      --dt-n: 63;
+    }
+    .pv-bar span {
+      width: var(--v);
+    }
+  }
+
+  @media (max-width: 1023px) {
+    .inner {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 760px) {
+    .dteaser {
+      padding-block: 3.5rem;
+    }
+    .chips {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      width: 100%;
+    }
+    .chips li {
+      justify-content: center;
+    }
+    .actions,
+    .actions .btn {
+      width: 100%;
+      justify-content: center;
+    }
+    .preview {
+      padding: 1.1rem 1.1rem 1rem;
+    }
+    .pv-gauge {
+      width: 150px;
+    }
+  }
+</style>

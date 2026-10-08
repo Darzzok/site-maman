@@ -1,0 +1,279 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Diagnostic from '../components/Diagnostic.astro';
+import Icon from '../components/Icon.astro';
+import { site } from '../data/site';
+import { domains, questions } from '../data/diagnostic';
+import { breadcrumbLd, businessEntity, faqLd } from '../utils/seo';
+
+const url = '/diagnostic-gestion.html';
+
+const how = [
+  { icon: 'list', title: 'Répondez', text: `${questions.length} questions simples, en 3 minutes, sans inscription.` },
+  { icon: 'chart', title: 'Découvrez votre score', text: 'Un score sur 100, le détail par domaine et vos points forts.' },
+  { icon: 'flag', title: 'Passez à l’action', text: 'Un plan d’action classé par priorité, et un bilan offert pour en parler.' },
+];
+
+const domainTexts: Record<string, string> = {
+  tresorerie: 'Visibilité à 3 mois, délais de paiement de vos clients, impayés.',
+  facturation: 'Rapidité de facturation, circuit de relance, préparation à la facture électronique.',
+  organisation: 'Temps passé sur l’administratif, classement des documents, suivi des échéances.',
+  pilotage: 'Suivi des marges, tableau de bord mensuel, gestion du personnel.',
+};
+
+const faq = [
+  {
+    q: 'Le diagnostic est-il vraiment gratuit ?',
+    a: 'Oui. Le score et le détail par domaine s’affichent immédiatement, sans inscription. Pour débloquer le plan d’action complet, il suffit d’indiquer votre nom et votre adresse e-mail.',
+  },
+  {
+    q: 'Que deviennent mes réponses ?',
+    a: 'Elles servent uniquement à calculer votre résultat. Si vous débloquez votre plan d’action, vos réponses et vos coordonnées me sont transmises pour préparer notre échange : elles ne sont jamais revendues ni utilisées pour de la publicité.',
+  },
+  {
+    q: 'Le résultat remplace-t-il l’avis d’un expert-comptable ?',
+    a: 'Non. Le diagnostic donne une photographie de votre organisation et des pistes concrètes. Il ne remplace ni l’analyse de vos comptes, ni les conseils de votre expert-comptable, avec qui je travaille en complément.',
+  },
+  {
+    q: 'Et après le diagnostic ?',
+    a: 'Si vous le souhaitez, nous faisons le point lors d’un bilan offert de 30 minutes, à distance ou dans l’Eure et la Seine-Maritime. Nous passons votre résultat en revue et fixons vos premières actions, sans engagement.',
+  },
+];
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    businessEntity(),
+    {
+      '@type': 'WebPage',
+      '@id': `${site.url}${url}`,
+      url: `${site.url}${url}`,
+      name: 'Diagnostic de gestion gratuit pour TPE, artisans et professions libérales',
+      inLanguage: 'fr-FR',
+      isPartOf: { '@id': `${site.url}/#site` },
+    },
+    faqLd(faq),
+    breadcrumbLd([
+      { name: 'Accueil', url: '/' },
+      { name: 'Diagnostic de gestion', url },
+    ]),
+  ],
+};
+---
+
+<BaseLayout
+  title="Diagnostic de gestion gratuit en 3 minutes | Sérénité Gestion Conseils"
+  description="Testez gratuitement la gestion de votre entreprise : trésorerie, facturation, organisation, pilotage. Score immédiat et plan d’action personnalisé pour TPE et artisans."
+  ogTitle="Votre gestion est-elle sous contrôle ? Diagnostic gratuit en 3 minutes"
+  jsonLd={jsonLd}
+  mobileBar={false}
+>
+  <Diagnostic />
+
+  <section class="section section--white diag-more">
+    <div class="container">
+      <header class="section-head" data-reveal>
+        <p class="eyebrow">Comment ça marche</p>
+        <h2 class="h2">Trois minutes pour y voir <em>clair</em></h2>
+      </header>
+      <ol class="how" data-carousel>
+        {
+          how.map((h, i) => (
+            <li class="how-card" data-reveal style={`--d:${i}`}>
+              <span class="how-num">{i + 1}</span>
+              <span class="icon-tile">
+                <Icon name={h.icon} />
+              </span>
+              <h3>{h.title}</h3>
+              <p>{h.text}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="section diag-more">
+    <div class="container">
+      <header class="section-head" data-reveal>
+        <p class="eyebrow">Ce qui est analysé</p>
+        <h2 class="h2">Les 4 piliers d’une gestion <em>sereine</em></h2>
+      </header>
+      <ul class="pillars" data-carousel>
+        {
+          domains.map((d, i) => (
+            <li class="pillar" data-reveal style={`--d:${i}`}>
+              <span class="pillar-ic">
+                <Icon name={d.icon} size={26} />
+              </span>
+              <h3>{d.label}</h3>
+              <p>{domainTexts[d.id]}</p>
+            </li>
+          ))
+        }
+      </ul>
+      <div class="more-cta" data-reveal>
+        <a href="#diagnostic" class="btn">
+          Faire mon diagnostic <Icon name="arrowRight" size={18} class="i-arrow" />
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--white diag-more">
+    <div class="container">
+      <header class="section-head" data-reveal>
+        <p class="eyebrow">Questions fréquentes</p>
+        <h2 class="h2">Avant de <em>commencer</em></h2>
+      </header>
+      <div class="d-faq" data-reveal>
+        {
+          faq.map((f) => (
+            <details class="d-faq-item">
+              <summary>
+                {f.q}
+                <Icon name="chevronDown" size={20} class="d-faq-chev" />
+              </summary>
+              <p>{f.a}</p>
+            </details>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .how {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+    counter-reset: how;
+  }
+  .how-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1.5rem 1.8rem;
+    text-align: center;
+    border-radius: var(--radius-lg);
+    background: var(--cream);
+    border: 1px solid var(--line);
+  }
+  .how-num {
+    position: absolute;
+    top: 1rem;
+    right: 1.2rem;
+    font-family: var(--font-display);
+    font-size: 2.4rem;
+    line-height: 1;
+    color: var(--rose-200);
+  }
+  .how-card h3 {
+    margin-top: 1rem;
+    font-size: 1.4rem;
+  }
+  .how-card p {
+    margin-top: 0.5rem;
+    color: var(--muted);
+  }
+
+  .pillars {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+  }
+  .pillar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.8rem 1.3rem;
+    text-align: center;
+    border-radius: var(--radius-lg);
+    background: #fff;
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-sm);
+  }
+  .pillar-ic {
+    display: grid;
+    place-items: center;
+    width: 58px;
+    height: 58px;
+    border-radius: 18px;
+    color: #fff;
+    background: linear-gradient(135deg, var(--blue-700), var(--blue-900));
+    box-shadow: 0 16px 32px -14px rgb(97 25 58 / 0.6);
+  }
+  .pillar h3 {
+    margin-top: 1rem;
+    font-size: 1.25rem;
+  }
+  .pillar p {
+    margin-top: 0.5rem;
+    font-size: 0.92rem;
+    color: var(--muted);
+  }
+  .more-cta {
+    display: flex;
+    justify-content: center;
+    margin-top: 2.4rem;
+  }
+
+  .d-faq {
+    display: grid;
+    gap: 0.7rem;
+    max-width: 48rem;
+    margin-inline: auto;
+  }
+  .d-faq-item {
+    border-radius: 20px;
+    background: var(--cream);
+    border: 1px solid var(--line);
+    transition:
+      background 0.3s,
+      box-shadow 0.3s;
+  }
+  .d-faq-item[open] {
+    background: #fff;
+    box-shadow: var(--shadow-md);
+  }
+  .d-faq-item summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.1rem 1.3rem;
+    font-weight: 700;
+    color: var(--ink);
+    cursor: pointer;
+    list-style: none;
+  }
+  .d-faq-item summary::-webkit-details-marker {
+    display: none;
+  }
+  .d-faq-item :global(.d-faq-chev) {
+    flex: none;
+    color: var(--blue-700);
+    transition: rotate 0.4s var(--ease-out);
+  }
+  .d-faq-item[open] :global(.d-faq-chev) {
+    rotate: 180deg;
+  }
+  .d-faq-item p {
+    padding: 0 1.3rem 1.2rem;
+    color: var(--muted);
+  }
+
+  @media (max-width: 1023px) {
+    .pillars {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 760px) {
+    .how,
+    .pillars {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

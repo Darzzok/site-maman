@@ -93,6 +93,24 @@ avec un objet clair (nom, activité, besoins).
   `/?besoin=tresorerie#devis`. Les boutons « Demander un devis » des pages métiers l’utilisent déjà.
 - La saisie est conservée pendant la visite si la page est rechargée, et le formulaire reste utilisable sans JavaScript.
 
+## Diagnostic de gestion (génération de contacts)
+
+La page `/diagnostic-gestion.html` propose un diagnostic gratuit en 3 minutes : profil (activité, effectif), puis
+12 questions sur 4 domaines (trésorerie, facturation & relances, organisation administrative, pilotage & personnel).
+
+- **Parcours** : accueil animé → questions avec un « Bon à savoir » après chaque réponse → écran d’analyse animé →
+  résultats (score sur 100 en jauge, radar des 12 réponses, chiffres clés, détail par domaine, points forts).
+- **Récupération des contacts** : le score est visible librement ; la 1re recommandation du plan d’action aussi. Les
+  suivantes se débloquent en laissant nom + e-mail (téléphone et entreprise facultatifs). Nadège reçoit par Formspree
+  un e-mail « Diagnostic — Nom — score/100 » avec l’activité, les scores par domaine, les 3 priorités, toutes les
+  réponses et si la personne souhaite un **bilan offert de 30 minutes**.
+- **Modifier les questions, conseils, recommandations, niveaux** : `src/data/diagnostic.ts` (chaque réponse vaut de
+  0 à 3 points ; `null` = « non concerné », exclu du calcul).
+- **Accès** : menu principal, bandeau sur l’accueil (`src/components/DiagnosticTeaser.astro`), lien « Gratuit » dans
+  l’en-tête de l’accueil, pied de page, fin des pages métiers/villes et des articles.
+- Les réponses sont conservées pendant la visite (on peut recharger la page et reprendre) ; le résultat s’imprime ou
+  s’enregistre en PDF.
+
 ## Pages métiers et zones (référencement)
 
 Des pages dédiées ciblent les recherches par métier et par ville :
@@ -147,11 +165,12 @@ Lancer `npm run build`, puis envoyer **le contenu du dossier `dist/`** chez l'h�
 | --- | --- |
 | Couleurs, typographies, boutons, cartes | `src/styles/global.css` |
 | En-tête / pied de page | `src/components/Header.astro`, `Footer.astro` |
-| Sections de l'accueil | `src/components/` : `Hero`, `Services`, `Formulas` (modes d'intervention), `About`, `Reasons`, `Journey` (frise), `Cases`, `Zone`, `Network`, `ConseilsTeaser`, `PromiseBand`, `Contact` |
+| Sections de l'accueil | `src/components/` : `Hero`, `Services`, `DiagnosticTeaser`, `Formulas` (modes d'intervention), `About`, `Reasons`, `Journey` (frise), `Cases`, `Zone`, `Network`, `ConseilsTeaser`, `PromiseBand`, `Contact` |
 | Articles | `src/content/conseils/*.md` |
 | Pages métiers / zones | contenu : `src/content/metiers/`, `src/content/zones/` ; gabarit : `src/components/Landing.astro` |
 | Données structurées (SEO) | `src/utils/seo.ts` |
 | Animations (apparition, frise automatique, en-tête…) | `src/scripts/main.ts` (rythme de la frise : constantes `TL_STEP_MS`, `TL_END_MS`, `TL_RESUME_MS`) |
+| Diagnostic de gestion | page : `src/pages/diagnostic-gestion.astro` ; parcours : `src/components/Diagnostic.astro` ; contenu : `src/data/diagnostic.ts` |
 | Bandeau cookies (Calendly) | `src/components/CookieBanner.astro` |
 | Photos optimisées | `src/assets/images/` |
 | Logo, favicon, image de partage | `public/images/` |
