@@ -3,8 +3,6 @@
 import Icon from './Icon.astro';
 import { domains } from '../data/diagnostic';
 
-// Aperçu illustratif d'un résultat (valeurs d'exemple)
-const sample = [68, 41, 57, 82];
 ---
 
 <section id="diagnostic" class="dteaser">
@@ -49,17 +47,17 @@ const sample = [68, 41, 57, 82];
             </linearGradient>
           </defs>
           <circle class="pv-track" cx="100" cy="100" r="84" pathLength="100"></circle>
-          <circle class="pv-value" cx="100" cy="100" r="84" pathLength="100" stroke="url(#dt-grad)"></circle>
+          <circle class="pv-value" cx="100" cy="100" r="84" pathLength="100" stroke="url(#dt-grad)" data-pv-value></circle>
         </svg>
-        <span class="pv-num"></span>
+        <span class="pv-num" data-pv-num>0</span>
       </span>
       <span class="pv-bars" aria-hidden="true">
         {
-          domains.map((d, i) => (
-            <span class="pv-row" style={`--v:${sample[i]}%; --i:${i}`}>
+          domains.map((d) => (
+            <span class="pv-row">
               <span class="pv-label">{d.short}</span>
               <span class="pv-bar">
-                <span />
+                <span data-pv-bar />
               </span>
             </span>
           ))
@@ -69,6 +67,20 @@ const sample = [68, 41, 57, 82];
     </a>
   </div>
 </section>
+
+<script>
+  import { startDemoDial } from '../scripts/demo-dial';
+
+  const preview = document.querySelector<HTMLElement>('.dteaser .preview');
+  if (preview)
+    startDemoDial({
+      root: preview,
+      circle: preview.querySelector<SVGCircleElement>('[data-pv-value]')!,
+      num: preview.querySelector<HTMLElement>('[data-pv-num]')!,
+      bars: [...preview.querySelectorAll<HTMLElement>('[data-pv-bar]')],
+      period: 4600,
+    });
+</script>
 
 <style>
   .dteaser {
@@ -170,11 +182,6 @@ const sample = [68, 41, 57, 82];
   }
 
   /* Aperçu de résultat */
-  @property --dt-n {
-    syntax: '<integer>';
-    inherits: false;
-    initial-value: 0;
-  }
   .preview {
     display: flex;
     flex-direction: column;
@@ -260,11 +267,8 @@ const sample = [68, 41, 57, 82];
     font-family: var(--font-display);
     font-size: 3.2rem;
     line-height: 1;
+    font-variant-numeric: tabular-nums;
     color: var(--blue-700);
-    counter-reset: dtn var(--dt-n);
-  }
-  .pv-num::before {
-    content: counter(dtn);
   }
   .pv-num::after {
     content: '/100';
@@ -304,6 +308,7 @@ const sample = [68, 41, 57, 82];
     border-radius: inherit;
     background: linear-gradient(90deg, var(--terra-500), var(--apricot) 60%, var(--blue-700));
     background-size: 280px 100%;
+    transition: width 1.3s var(--ease-out);
   }
   .pv-cta {
     display: inline-flex;
@@ -319,69 +324,6 @@ const sample = [68, 41, 57, 82];
   }
   .pv-cta :global(svg) {
     transition: translate 0.3s var(--ease-out);
-  }
-
-  /* L'animation démarre quand l'aperçu apparaît, puis rejoue en boucle */
-  .preview:global(.is-in) .pv-value {
-    animation: dt-fill 7s var(--ease-in-out) 0.4s infinite;
-  }
-  .preview:global(.is-in) .pv-num {
-    animation: dt-count 7s var(--ease-in-out) 0.4s infinite;
-  }
-  .preview:global(.is-in) .pv-bar span {
-    animation: dt-bar 7s var(--ease-out) calc(0.6s + var(--i) * 0.12s) infinite;
-  }
-  @keyframes dt-fill {
-    0% {
-      stroke-dasharray: 0 100;
-    }
-    30%,
-    85% {
-      stroke-dasharray: 47.25 100;
-    }
-    100% {
-      stroke-dasharray: 0 100;
-    }
-  }
-  @keyframes dt-count {
-    0% {
-      --dt-n: 0;
-    }
-    30%,
-    85% {
-      --dt-n: 63;
-    }
-    100% {
-      --dt-n: 0;
-    }
-  }
-  @keyframes dt-bar {
-    0% {
-      width: 0;
-    }
-    30%,
-    85% {
-      width: var(--v);
-    }
-    100% {
-      width: 0;
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .preview:global(.is-in) .pv-value,
-    .preview:global(.is-in) .pv-num,
-    .preview:global(.is-in) .pv-bar span {
-      animation: none;
-    }
-    .pv-value {
-      stroke-dasharray: 47.25 100;
-    }
-    .pv-num {
-      --dt-n: 63;
-    }
-    .pv-bar span {
-      width: var(--v);
-    }
   }
 
   @media (max-width: 1023px) {

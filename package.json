@@ -7,13 +7,16 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "deploy": "vercel build --prod && vercel deploy --prebuilt --prod",
+    "deploy:test": "vercel build && vercel deploy --prebuilt"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",
     "astro": "^7.3.5"
   },
   "devDependencies": {
-    "wawoff2": "^2.0.1"
+    "wawoff2": "^2.0.1",
+    "vercel": "^63.1.0"
   }
 }

@@ -186,11 +186,23 @@ Des pages dédiées ciblent les recherches par métier et par ville :
 6. **Nom de domaine sans accents** : réserver aussi `serenitegestionconseils.fr` et le rediriger vers le site, car
    beaucoup de personnes tapent l’adresse sans accents.
 
-## Mettre en ligne
+## Mettre en ligne (Vercel)
 
-Lancer `npm run build`, puis envoyer **le contenu du dossier `dist/`** chez l'hébergeur
-(FTP, Netlify, Vercel, OVH…). Les adresses de l'ancien site sont conservées :
-`/`, `/faq.html`, `/mentions-legales.html`, `/confidentialite.html`.
+Le site est envoyé sur Vercel **depuis cet ordinateur** : il est construit ici, avec les polices (absentes de GitHub),
+puis envoyé tel quel. Réglages (cache, en-têtes de sécurité, rapport non indexé) : `vercel.json`.
+
+1. **Une seule fois** : se connecter à son compte Vercel (le navigateur s’ouvre) puis relier le dossier au projet :
+   ```bash
+   npx vercel login
+   npx vercel link
+   ```
+2. **Version de test** (adresse privée, visible seulement une fois connecté à Vercel) : `npm run deploy:test`
+3. **Mise en ligne officielle** : `npm run deploy`
+4. **Nom de domaine** : dans Vercel, *Settings → Domains*, ajouter `sérénitégestionconseils.fr` (et la version sans
+   accents `serenitegestionconseils.fr` en redirection), puis recopier chez le registraire les enregistrements DNS indiqués.
+
+Les anciennes adresses sont conservées : `/`, `/faq.html`, `/mentions-legales.html`, `/confidentialite.html`.
+⚠️ Avant la mise en ligne officielle : licence commerciale de la police MADE Mirage (voir « Charte graphique »).
 
 ## Où se trouve quoi
 

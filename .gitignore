@@ -5,3 +5,6 @@ dist/
 # Polices sous licence : à ne pas publier (voir README)
 public/fonts/
 scripts/fonts/
+
+# Vercel (liaison locale du projet et site construit pour l’envoi)
+.vercel/

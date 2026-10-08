@@ -91,10 +91,10 @@ const analysisSteps = [
               </linearGradient>
             </defs>
             <circle class="g-track" cx="100" cy="100" r="84" pathLength="100"></circle>
-            <circle class="iv-value" cx="100" cy="100" r="84" pathLength="100" stroke="url(#iv-grad)"></circle>
+            <circle class="iv-value" cx="100" cy="100" r="84" pathLength="100" stroke="url(#iv-grad)" data-iv-value></circle>
           </svg>
           <div class="iv-center">
-            <span class="iv-num"></span>
+            <span class="iv-num" data-iv-num>0</span>
             <span class="iv-label">Score de gestion</span>
           </div>
         </div>
@@ -727,6 +727,7 @@ const analysisSteps = [
     type Level,
   } from '../utils/diagnostic';
   import { cases, site } from '../data/site';
+  import { startDemoDial } from '../scripts/demo-dial';
 
   const root = document.querySelector<HTMLElement>('[data-diag]');
   if (root) initDiagnostic(root);
@@ -1383,7 +1384,7 @@ const analysisSteps = [
         `Accroche : « Bonjour ${prenom}, ${site.owner}, de ${site.name}. J’ai bien reçu votre diagnostic de gestion (${r.global}/100). Ce qui ressort en priorité, c’est : ${sujet}. Avez-vous quelques minutes pour qu’on en parle ? »`,
         r.cash ? `Enjeu chiffré : ≈ ${money(r.cash)} de trésorerie qui dort chez ses clients (≈ ${r.totalDays} jours entre prestation et paiement)` : '',
         r.daysYear !== null ? `Temps administratif : ≈ ${r.hours} h par mois, soit ≈ ${r.daysYear} jours par an` : '',
-        `Points forts à valoriser : ${r.strengths.map((x) => x.q.strength).join(', ') || 'aucun'}`,
+        r.strengths.length ? `Points forts à valoriser : ${r.strengths.map((x) => x.q.strength).join(', ')}` : '',
         `Priorités : ${r.todo.slice(0, 3).map((x, k) => `${k + 1}. ${x.q.reco.title}`).join(' · ') || 'aucune'}`,
       ]
         .filter(Boolean)
@@ -1405,23 +1406,25 @@ const analysisSteps = [
       const data = new FormData();
       data.set('_subject', `${prefix} — ${contact.nom} — ${r.global}/100`);
       data.set('_gotcha', opts.gotcha ?? '');
-      data.set('rapport_pdf', `📄 Rapport à remettre au client (ouvrir, saisir son nom, enregistrer en PDF) : ${reportUrl()}`);
-      data.set('fiche_appel', callSheet(r, contact, opts.rappel));
-      data.set('nom', contact.nom);
+      // Libellés lisibles : Formspree affiche le nom de chaque champ tel quel dans l'e-mail
+      // (« email » reste en minuscules : Formspree s'en sert comme adresse de réponse)
+      data.set('📄 Rapport à remettre au client (ouvrir, saisir son nom, enregistrer en PDF)', reportUrl());
+      data.set('☎ Fiche d’appel', callSheet(r, contact, opts.rappel));
+      data.set('Nom', contact.nom);
       data.set('email', contact.email);
-      data.set('telephone', contact.telephone ?? '');
-      data.set('entreprise', contact.entreprise ?? '');
-      data.set('rappel', opts.rappel ? `Oui — ${opts.rappel}` : 'Non');
-      data.set('origine', 'Diagnostic de gestion en ligne');
-      data.set('activite', act?.label ?? '');
-      data.set('effectif', state.effectif ?? '');
-      data.set('chiffre_affaires', ca);
-      data.set('score_global', `${r.global}/100 — ${r.level.label}`);
-      r.dom.forEach((x) => data.set(`score_${x.d.id}`, `${x.pct} % (${levelLabel[x.level]})`));
-      data.set('tresorerie_immobilisee', r.cash === null ? 'CA non communiqué' : `≈ ${money(r.cash)}`);
-      data.set('temps_admin', r.daysYear === null ? '' : `≈ ${r.hours} h/mois (≈ ${r.daysYear} jours/an)`);
-      data.set('reponses', r.items.map((x) => `• ${x.q.text}\n   → ${x.answer}`).join('\n'));
-      data.set('consentement', 'Oui');
+      data.set('Téléphone', contact.telephone || '—');
+      data.set('Entreprise', contact.entreprise || '—');
+      data.set('Rappel demandé', opts.rappel ? `Oui — ${opts.rappel}` : 'Non');
+      data.set('Activité', act?.label ?? '');
+      data.set('Effectif', state.effectif ?? '');
+      data.set('Chiffre d’affaires', ca || 'Non communiqué');
+      data.set('Score global', `${r.global}/100 — ${r.level.label}`);
+      r.dom.forEach((x) => data.set(`Score ${x.d.label}`, `${x.pct} % (${levelLabel[x.level]})`));
+      data.set('Trésorerie immobilisée', r.cash === null ? 'Chiffre d’affaires non communiqué' : `≈ ${money(r.cash)}`);
+      data.set('Temps administratif', r.daysYear === null ? '—' : `≈ ${r.hours} h par mois (≈ ${r.daysYear} jours par an)`);
+      data.set('Réponses détaillées', r.items.map((x) => `• ${x.q.text}\n   → ${x.answer}`).join('\n'));
+      data.set('Origine', 'Diagnostic de gestion en ligne');
+      data.set('Consentement RGPD', 'Oui');
       return data;
     }
 
@@ -1736,6 +1739,12 @@ const analysisSteps = [
     );
 
     /* ================= Démarrage ================= */
+    // Cadran d'exemple de l'accueil : un score différent à chaque cycle
+    startDemoDial({
+      root: $('.iv-dial'),
+      circle: $<SVGCircleElement>('[data-iv-value]'),
+      num: $('[data-iv-num]'),
+    });
     restoreInputs();
     refreshIntro();
     root.dataset.view = 'intro';
@@ -1979,11 +1988,6 @@ const analysisSteps = [
   }
 
   /* Visuel : cadran et domaines en orbite */
-  @property --iv-n {
-    syntax: '<integer>';
-    inherits: false;
-    initial-value: 0;
-  }
   .intro-visual {
     position: relative;
     display: grid;
@@ -2033,20 +2037,6 @@ const analysisSteps = [
   }
   .iv-value {
     stroke-dasharray: 0 100;
-    animation: iv-fill 6s var(--ease-in-out) infinite;
-  }
-  @keyframes iv-fill {
-    0%,
-    8% {
-      stroke-dasharray: 0 100;
-    }
-    45%,
-    80% {
-      stroke-dasharray: 54 100;
-    }
-    100% {
-      stroke-dasharray: 0 100;
-    }
   }
   .iv-center {
     position: absolute;
@@ -2060,12 +2050,8 @@ const analysisSteps = [
     font-family: var(--font-display);
     font-size: clamp(3rem, 6vw, 4.2rem);
     line-height: 1;
+    font-variant-numeric: tabular-nums;
     color: var(--blue-700);
-    counter-reset: ivn var(--iv-n);
-    animation: iv-count 6s var(--ease-in-out) infinite;
-  }
-  .iv-num::before {
-    content: counter(ivn);
   }
   .iv-num::after {
     content: '/100';
@@ -2073,19 +2059,6 @@ const analysisSteps = [
     font-size: 0.32em;
     font-weight: 700;
     color: var(--muted);
-  }
-  @keyframes iv-count {
-    0%,
-    8% {
-      --iv-n: 0;
-    }
-    45%,
-    80% {
-      --iv-n: 72;
-    }
-    100% {
-      --iv-n: 0;
-    }
   }
   .iv-label {
     margin-top: 0.4rem;
@@ -4933,9 +4906,6 @@ const analysisSteps = [
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
       transition-delay: 0s !important;
-    }
-    .iv-value {
-      stroke-dasharray: 54 100;
     }
   }
 
