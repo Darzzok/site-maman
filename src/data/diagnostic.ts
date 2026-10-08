@@ -44,7 +44,6 @@ export const domains: Domain[] = [
   },
   {
     id: 'facturation',
-    strength: 'Facturation immédiate',
     label: 'Facturation & relances',
     short: 'Facturation',
     icon: 'file',
@@ -138,6 +137,7 @@ export const questions: Question[] = [
   /* ---------- Facturation & relances ---------- */
   {
     id: 'facturation',
+    strength: 'Facturation immédiate',
     domain: 'facturation',
     text: 'Quand établissez-vous vos factures ?',
     options: [
@@ -312,35 +312,85 @@ export const activites = [
     value: 'btp',
     label: 'Artisan du BTP',
     icon: 'hardhat',
+    metier: 'artisans-btp',
     hint: 'Pour un artisan du BTP, les acomptes, les situations de travaux et le suivi des chantiers sont les premiers leviers de trésorerie.',
   },
   {
     value: 'sante',
     label: 'Profession de santé',
     icon: 'stethoscope',
+    metier: 'professions-de-sante',
     hint: 'En cabinet, le suivi des encaissements, des cotisations et du temps administratif pèse vite sur le temps consacré aux patients.',
   },
   {
     value: 'liberal',
     label: 'Profession libérale',
     icon: 'briefcase',
+    metier: 'professions-liberales',
     hint: 'Pour une profession libérale, des revenus irréguliers se pilotent avec un prévisionnel et des provisions pour les charges à venir.',
   },
   {
     value: 'commerce',
     label: 'Commerce / artisan',
     icon: 'store',
+    metier: 'commerces-de-proximite',
     hint: 'Pour un commerce, le suivi des marges, des stocks et du personnel est au cœur de la rentabilité.',
   },
   {
     value: 'tpe',
     label: 'Autre TPE',
     icon: 'building',
+    metier: '',
     hint: 'Dans une TPE, chaque heure d’administratif gagnée se transforme en temps pour vos clients et votre développement.',
   },
 ];
 
 export const effectifs = ['Seul(e)', '2 à 5', '6 à 10', 'Plus de 10'];
+
+/* ---------- Chiffrage des enjeux (estimations affichées dans les résultats) ---------- */
+
+/** Chiffre d'affaires annuel : value = milieu de tranche utilisé pour le calcul (null = non communiqué) */
+export const chiffresAffaires: { label: string; value: number | null }[] = [
+  { label: 'Moins de 100 000 €', value: 60000 },
+  { label: '100 000 à 300 000 €', value: 200000 },
+  { label: '300 000 € à 1 M€', value: 600000 },
+  { label: 'Plus de 1 M€', value: 1500000 },
+  { label: 'Je préfère ne pas le dire', value: null },
+];
+/** Jours entre la fin de la prestation et l'envoi de la facture, selon la réponse à « facturation » */
+export const invoiceLagDays = [0, 4, 15, 25];
+/** Délai moyen de paiement des clients en jours, selon la réponse à « delai » */
+export const paymentDays = [25, 38, 60, 45];
+/** Délai de référence : facture envoyée tout de suite et payée à 30 jours */
+export const targetDays = 30;
+/** Semaines travaillées par an et heures par journée (conversion du temps administratif en jours) */
+export const workWeeks = 47;
+export const hoursPerDay = 7;
+
+/* ---------- Bilan offert ---------- */
+
+/** Accroche du bilan selon le domaine le plus faible */
+export const bilanFocus: Record<DomainId, { label: string; pitch: string }> = {
+  tresorerie: {
+    label: 'la trésorerie',
+    pitch: 'En 30 minutes, nous posons ensemble les bases de votre plan de trésorerie et nous repérons l’argent à récupérer en priorité.',
+  },
+  facturation: {
+    label: 'la facturation',
+    pitch: 'En 30 minutes, nous dessinons votre circuit de facturation et de relance pour être payé(e) plus vite, sans y passer vos soirées.',
+  },
+  organisation: {
+    label: 'l’organisation',
+    pitch: 'En 30 minutes, nous repérons les tâches administratives à alléger ou à déléguer en premier pour vous rendre du temps.',
+  },
+  pilotage: {
+    label: 'le pilotage',
+    pitch: 'En 30 minutes, nous choisissons les indicateurs qui comptent vraiment pour votre activité, et une façon simple de les suivre.',
+  },
+};
+
+/** Créneaux proposés pour être rappelé(e) */
+export const creneaux = ['Le matin', 'Le midi', 'L’après-midi', 'En fin de journée'];
 
 /** Niveaux du score global (du plus haut au plus bas) */
 export const levels = [

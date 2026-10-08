@@ -9,7 +9,7 @@ import { Image } from 'astro:assets';
 import Icon from './Icon.astro';
 import nadege from '../assets/images/nadege.jpg';
 import { site } from '../data/site';
-import { activites, domains, effectifs, questions } from '../data/diagnostic';
+import { activites, chiffresAffaires, creneaux, domains, effectifs, questions } from '../data/diagnostic';
 
 const keys = ['A', 'B', 'C', 'D', 'E'];
 const domainOf = (id: string) => domains.find((d) => d.id === id)!;
@@ -192,6 +192,18 @@ const analysisSteps = [
                 ))
               }
             </div>
+            <p class="q-sub">Votre chiffre d’affaires annuel</p>
+            <div class="pills">
+              {
+                chiffresAffaires.map((c, i) => (
+                  <label class="pill">
+                    <input type="radio" name="ca" value={i} />
+                    <span>{c.label}</span>
+                  </label>
+                ))
+              }
+            </div>
+            <p class="q-note"><Icon name="lock" size={14} /> Il sert uniquement à chiffrer vos enjeux et reste confidentiel.</p>
           </fieldset>
 
           {
@@ -351,6 +363,9 @@ const analysisSteps = [
           </div>
           <p class="g-level" data-level></p>
           <p class="g-text" data-level-text></p>
+          <a href="#bilan" class="btn btn--sm g-cta">
+            Réserver mon bilan offert <Icon name="calendar" size={16} />
+          </a>
         </div>
 
         <!-- Radar -->
@@ -382,12 +397,36 @@ const analysisSteps = [
         </div>
       </div>
 
+      <!-- Enjeux chiffrés -->
+      <div class="stakes">
+        <span class="stakes-glow" aria-hidden="true"></span>
+        <p class="stakes-kicker">Ce que votre gestion vous coûte aujourd’hui</p>
+        <div class="stakes-grid">
+          <div class="stake" data-stake="cash">
+            <span class="stake-ic"><Icon name="wallet" size={22} /></span>
+            <span class="stake-num" data-stake-num="cash">–</span>
+            <span class="stake-label" data-stake-label="cash">de trésorerie qui dort chez vos clients</span>
+            <span class="stake-sub" data-stake-sub="cash"></span>
+          </div>
+          <div class="stake" data-stake="time">
+            <span class="stake-ic"><Icon name="clock" size={22} /></span>
+            <span class="stake-num" data-stake-num="time">–</span>
+            <span class="stake-label">de travail par an consacrés à l’administratif</span>
+            <span class="stake-sub" data-stake-sub="time"></span>
+          </div>
+        </div>
+        <p class="stakes-note">
+          Estimations établies à partir de vos réponses : milieu de votre tranche de chiffre d’affaires, délais de
+          facturation et de paiement comparés à une facture envoyée tout de suite et payée à 30 jours, journées de 7 heures.
+        </p>
+      </div>
+
       <!-- Chiffres clés -->
       <ul class="r-kpis">
         <li class="kpi">
-          <span class="kpi-ic"><Icon name="clock" size={20} /></span>
-          <span class="kpi-num" data-kpi="hours">–</span>
-          <span class="kpi-label">par mois consacrées à l’administratif</span>
+          <span class="kpi-ic"><Icon name="flag" size={20} /></span>
+          <span class="kpi-num kpi-num--text" data-kpi="priority">–</span>
+          <span class="kpi-label">domaine prioritaire</span>
         </li>
         <li class="kpi">
           <span class="kpi-ic"><Icon name="checkCircle" size={20} /></span>
@@ -469,8 +508,8 @@ const analysisSteps = [
                 <Icon name="mail" size={18} class="lf-ic" />
               </div>
               <div class="lf">
-                <input type="tel" id="d-tel" name="telephone" autocomplete="tel" inputmode="tel" pattern="[0-9+().\s-]{10,}" placeholder=" " />
-                <label for="d-tel">Téléphone (facultatif)</label>
+                <input type="tel" id="d-tel" name="telephone" autocomplete="tel" inputmode="tel" pattern="[0-9+\(\)\.\s\-]{10,}" placeholder=" " data-lead-tel />
+                <label for="d-tel" data-lead-tel-label>Téléphone (facultatif)</label>
                 <Icon name="phone" size={18} class="lf-ic" />
               </div>
               <div class="lf">
@@ -479,11 +518,24 @@ const analysisSteps = [
                 <Icon name="building" size={18} class="lf-ic" />
               </div>
             </div>
-            <label class="check">
-              <input type="checkbox" name="bilan_offert" value="Oui" />
+            <label class="check check--hl">
+              <input type="checkbox" name="rappel" value="Oui" data-rappel-toggle />
               <span class="check-box"><Icon name="check" size={13} strokeWidth={3.2} /></span>
-              <span>Je souhaite être recontacté(e) pour un <strong>bilan offert de 30 minutes</strong>.</span>
+              <span>Je souhaite être rappelé(e) pour un <strong>bilan offert de 30 minutes</strong>.</span>
             </label>
+            <div class="slots" data-rappel-slots hidden>
+              <p class="slots-title">Quand préférez-vous être appelé(e) ?</p>
+              <div class="pills pills--sm" data-slot-group>
+                {
+                  creneaux.map((c) => (
+                    <label class="pill">
+                      <input type="radio" name="creneau" value={c} />
+                      <span>{c}</span>
+                    </label>
+                  ))
+                }
+              </div>
+            </div>
             <label class="check">
               <input type="checkbox" name="consentement" value="Oui" required />
               <span class="check-box"><Icon name="check" size={13} strokeWidth={3.2} /></span>
@@ -503,35 +555,143 @@ const analysisSteps = [
         </div>
       </div>
 
-      <!-- Après déblocage -->
-      <div class="next" data-next-block hidden>
-        <div class="next-card">
-          <span class="next-glow" aria-hidden="true"></span>
-          <Image src={nadege} alt={site.owner} width={160} height={160} class="next-photo" loading="lazy" />
-          <p class="next-kicker" data-thanks>Merci !</p>
-          <h3>Passons de l’analyse à l’<em>action</em></h3>
-          <p>
-            J’ai bien reçu votre diagnostic. Lors d’un <strong>bilan offert de 30 minutes</strong>, nous passons votre
-            résultat en revue ensemble et nous fixons vos 3 premières actions. Sans engagement.
-          </p>
-          <div class="next-actions">
-            <a href="/#rendez-vous" class="btn btn--soft">
-              Réserver mon bilan offert <Icon name="calendar" size={18} />
-            </a>
-            <button type="button" class="btn btn--outline-light" data-print>
-              <Icon name="printer" size={18} /> Imprimer / PDF
+      <!-- Bilan offert : réservation sans quitter les résultats -->
+      <section class="bilan" id="bilan" aria-labelledby="bilan-title" data-bilan>
+        <div class="bilan-pitch">
+          <span class="bilan-glow" aria-hidden="true"></span>
+          <div class="bilan-who">
+            <Image src={nadege} alt="" width={160} height={160} class="bilan-photo" loading="lazy" />
+            <div>
+              <p class="bilan-kicker" data-bilan-kicker>Bilan offert · 30 minutes</p>
+              <p class="bilan-name">{site.owner}</p>
+            </div>
+          </div>
+          <h3 id="bilan-title" data-bilan-title>Passons de l’analyse à l’<em>action</em></h3>
+          <p class="bilan-text" data-bilan-text></p>
+          <ol class="bilan-steps">
+            <li><span>1</span>On relit votre score ensemble</li>
+            <li><span>2</span>On choisit vos 3 actions prioritaires</li>
+            <li><span>3</span>Vous repartez avec votre plan des 90 jours</li>
+          </ol>
+          <ul class="bilan-facts">
+            <li><Icon name="check" size={14} strokeWidth={3} /> Gratuit</li>
+            <li><Icon name="check" size={14} strokeWidth={3} /> 30 minutes</li>
+            <li><Icon name="check" size={14} strokeWidth={3} /> Visio, téléphone ou sur place</li>
+            <li><Icon name="check" size={14} strokeWidth={3} /> Sans engagement</li>
+          </ul>
+          <figure class="bilan-case" data-bilan-case hidden>
+            <span class="bc-ic"><Icon name="quote" size={18} /></span>
+            <figcaption>
+              <span class="bc-tag">Cas client · <span data-case-tag></span></span>
+              <strong data-case-title></strong>
+              <span class="bc-result" data-case-result></span>
+            </figcaption>
+          </figure>
+        </div>
+
+        <div class="bilan-book">
+          <div class="book-tabs" role="tablist" aria-label="Choisir comment échanger">
+            <button type="button" role="tab" class="book-tab" aria-selected="true" aria-controls="book-agenda" id="tab-agenda" data-book-tab="agenda">
+              <Icon name="calendar" size={17} /> <span class="bt-long">Choisir un créneau</span><span class="bt-short">Agenda</span>
+            </button>
+            <button type="button" role="tab" class="book-tab" aria-selected="false" aria-controls="book-rappel" id="tab-rappel" data-book-tab="rappel" tabindex="-1">
+              <Icon name="phone" size={17} /> <span class="bt-long">Être rappelé(e)</span><span class="bt-short">Rappel</span>
             </button>
           </div>
+
+          <div class="book-panel" id="book-agenda" role="tabpanel" aria-labelledby="tab-agenda" data-book-panel="agenda">
+            <div class="cal-gate" data-cal-gate>
+              <span class="cal-gate-ic"><Icon name="calendar" size={30} /></span>
+              <p class="cal-gate-title">Choisissez votre créneau en 2 clics</p>
+              <p class="cal-gate-text">
+                L’agenda en ligne est fourni par Calendly, qui dépose des cookies. Vos nom, e-mail et résultat sont
+                pré-remplis.
+              </p>
+              <button type="button" class="btn" data-cal-accept>
+                Afficher l’agenda <Icon name="arrowRight" size={17} class="i-arrow" />
+              </button>
+              <a href={site.calendly} target="_blank" rel="noopener" class="cal-direct" data-cal-direct>
+                ou ouvrir l’agenda dans un nouvel onglet
+              </a>
+            </div>
+            <div class="cal-loading" data-cal-loading hidden>
+              <span class="spinner"></span> Chargement de l’agenda…
+            </div>
+            <div class="cal-widget" data-cal-widget></div>
+            <div class="book-done" data-cal-done hidden>
+              <span class="bd-ic"><Icon name="check" size={30} strokeWidth={2.6} /></span>
+              <p class="bd-title">Rendez-vous confirmé !</p>
+              <p class="bd-text">Vous allez recevoir un e-mail de confirmation. J’aurai votre diagnostic sous les yeux : à très vite !</p>
+            </div>
+          </div>
+
+          <div class="book-panel" id="book-rappel" role="tabpanel" aria-labelledby="tab-rappel" data-book-panel="rappel" hidden>
+            <form action={site.formspree} method="POST" class="callback" novalidate data-callback-form>
+              <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" class="hp" aria-hidden="true" />
+              <p class="cb-intro">Laissez votre numéro : je vous rappelle au moment qui vous arrange, sous 24 h ouvrées.</p>
+              <div class="lead-fields cb-fields">
+                <div class="lf" data-cb-identity>
+                  <input type="text" id="cb-nom" name="nom" required autocomplete="name" placeholder=" " />
+                  <label for="cb-nom">Prénom et nom *</label>
+                  <Icon name="user" size={18} class="lf-ic" />
+                </div>
+                <div class="lf" data-cb-identity>
+                  <input type="email" id="cb-email" name="email" required autocomplete="email" placeholder=" " />
+                  <label for="cb-email">Adresse e-mail *</label>
+                  <Icon name="mail" size={18} class="lf-ic" />
+                </div>
+                <div class="lf cb-tel">
+                  <input type="tel" id="cb-tel" name="telephone" required autocomplete="tel" inputmode="tel" pattern="[0-9+\(\)\.\s\-]{10,}" placeholder=" " />
+                  <label for="cb-tel">Téléphone *</label>
+                  <Icon name="phone" size={18} class="lf-ic" />
+                </div>
+              </div>
+              <p class="slots-title">Quand préférez-vous être appelé(e) ? *</p>
+              <div class="pills pills--sm" data-cb-slots>
+                {
+                  creneaux.map((c) => (
+                    <label class="pill">
+                      <input type="radio" name="creneau" value={c} required />
+                      <span>{c}</span>
+                    </label>
+                  ))
+                }
+              </div>
+              <label class="check" data-cb-consent>
+                <input type="checkbox" name="consentement" value="Oui" required />
+                <span class="check-box"><Icon name="check" size={13} strokeWidth={3.2} /></span>
+                <span>
+                  J’accepte que mes réponses et mes coordonnées soient transmises à {site.name} pour être rappelé(e),
+                  conformément à la <a href="/confidentialite.html">politique de confidentialité</a>. *
+                </span>
+              </label>
+              <p class="lead-error" data-cb-error></p>
+              <button type="submit" class="btn lead-btn" data-cb-btn>
+                <span class="spinner" aria-hidden="true"></span>
+                <span data-cb-label>Être rappelé(e)</span>
+                <Icon name="phone" size={17} class="i-arrow" />
+              </button>
+            </form>
+            <div class="book-done" data-cb-done hidden>
+              <span class="bd-ic"><Icon name="check" size={30} strokeWidth={2.6} /></span>
+              <p class="bd-title">C’est noté !</p>
+              <p class="bd-text" data-cb-done-text></p>
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
 
       <div class="r-foot">
-        <a href="/#rendez-vous" class="link-btn" data-direct-cta>
-          <Icon name="calendar" size={16} /> Vous préférez en parler directement ? Réservez un échange gratuit
-        </a>
+        <button type="button" class="link-btn" data-print><Icon name="printer" size={16} /> Imprimer / enregistrer en PDF</button>
         <button type="button" class="link-btn" data-redo><Icon name="arrowLeft" size={16} /> Refaire le diagnostic</button>
       </div>
+
     </div>
+
+    <!-- Raccourci vers le bilan (hors des écrans animés, pour rester fixé en bas de la fenêtre) -->
+    <a href="#bilan" class="r-sticky" data-r-sticky aria-hidden="true" tabindex="-1">
+      <Icon name="calendar" size={18} /> Réserver mon bilan offert
+    </a>
 
     <!-- Icônes réutilisées par le plan d'action (copiées par le script) -->
     <div hidden data-icon-bank>
@@ -549,20 +709,41 @@ const analysisSteps = [
 </section>
 
 <script>
-  import { activites, domains, hoursPerWeek, levels, questions, type DomainId } from '../data/diagnostic';
-  import { site } from '../data/site';
+  import {
+    activites,
+    bilanFocus,
+    chiffresAffaires,
+    domains,
+    hoursPerDay,
+    hoursPerWeek,
+    invoiceLagDays,
+    levels,
+    paymentDays,
+    questions,
+    targetDays,
+    workWeeks,
+    type DomainId,
+  } from '../data/diagnostic';
+  import { cases, site } from '../data/site';
 
   const root = document.querySelector<HTMLElement>('[data-diag]');
   if (root) initDiagnostic(root);
 
+  type Lead = { nom: string; email: string; telephone?: string; entreprise?: string };
   type State = {
     answers: Record<string, number>;
     activite?: string;
     effectif?: string;
+    /** Index de la tranche de chiffre d'affaires */
+    ca?: number;
     index: number;
     done?: boolean;
     unlocked?: boolean;
     name?: string;
+    lead?: Lead;
+    /** Créneau de rappel demandé */
+    rappel?: string;
+    booked?: boolean;
   };
   type Level = 'high' | 'mid' | 'low';
 
@@ -611,6 +792,7 @@ const analysisSteps = [
         s.classList.toggle('is-active', on);
       });
       root.dataset.view = name;
+      updateSticky();
       const top = root.getBoundingClientRect().top + window.scrollY - 110;
       if (Math.abs(window.scrollY - top) > 40 && window.scrollY > top - 400) {
         window.scrollTo({ top: Math.max(0, top), behavior: reduce ? 'auto' : 'smooth' });
@@ -639,8 +821,9 @@ const analysisSteps = [
 
     function reset(start: boolean) {
       run++;
-      const { unlocked, name } = state;
-      state = { answers: {}, index: 0, unlocked, name };
+      // Les coordonnées déjà transmises sont conservées : inutile de les redemander
+      const { unlocked, name, lead } = state;
+      state = { answers: {}, index: 0, unlocked, name, lead };
       quizForm.reset();
       steps.forEach((s) => s.querySelector('[data-tip]')?.classList.remove('is-typing', 'is-shown'));
       save();
@@ -659,7 +842,7 @@ const analysisSteps = [
     const sideItems = $$('[data-side]');
 
     function isAnswered(i: number) {
-      if (i === 0) return !!state.activite && !!state.effectif;
+      if (i === 0) return !!state.activite && !!state.effectif && state.ca !== undefined;
       return state.answers[questions[i - 1].id] !== undefined;
     }
 
@@ -697,7 +880,7 @@ const analysisSteps = [
         const id = item.dataset.side!;
         let done = 0;
         let max = 1;
-        if (id === 'profil') done = state.activite && state.effectif ? 1 : 0;
+        if (id === 'profil') done = isAnswered(0) ? 1 : 0;
         else {
           const qs = questions.filter((q) => q.domain === id);
           max = qs.length;
@@ -716,6 +899,7 @@ const analysisSteps = [
       const i = state.index;
       if (input.name === 'activite') state.activite = input.value;
       else if (input.name === 'effectif') state.effectif = input.value;
+      else if (input.name === 'ca') state.ca = Number(input.value);
       else {
         const first = state.answers[input.name] === undefined;
         state.answers[input.name] = Number(input.value);
@@ -769,6 +953,10 @@ const analysisSteps = [
       if (state.activite) quizForm.querySelector<HTMLInputElement>(`input[name="activite"][value="${state.activite}"]`)!.checked = true;
       if (state.effectif)
         quizForm.querySelectorAll<HTMLInputElement>('input[name="effectif"]').forEach((r) => (r.checked = r.value === state.effectif));
+      if (state.ca !== undefined) {
+        const input = quizForm.querySelector<HTMLInputElement>(`input[name="ca"][value="${state.ca}"]`);
+        if (input) input.checked = true;
+      }
       Object.entries(state.answers).forEach(([id, v]) => {
         const input = quizForm.querySelector<HTMLInputElement>(`input[name="${id}"][value="${v}"]`);
         if (input) input.checked = true;
@@ -797,10 +985,32 @@ const analysisSteps = [
         .filter((x) => x.score !== null && x.score < 3)
         .sort((a, b) => a.score! - b.score! || pctOf(a.q.domain) - pctOf(b.q.domain));
       const strengths = items.filter((x) => x.score === 3);
+
+      // Temps administratif : par mois et en journées de travail par an
       const t = state.answers.temps;
       const hours = t === undefined ? null : Math.round(hoursPerWeek[t] * 4.33);
-      return { items, dom, global, level, todo, strengths, hours, pctOf };
+      const daysYear = t === undefined ? null : Math.round((hoursPerWeek[t] * workWeeks) / hoursPerDay);
+
+      // Trésorerie qui dort chez les clients : jours de chiffre d'affaires au-delà d'une facture
+      // envoyée tout de suite et payée à 30 jours
+      const caValue = state.ca === undefined ? null : (chiffresAffaires[state.ca]?.value ?? null);
+      const lag = invoiceLagDays[state.answers.facturation] ?? 0;
+      const pay = paymentDays[state.answers.delai] ?? targetDays;
+      const totalDays = lag + pay;
+      const extraDays = Math.max(0, totalDays - targetDays);
+      const cash = caValue === null ? null : roundMoney((caValue / 365) * extraDays);
+
+      // Domaine prioritaire : le plus faible, s'il n'est pas déjà un point fort
+      const weakest = [...dom].sort((a, b) => a.pct - b.pct)[0];
+      const priority = weakest.level === 'high' ? null : weakest.d;
+
+      return { items, dom, global, level, todo, strengths, hours, daysYear, cash, totalDays, priority, pctOf };
     }
+    function roundMoney(v: number) {
+      const step = v < 1000 ? 100 : v < 10000 ? 500 : 1000;
+      return Math.round(v / step) * step;
+    }
+    const money = (v: number) => `${new Intl.NumberFormat('fr-FR').format(v)} €`;
     type Result = ReturnType<typeof compute>;
 
     /* ================= Analyse animée ================= */
@@ -814,6 +1024,7 @@ const analysisSteps = [
     function thoughtsFor(r: Result) {
       const s = (id: string) => r.items.find((x) => x.q.id === id)?.score ?? 3;
       const list = ['Je relis vos réponses une à une…'];
+      if (r.cash) list.push('Je chiffre la trésorerie qui dort chez vos clients…');
       if (s('previsionnel') <= 1) list.push('Peu de visibilité sur la trésorerie : je prépare des repères simples…');
       if (s('delai') <= 1) list.push('Des délais de paiement longs : j’en mesure l’effet sur votre trésorerie…');
       if (s('impayes') <= 1) list.push('Des impayés anciens : je regarde comment les récupérer…');
@@ -950,8 +1161,11 @@ const analysisSteps = [
       const act = activites.find((a) => a.value === state.activite);
       $('[data-activity-hint]').textContent = act?.hint ?? '';
 
+      // Enjeux chiffrés
+      fillStakes(r, animate && !reduce);
+
       // Chiffres clés
-      $('[data-kpi="hours"]').textContent = r.hours === null ? '–' : `≈ ${r.hours} h`;
+      $('[data-kpi="priority"]').textContent = r.priority ? r.priority.short : 'Aucun';
       $('[data-kpi="strengths"]').textContent = String(r.strengths.length);
       $('[data-kpi-label="strengths"]').textContent = r.strengths.length > 1 ? 'points forts' : 'point fort';
       $('[data-kpi="todo"]').textContent = String(r.todo.length);
@@ -998,6 +1212,7 @@ const analysisSteps = [
       $('[data-strengths-wrap]').hidden = r.strengths.length === 0;
 
       buildPlan(r);
+      fillBilan(r);
       applyLock(false);
 
       $('.r-title', results).focus({ preventScroll: true });
@@ -1013,10 +1228,87 @@ const analysisSteps = [
       }
     }
 
+    /* ================= Enjeux chiffrés ================= */
+    function countUp(el: HTMLElement, to: number, format: (v: number) => string, delay: number) {
+      const t0 = performance.now() + delay;
+      const ms = 1600;
+      const tick = (now: number) => {
+        const k = Math.max(0, Math.min(1, (now - t0) / ms));
+        el.textContent = format(to * (1 - Math.pow(1 - k, 3)));
+        if (k < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }
+
+    function fillStakes(r: Result, animate: boolean) {
+      const cashBox = $('[data-stake="cash"]');
+      const cashNum = $('[data-stake-num="cash"]');
+      const cashLabel = $('[data-stake-label="cash"]');
+      const cashSub = $('[data-stake-sub="cash"]');
+      cashBox.classList.remove('is-good', 'is-unknown');
+      if (r.cash === null) {
+        cashBox.classList.add('is-unknown');
+        cashNum.textContent = `${r.totalDays} jours`;
+        cashLabel.textContent = 'entre la fin de votre prestation et le paiement';
+        cashSub.textContent = 'Indiquez votre chiffre d’affaires pour estimer le montant en euros.';
+      } else if (r.cash === 0) {
+        cashBox.classList.add('is-good');
+        cashNum.textContent = `${r.totalDays} jours`;
+        cashLabel.textContent = 'entre la fin de votre prestation et le paiement';
+        cashSub.textContent = 'Bravo : vous êtes payé(e) rapidement, votre trésorerie n’est pas freinée.';
+      } else {
+        cashLabel.textContent = 'de trésorerie qui dort chez vos clients';
+        cashSub.textContent = `Environ ${r.totalDays} jours entre la fin de votre prestation et le paiement : ramenés à ${targetDays} jours, c’est autant d’argent disponible.`;
+        if (animate) countUp(cashNum, r.cash, (v) => `≈ ${money(roundMoney(v))}`, 900);
+        else cashNum.textContent = `≈ ${money(r.cash)}`;
+      }
+
+      const timeNum = $('[data-stake-num="time"]');
+      $('[data-stake="time"]').hidden = r.daysYear === null;
+      if (r.daysYear !== null) {
+        $('[data-stake-sub="time"]').textContent = `Soit environ ${r.hours} heures par mois, souvent prises sur vos soirées ou sur votre activité.`;
+        const fmt = (v: number) => `≈ ${Math.round(v)} jours`;
+        if (animate) countUp(timeNum, r.daysYear, fmt, 1100);
+        else timeNum.textContent = fmt(r.daysYear);
+      }
+    }
+
+    /* ================= Bilan offert ================= */
+    function fillBilan(r: Result) {
+      const title = $('[data-bilan-title]');
+      if (r.priority) {
+        const f = bilanFocus[r.priority.id];
+        title.innerHTML = `Votre priorité : <em>${f.label}</em>`;
+        $('[data-bilan-text]').textContent = f.pitch;
+      } else {
+        title.innerHTML = 'Passons de l’analyse à l’<em>action</em>';
+        $('[data-bilan-text]').textContent =
+          'Votre gestion est solide. En 30 minutes, nous regardons ce qui peut encore vous faire gagner du temps, et ce que vous pourriez déléguer.';
+      }
+      $('[data-bilan-kicker]').textContent = state.unlocked
+        ? `${state.name ? `Merci ${state.name} !` : 'Merci !'} Votre plan est débloqué`
+        : 'Bilan offert · 30 minutes';
+
+      // Cas client : même métier et même priorité si possible, sinon même métier, sinon même priorité
+      const metier = activites.find((a) => a.value === state.activite)?.metier;
+      const focus = r.priority?.id;
+      const pick =
+        cases.find((c) => c.metier === metier && c.focus === focus) ??
+        cases.find((c) => !!metier && c.metier === metier) ??
+        cases.find((c) => c.focus === focus);
+      $('[data-bilan-case]').hidden = !pick;
+      if (pick) {
+        $('[data-case-tag]').textContent = pick.tag;
+        $('[data-case-title]').textContent = pick.title;
+        $('[data-case-result]').textContent = pick.result;
+      }
+
+      refreshBooking();
+    }
+
     /* ================= Plan d'action ================= */
     const plan = $('[data-plan]');
     const lock = $('[data-lock]');
-    const nextBlock = $('[data-next-block]');
 
     function buildPlan(r: Result) {
       const sub = $('[data-plan-sub]');
@@ -1079,9 +1371,9 @@ const analysisSteps = [
           ? `Débloquez ${hidden > 1 ? `les ${hidden} autres recommandations` : 'la seconde recommandation'} de votre plan`
           : 'Recevez votre plan d’action et un bilan offert';
       lock.hidden = !locked;
-      nextBlock.hidden = locked;
-      $('[data-direct-cta]').hidden = !locked;
-      if (!locked) $('[data-thanks]').textContent = state.name ? `Merci ${state.name} !` : 'Merci !';
+      if (!locked)
+        $('[data-bilan-kicker]').textContent = `${state.name ? `Merci ${state.name} !` : 'Merci !'} Votre plan est débloqué`;
+      refreshBooking();
       if (animated) {
         root.classList.add('just-unlocked');
         window.setTimeout(() => root.classList.remove('just-unlocked'), 2400);
@@ -1093,39 +1385,109 @@ const analysisSteps = [
     const leadBtn = $<HTMLButtonElement>('[data-lead-btn]');
     const leadError = $('[data-lead-error]');
 
+    /** Fiche d'appel placée en tête de l'e-mail reçu par Nadège : de quoi rappeler sans préparation */
+    function callSheet(r: Result, contact: Lead, rappel?: string) {
+      const prenom = contact.nom.split(/\s+/)[0];
+      const p1 = r.todo[0]?.q.reco.title;
+      const sujet = p1 ? p1.charAt(0).toLowerCase() + p1.slice(1) : 'gagner encore du temps sur l’administratif';
+      return [
+        rappel
+          ? `☎ RAPPEL DEMANDÉ : ${rappel.toLowerCase()}, au ${contact.telephone}`
+          : contact.telephone
+            ? `☎ Téléphone : ${contact.telephone}`
+            : '✉ Pas de téléphone : répondre par e-mail',
+        `Accroche : « Bonjour ${prenom}, ${site.owner}, de ${site.name}. J’ai bien reçu votre diagnostic de gestion (${r.global}/100). Ce qui ressort en priorité, c’est : ${sujet}. Avez-vous quelques minutes pour qu’on en parle ? »`,
+        r.cash ? `Enjeu chiffré : ≈ ${money(r.cash)} de trésorerie qui dort chez ses clients (≈ ${r.totalDays} jours entre prestation et paiement)` : '',
+        r.daysYear !== null ? `Temps administratif : ≈ ${r.hours} h par mois, soit ≈ ${r.daysYear} jours par an` : '',
+        `Points forts à valoriser : ${r.strengths.map((x) => x.q.strength).join(', ') || 'aucun'}`,
+        `Priorités : ${r.todo.slice(0, 3).map((x, k) => `${k + 1}. ${x.q.reco.title}`).join(' · ') || 'aucune'}`,
+      ]
+        .filter(Boolean)
+        .join('\n');
+    }
+
+    /** Données envoyées à Formspree (fiche d'appel en premier, puis le détail du diagnostic) */
+    function buildPayload(r: Result, contact: Lead, opts: { rappel?: string; event?: string; gotcha?: string }) {
+      const act = activites.find((a) => a.value === state.activite);
+      const ca = state.ca === undefined ? '' : chiffresAffaires[state.ca].label;
+      const hot = !!opts.rappel || r.global < 50;
+      const prefix = opts.event
+        ? opts.event
+        : opts.rappel
+          ? `🔥 À rappeler (${opts.rappel.toLowerCase()})`
+          : hot
+            ? '🔥 Contact à relancer vite'
+            : 'Diagnostic';
+      const data = new FormData();
+      data.set('_subject', `${prefix} — ${contact.nom} — ${r.global}/100`);
+      data.set('_gotcha', opts.gotcha ?? '');
+      data.set('fiche_appel', callSheet(r, contact, opts.rappel));
+      data.set('nom', contact.nom);
+      data.set('email', contact.email);
+      data.set('telephone', contact.telephone ?? '');
+      data.set('entreprise', contact.entreprise ?? '');
+      data.set('rappel', opts.rappel ? `Oui — ${opts.rappel}` : 'Non');
+      data.set('origine', 'Diagnostic de gestion en ligne');
+      data.set('activite', act?.label ?? '');
+      data.set('effectif', state.effectif ?? '');
+      data.set('chiffre_affaires', ca);
+      data.set('score_global', `${r.global}/100 — ${r.level.label}`);
+      r.dom.forEach((x) => data.set(`score_${x.d.id}`, `${x.pct} % (${levelLabel[x.level]})`));
+      data.set('tresorerie_immobilisee', r.cash === null ? 'CA non communiqué' : `≈ ${money(r.cash)}`);
+      data.set('temps_admin', r.daysYear === null ? '' : `≈ ${r.hours} h/mois (≈ ${r.daysYear} jours/an)`);
+      data.set('reponses', r.items.map((x) => `• ${x.q.text}\n   → ${x.answer}`).join('\n'));
+      data.set('consentement', 'Oui');
+      return data;
+    }
+
+    async function post(data: FormData) {
+      const res = await fetch(site.formspree, { method: 'POST', body: data, headers: { Accept: 'application/json' } });
+      if (!res.ok) throw new Error('Envoi refusé');
+    }
+
+    // Rappel demandé : le téléphone devient obligatoire et les créneaux apparaissent
+    const rappelToggle = $<HTMLInputElement>('[data-rappel-toggle]');
+    const leadTel = $<HTMLInputElement>('[data-lead-tel]');
+    const leadSlots = $('[data-rappel-slots]');
+    rappelToggle.addEventListener('change', () => {
+      const on = rappelToggle.checked;
+      leadSlots.hidden = !on;
+      leadTel.required = on;
+      $('[data-lead-tel-label]').textContent = on ? 'Téléphone *' : 'Téléphone (facultatif)';
+      leadSlots.querySelectorAll<HTMLInputElement>('input').forEach((i) => (i.required = on));
+    });
+
     lead.addEventListener('submit', async (e) => {
       e.preventDefault();
       lead.classList.add('was-validated');
       if (!lead.checkValidity()) {
-        leadError.textContent = 'Merci d’indiquer votre nom, une adresse e-mail valide et d’accepter la transmission de vos réponses.';
+        leadError.textContent = rappelToggle.checked
+          ? 'Merci d’indiquer votre nom, votre e-mail, votre téléphone, un créneau de rappel et d’accepter la transmission de vos réponses.'
+          : 'Merci d’indiquer votre nom, une adresse e-mail valide et d’accepter la transmission de vos réponses.';
         leadError.classList.add('is-visible');
         lead.querySelector<HTMLElement>('input:invalid')?.focus();
         return;
       }
       leadError.classList.remove('is-visible');
       const r = compute();
-      const data = new FormData(lead);
-      const nom = String(data.get('nom') ?? '').trim();
-      const act = activites.find((a) => a.value === state.activite);
-      data.set('_subject', `Diagnostic — ${nom} — ${r.global}/100 (${r.level.label})`);
-      data.set('origine', 'Diagnostic de gestion en ligne');
-      data.set('activite', act?.label ?? '');
-      data.set('effectif', state.effectif ?? '');
-      data.set('score_global', `${r.global}/100 — ${r.level.label}`);
-      r.dom.forEach((x) => data.set(`score_${x.d.id}`, `${x.pct} % (${levelLabel[x.level]})`));
-      data.set('heures_admin_par_mois', r.hours === null ? '' : `≈ ${r.hours} h`);
-      data.set('priorites', r.todo.slice(0, 3).map((x, k) => `${k + 1}. ${x.q.reco.title}`).join(' · ') || 'Aucune');
-      data.set('reponses', r.items.map((x) => `• ${x.q.text}\n   → ${x.answer}`).join('\n'));
-      if (!data.get('bilan_offert')) data.set('bilan_offert', 'Non');
+      const form = new FormData(lead);
+      const contact: Lead = {
+        nom: String(form.get('nom') ?? '').trim(),
+        email: String(form.get('email') ?? '').trim(),
+        telephone: String(form.get('telephone') ?? '').trim(),
+        entreprise: String(form.get('entreprise') ?? '').trim(),
+      };
+      const rappel = rappelToggle.checked ? String(form.get('creneau') ?? '') : undefined;
 
       leadBtn.disabled = true;
       leadBtn.classList.add('is-loading');
       $('[data-lead-label]').textContent = 'Envoi en cours…';
       try {
-        const res = await fetch(lead.action, { method: 'POST', body: data, headers: { Accept: 'application/json' } });
-        if (!res.ok) throw new Error('Envoi refusé');
+        await post(buildPayload(r, contact, { rappel, gotcha: String(form.get('_gotcha') ?? '') }));
         state.unlocked = true;
-        state.name = nom.split(/\s+/)[0];
+        state.name = contact.nom.split(/\s+/)[0];
+        state.lead = contact;
+        if (rappel) state.rappel = rappel;
         save();
         lock.classList.add('is-opening');
         await wait(reduce ? 0 : 700);
@@ -1141,6 +1503,232 @@ const analysisSteps = [
         $('[data-lead-label]').textContent = 'Débloquer mon plan d’action';
       }
     });
+
+    /* ================= Réservation : onglets ================= */
+    const tabs = $$<HTMLButtonElement>('[data-book-tab]');
+    function selectTab(name: string, focus = false) {
+      tabs.forEach((t) => {
+        const on = t.dataset.bookTab === name;
+        t.setAttribute('aria-selected', String(on));
+        t.tabIndex = on ? 0 : -1;
+        if (on && focus) t.focus();
+      });
+      $$('[data-book-panel]').forEach((p) => (p.hidden = p.dataset.bookPanel !== name));
+      if (name === 'agenda' && consent() === 'accepted') loadCalendly();
+    }
+    tabs.forEach((t) => t.addEventListener('click', () => selectTab(t.dataset.bookTab!)));
+    $('.book-tabs').addEventListener('keydown', (e) => {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      const current = tabs.findIndex((t) => t.getAttribute('aria-selected') === 'true');
+      selectTab(tabs[(current + 1) % tabs.length].dataset.bookTab!, true);
+    });
+
+    /* ================= Réservation : agenda Calendly ================= */
+    const CONSENT_KEY = 'sgc_cookie_consent'; // géré par CookieBanner.astro
+    const calGate = $('[data-cal-gate]');
+    const calLoading = $('[data-cal-loading]');
+    const calWidget = $('[data-cal-widget]');
+    const calDone = $('[data-cal-done]');
+    let calState: 'idle' | 'loading' | 'ready' = 'idle';
+    let calUrl = '';
+
+    function consent() {
+      try {
+        return localStorage.getItem(CONSENT_KEY);
+      } catch {
+        return null;
+      }
+    }
+
+    /** Lien Calendly pré-rempli : nom, e-mail et résumé du diagnostic (1re question personnalisée de l'évènement) */
+    function calendlyUrl() {
+      const r = compute();
+      const p1 = r.todo[0]?.q.reco.title;
+      const params: Record<string, string> = { hide_gdpr_banner: '1', primary_color: '61193a' };
+      if (state.lead) {
+        params.name = state.lead.nom;
+        params.email = state.lead.email;
+      }
+      params.a1 =
+        `Diagnostic en ligne : ${r.global}/100 (${r.level.label})` +
+        (p1 ? ` · Priorité : ${p1}` : '') +
+        (r.cash ? ` · Trésorerie immobilisée ≈ ${money(r.cash)}` : '');
+      // encodeURIComponent (espaces en %20) : Calendly affiche tels quels les « + » de URLSearchParams
+      const query = Object.entries(params)
+        .map(([k, v]) => `${k}=${encodeURIComponent(v)}`)
+        .join('&');
+      return `${site.calendly}${site.calendly.includes('?') ? '&' : '?'}${query}`;
+    }
+
+    function loadScript() {
+      const w = window as unknown as { Calendly?: unknown };
+      if (w.Calendly) return Promise.resolve();
+      return new Promise<void>((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = 'https://assets.calendly.com/assets/external/widget.js';
+        s.async = true;
+        s.onload = () => resolve();
+        s.onerror = () => reject(new Error('Calendly indisponible'));
+        document.head.append(s);
+      });
+    }
+
+    async function loadCalendly() {
+      if (state.booked || root.dataset.view !== 'results') return;
+      const url = calendlyUrl();
+      if (calState !== 'idle' && url === calUrl) return;
+      calUrl = url;
+      calState = 'loading';
+      calGate.hidden = true;
+      calLoading.hidden = false;
+      try {
+        await loadScript();
+        calWidget.replaceChildren();
+        (window as unknown as { Calendly: { initInlineWidget: (o: object) => void } }).Calendly.initInlineWidget({
+          url,
+          parentElement: calWidget,
+        });
+        calState = 'ready';
+        root.classList.add('cal-ready');
+      } catch {
+        calState = 'idle';
+        calGate.hidden = false;
+      } finally {
+        calLoading.hidden = true;
+      }
+    }
+
+    /** Met à jour l'onglet agenda et le formulaire de rappel selon ce que l'on sait déjà */
+    function refreshBooking() {
+      $<HTMLAnchorElement>('[data-cal-direct]').href = calendlyUrl();
+      if (state.booked) {
+        calGate.hidden = true;
+        calWidget.hidden = true;
+        calDone.hidden = false;
+      } else if (calState === 'ready') loadCalendly(); // recharge l'agenda pré-rempli si les coordonnées viennent d'arriver
+      refreshCallback();
+    }
+
+    $('[data-cal-accept]').addEventListener('click', () => {
+      window.dispatchEvent(new CustomEvent('sgc:consent-request', { detail: 'accepted' }));
+      loadCalendly();
+    });
+    window.addEventListener('sgc:consent', (e) => {
+      if ((e as CustomEvent).detail === 'accepted' && !$('[data-book-panel="agenda"]').hidden) loadCalendly();
+    });
+
+    // Rendez-vous réservé dans l'agenda : confirmation et, si l'on a déjà les coordonnées, prévenir Nadège
+    window.addEventListener('message', (e) => {
+      if (!/(^|\.)calendly\.com$/.test(new URL(e.origin || 'null', location.href).hostname)) return;
+      const data = e.data as { event?: string } | null;
+      if (data?.event !== 'calendly.event_scheduled') return;
+      state.booked = true;
+      save();
+      refreshBooking();
+      if (state.lead) post(buildPayload(compute(), state.lead, { event: '📅 Bilan réservé' })).catch(() => {});
+    });
+
+    /* ================= Réservation : être rappelé(e) ================= */
+    const callback = $<HTMLFormElement>('[data-callback-form]');
+    const cbError = $('[data-cb-error]');
+    const cbBtn = $<HTMLButtonElement>('[data-cb-btn]');
+
+    function refreshCallback() {
+      const known = !!state.lead;
+      // Coordonnées déjà transmises : seul le téléphone et le créneau sont demandés
+      $$('[data-cb-identity]', callback).forEach((f) => {
+        f.hidden = known;
+        f.querySelector('input')!.required = !known;
+      });
+      const consentBox = $('[data-cb-consent]', callback);
+      consentBox.hidden = known;
+      consentBox.querySelector('input')!.required = !known;
+      if (known) {
+        $<HTMLInputElement>('#cb-nom', callback).value = state.lead!.nom;
+        $<HTMLInputElement>('#cb-email', callback).value = state.lead!.email;
+        const tel = $<HTMLInputElement>('#cb-tel', callback);
+        if (!tel.value && state.lead!.telephone) tel.value = state.lead!.telephone;
+      }
+      const done = !!state.rappel;
+      callback.hidden = done;
+      $('[data-cb-done]').hidden = !done;
+      if (done) {
+        const tel = state.lead?.telephone;
+        $('[data-cb-done-text]').textContent =
+          `Je vous rappelle ${state.rappel!.toLowerCase()}${tel ? ` au ${tel}` : ''}, sous 24 h ouvrées. J’aurai votre diagnostic sous les yeux.`;
+      }
+    }
+
+    callback.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      callback.classList.add('was-validated');
+      if (!callback.checkValidity()) {
+        cbError.textContent = 'Merci de compléter les champs obligatoires et de choisir un créneau.';
+        cbError.classList.add('is-visible');
+        callback.querySelector<HTMLElement>('input:invalid')?.focus();
+        return;
+      }
+      cbError.classList.remove('is-visible');
+      const form = new FormData(callback);
+      const contact: Lead = {
+        ...(state.lead ?? {}),
+        nom: String(form.get('nom') ?? '').trim(),
+        email: String(form.get('email') ?? '').trim(),
+        telephone: String(form.get('telephone') ?? '').trim(),
+      };
+      const rappel = String(form.get('creneau') ?? '');
+      cbBtn.disabled = true;
+      cbBtn.classList.add('is-loading');
+      $('[data-cb-label]').textContent = 'Envoi en cours…';
+      try {
+        await post(buildPayload(compute(), contact, { rappel, gotcha: String(form.get('_gotcha') ?? '') }));
+        const wasLocked = !state.unlocked;
+        state.lead = contact;
+        state.rappel = rappel;
+        state.unlocked = true;
+        state.name = contact.nom.split(/\s+/)[0];
+        save();
+        applyLock(wasLocked);
+      } catch {
+        cbError.textContent = `L’envoi n’a pas abouti. Merci de réessayer, ou écrivez-moi à ${site.emailLabel}.`;
+        cbError.classList.add('is-visible');
+      } finally {
+        cbBtn.disabled = false;
+        cbBtn.classList.remove('is-loading');
+        $('[data-cb-label]').textContent = 'Être rappelé(e)';
+      }
+    });
+
+    /* ================= Raccourci « Réserver mon bilan » ================= */
+    const sticky = $('[data-r-sticky]');
+    const bilan = $('[data-bilan]');
+    const gaugeCard = $('.r-gauge');
+    // Visible une fois la jauge dépassée, masqué dès que la section du bilan est à l'écran
+    function updateSticky() {
+      let show = false;
+      if (root.dataset.view === 'results') {
+        const b = bilan.getBoundingClientRect();
+        const bilanSeen = b.top < window.innerHeight && b.bottom > 0;
+        show = gaugeCard.getBoundingClientRect().bottom < 0 && !bilanSeen;
+      }
+      sticky.classList.toggle('is-visible', show);
+    }
+    let stickyTick = 0;
+    window.addEventListener(
+      'scroll',
+      () => {
+        cancelAnimationFrame(stickyTick);
+        stickyTick = requestAnimationFrame(updateSticky);
+      },
+      { passive: true },
+    );
+    // L'agenda se charge quand la section approche (si les cookies Calendly sont acceptés)
+    new IntersectionObserver(
+      ([en]) => {
+        if (en.isIntersecting && consent() === 'accepted' && !$('[data-book-panel="agenda"]').hidden) loadCalendly();
+      },
+      { rootMargin: '400px 0px' },
+    ).observe(bilan);
 
     $('[data-print]').addEventListener('click', () => window.print());
     $('[data-redo]').addEventListener('click', () => reset(true));
@@ -3412,78 +4000,564 @@ const analysisSteps = [
       transform: translateY(10px);
     }
   }
-  .next {
-    margin-top: 1.6rem;
+  /* Profil : précision sous le chiffre d'affaires */
+  .q-note {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    margin-top: 0.7rem;
+    font-size: 0.8rem;
+    color: var(--muted);
   }
-  .next[hidden] {
+
+  /* Bouton sous la jauge */
+  .g-cta {
+    margin-top: 1.1rem;
+    opacity: 0;
+    translate: 0 8px;
+    transition:
+      opacity 0.5s 0.4s,
+      translate 0.5s var(--ease-out) 0.4s;
+  }
+  .s-results.gauge-done .g-cta {
+    opacity: 1;
+    translate: none;
+  }
+
+  /* ============ Enjeux chiffrés ============ */
+  .stakes {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    margin-top: 1.25rem;
+    padding: clamp(1.6rem, 4vw, 2.4rem) clamp(1.2rem, 4vw, 2.4rem) 1.4rem;
+    border-radius: var(--radius-xl);
+    text-align: center;
+    color: #fff;
+    background: linear-gradient(135deg, var(--blue-700), var(--blue-950));
+    opacity: 0;
+    translate: 0 16px;
+    transition:
+      opacity 0.7s 0.5s,
+      translate 0.7s var(--ease-out) 0.5s;
+  }
+  .s-results.is-animated .stakes {
+    opacity: 1;
+    translate: none;
+  }
+  .stakes-glow {
+    position: absolute;
+    z-index: -1;
+    top: -60%;
+    right: -10%;
+    width: 55%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: rgb(246 181 91 / 0.25);
+    filter: blur(70px);
+  }
+  .stakes-kicker {
+    font-size: 0.76rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--apricot);
+  }
+  .stakes-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin-top: 1.2rem;
+  }
+  .stakes-grid:has(.stake[hidden]) {
+    grid-template-columns: minmax(0, 32rem);
+    justify-content: center;
+  }
+  .stake {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.3rem 1rem;
+    border-radius: 22px;
+    background: rgb(255 255 255 / 0.07);
+    border: 1px solid rgb(255 255 255 / 0.14);
+  }
+  .stake[hidden] {
     display: none;
   }
-  .next-card {
+  .stake-ic {
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    color: var(--ink);
+    background: var(--apricot);
+  }
+  .stake-num {
+    margin-top: 0.7rem;
+    font-family: var(--font-display);
+    font-size: clamp(2.3rem, 4.6vw, 3.2rem);
+    line-height: 1.05;
+    font-variant-numeric: tabular-nums;
+    color: #fff;
+  }
+  .stake-label {
+    margin-top: 0.3rem;
+    font-weight: 700;
+    color: #fff;
+  }
+  .stake-sub {
+    max-width: 24rem;
+    margin-top: 0.5rem;
+    font-size: 0.86rem;
+    line-height: 1.5;
+    color: rgb(255 255 255 / 0.8);
+  }
+  .stake.is-good .stake-ic {
+    color: #fff;
+    background: rgb(255 255 255 / 0.18);
+  }
+  .stakes-note {
+    max-width: 44rem;
+    margin: 1.1rem auto 0;
+    font-size: 0.74rem;
+    line-height: 1.5;
+    color: rgb(255 255 255 / 0.62);
+  }
+  .kpi-num--text {
+    font-size: 1.55rem;
+  }
+
+  /* ============ Formulaire : rappel ============ */
+  .check--hl {
+    padding: 0.75rem 0.9rem;
+    border-radius: 14px;
+    background: var(--rose-100);
+    border: 1px solid var(--rose-200);
+  }
+  .slots {
+    margin-top: 0.8rem;
+    animation: tip-in 0.4s var(--ease-out) both;
+  }
+  .slots[hidden] {
+    display: none;
+  }
+  .slots-title {
+    margin: 0.2rem 0 0.6rem;
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+  .pills--sm .pill span {
+    padding: 0.5rem 0.9rem;
+    font-size: 0.86rem;
+  }
+  .lead.was-validated .slots .pills:not(:has(input:checked)),
+  .callback.was-validated [data-cb-slots]:not(:has(input:checked)) {
+    padding: 0.35rem;
+    border-radius: 24px;
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--danger) 55%, transparent);
+  }
+
+  /* ============ Bilan offert ============ */
+  .bilan {
+    display: grid;
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+    margin-top: 2.2rem;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-lg);
+    scroll-margin-top: calc(var(--header-h) + 16px);
+  }
+  .bilan-pitch {
     position: relative;
     isolation: isolate;
     overflow: hidden;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: clamp(2rem, 5vw, 3.2rem) clamp(1.4rem, 4vw, 3rem);
-    border-radius: var(--radius-xl);
+    padding: clamp(1.8rem, 4vw, 2.8rem);
     text-align: center;
     color: #fff;
-    background: linear-gradient(140deg, var(--blue-700), var(--blue-950));
-    animation: diag-screen 0.8s var(--ease-out) both;
+    background: linear-gradient(150deg, var(--blue-700), var(--blue-950));
   }
-  .next-glow {
+  .bilan-glow {
     position: absolute;
-    inset: auto -20% -60% auto;
     z-index: -1;
-    width: 70%;
+    bottom: -40%;
+    left: -20%;
+    width: 80%;
     aspect-ratio: 1;
     border-radius: 50%;
-    background: rgb(246 181 91 / 0.28);
+    background: rgb(246 181 91 / 0.22);
     filter: blur(70px);
   }
-  .next-photo {
-    width: 88px;
-    height: 88px;
+  .bilan-who {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    text-align: left;
+  }
+  .bilan-photo {
+    flex: none;
+    width: 64px;
+    height: 64px;
     border-radius: 50%;
     object-fit: cover;
     object-position: 51% 28%;
     border: 3px solid var(--apricot);
   }
-  .next-kicker {
-    margin-top: 1rem;
-    font-size: 0.78rem;
+  .bilan-kicker {
+    font-size: 0.74rem;
     font-weight: 800;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--apricot);
   }
-  .next-card h3 {
-    margin-top: 0.4rem;
-    font-size: clamp(1.7rem, 3.4vw, 2.3rem);
+  .bilan-name {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
     color: #fff;
   }
-  .next-card h3 em {
+  .bilan-pitch h3 {
+    margin-top: 1.3rem;
+    font-size: clamp(1.7rem, 3.2vw, 2.3rem);
+    line-height: 1.15;
+    color: #fff;
+  }
+  .bilan-pitch h3 em {
     font-style: italic;
     font-synthesis: style;
     text-transform: uppercase;
     font-size: 0.86em;
     color: var(--apricot);
   }
-  .next-card p {
-    max-width: 34rem;
+  .bilan-text {
+    max-width: 30rem;
     margin-top: 0.8rem;
     color: rgb(255 255 255 / 0.92);
   }
-  .next-card p strong {
-    color: #fff;
+  .bilan-steps {
+    display: grid;
+    gap: 0.5rem;
+    width: min(100%, 22rem);
+    margin-top: 1.4rem;
+    text-align: left;
   }
-  .next-actions {
+  .bilan-steps li {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.55rem 0.8rem;
+    border-radius: 14px;
+    font-weight: 700;
+    color: #fff;
+    background: rgb(255 255 255 / 0.07);
+    border: 1px solid rgb(255 255 255 / 0.12);
+  }
+  .bilan-steps li span {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--ink);
+    background: var(--apricot);
+  }
+  .bilan-facts {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 0.7rem;
-    margin-top: 1.6rem;
+    gap: 0.4rem 0.9rem;
+    margin-top: 1.2rem;
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: rgb(255 255 255 / 0.9);
+  }
+  .bilan-facts li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+  .bilan-facts svg {
+    color: var(--apricot);
+  }
+  .bilan-case {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    width: min(100%, 26rem);
+    margin: 1.4rem 0 0;
+    padding: 0.8rem 1rem;
+    border-radius: 16px;
+    text-align: left;
+    color: var(--ink);
+    background: #fff;
+  }
+  .bilan-case[hidden] {
+    display: none;
+  }
+  .bc-ic {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    color: var(--blue-700);
+    background: var(--rose-100);
+  }
+  .bilan-case figcaption {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.86rem;
+    line-height: 1.35;
+  }
+  .bc-tag {
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--terra-700);
+  }
+  .bilan-case strong {
+    color: var(--blue-700);
+  }
+  .bc-result {
+    font-weight: 700;
+  }
+
+  /* Réservation */
+  .bilan-book {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding: clamp(1.2rem, 3vw, 1.8rem);
+  }
+  .book-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.3rem;
+    padding: 0.3rem;
+    border-radius: 999px;
+    background: var(--blue-50);
+  }
+  .book-tab {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.7rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--muted);
+    transition:
+      background 0.3s,
+      color 0.3s,
+      box-shadow 0.3s;
+  }
+  .bt-short {
+    display: none;
+  }
+  .book-tab[aria-selected='true'] {
+    color: #fff;
+    background: var(--blue-700);
+    box-shadow: 0 8px 18px -10px rgb(97 25 58 / 0.7);
+  }
+  .book-tab:focus-visible {
+    outline: 2.5px solid var(--blue-700);
+    outline-offset: 2px;
+  }
+  .book-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    margin-top: 1rem;
+    animation: tip-in 0.4s var(--ease-out) both;
+  }
+  .book-panel[hidden],
+  .cal-gate[hidden],
+  .cal-loading[hidden],
+  .book-done[hidden],
+  .cal-widget[hidden],
+  .callback[hidden],
+  .lf[hidden],
+  .check[hidden] {
+    display: none;
+  }
+  .cal-gate {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    min-height: 420px;
+    padding: 1.5rem 1rem;
+    border-radius: 22px;
+    text-align: center;
+    background:
+      radial-gradient(60% 50% at 50% 0%, rgb(246 181 91 / 0.18), transparent 70%),
+      var(--cream);
+    border: 1px dashed var(--sand-300);
+  }
+  .cal-gate-ic {
+    display: grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 20px;
+    color: #fff;
+    background: linear-gradient(135deg, var(--blue-700), var(--blue-900));
+    box-shadow: 0 16px 30px -14px rgb(97 25 58 / 0.7);
+  }
+  .cal-gate-title {
+    margin-top: 0.4rem;
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    color: var(--blue-700);
+  }
+  .cal-gate-text {
+    max-width: 24rem;
+    font-size: 0.88rem;
+    color: var(--muted);
+  }
+  .cal-gate .btn {
+    margin-top: 0.4rem;
+  }
+  .cal-direct {
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: var(--blue-700);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .cal-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    min-height: 420px;
+    font-weight: 700;
+    color: var(--blue-700);
+  }
+  .cal-loading .spinner {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid rgb(97 25 58 / 0.2);
+    border-top-color: var(--blue-700);
+    animation: an-rotate 0.8s linear infinite;
+  }
+  .cal-widget:not(:empty) {
+    height: 680px;
+    border-radius: 18px;
+    overflow: hidden;
+  }
+  .book-done {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 320px;
+    padding: 1.5rem;
+    text-align: center;
+    animation: diag-screen 0.6s var(--ease-out) both;
+  }
+  .bd-ic {
+    display: grid;
+    place-items: center;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    color: #fff;
+    background: var(--blue-700);
+    box-shadow: 0 0 0 8px var(--rose-100);
+    animation: ans-pop 0.6s var(--ease-spring);
+  }
+  .bd-title {
+    margin-top: 0.6rem;
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    color: var(--blue-700);
+  }
+  .bd-text {
+    max-width: 24rem;
+    color: var(--muted);
+  }
+  .callback {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .cb-intro {
+    max-width: 28rem;
+    color: var(--muted);
+  }
+  .cb-fields {
+    width: 100%;
+    margin-top: 1rem;
+  }
+  .cb-tel {
+    grid-column: 1 / -1;
+  }
+  .callback .slots-title {
+    margin-top: 1.1rem;
+  }
+  .callback .lead-btn {
+    margin-top: 1.1rem;
+  }
+  .callback.was-validated .lf input:invalid {
+    border-color: var(--danger);
+    background: var(--danger-bg);
+  }
+  .callback.was-validated .check input:invalid + .check-box {
+    border-color: var(--danger);
+    background: var(--danger-bg);
+  }
+
+  /* Raccourci flottant vers le bilan */
+  .r-sticky {
+    position: fixed;
+    left: 50%;
+    bottom: calc(1rem + env(safe-area-inset-bottom));
+    z-index: 55;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.85rem 1.4rem;
+    border-radius: 999px;
+    font-weight: 800;
+    color: var(--ink);
+    background: var(--apricot);
+    box-shadow: 0 16px 34px -12px rgb(42 9 22 / 0.55);
+    translate: -50% 160%;
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      translate 0.5s var(--ease-out),
+      opacity 0.3s;
+  }
+  .r-sticky.is-visible {
+    translate: -50% 0;
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .r-sticky:hover {
+    background: var(--terra-300);
   }
 
   .r-foot {
@@ -3536,7 +4610,8 @@ const analysisSteps = [
     .act-grid {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
-    .r-top {
+    .r-top,
+    .bilan {
       grid-template-columns: 1fr;
     }
   }
@@ -3716,10 +4791,39 @@ const analysisSteps = [
     .diag.is-locked .plan-list {
       max-height: 30rem;
     }
-    .next-actions,
-    .next-actions .btn {
-      width: 100%;
+    .stakes-grid,
+    .bilan {
+      grid-template-columns: 1fr;
+    }
+    .stake-num {
+      font-size: 2.2rem;
+    }
+    .bilan-pitch,
+    .bilan-book {
+      padding: 1.4rem 1.1rem;
+    }
+    .bilan-steps li {
+      font-size: 0.92rem;
+    }
+    .book-tab {
+      padding: 0.65rem 0.4rem;
+      font-size: 0.9rem;
+    }
+    .bt-long {
+      display: none;
+    }
+    .bt-short {
+      display: inline;
+    }
+    /* Laisse la place au bouton « retour en haut » à droite */
+    .r-sticky {
+      left: 0.75rem;
+      right: 4.6rem;
       justify-content: center;
+      translate: 0 160%;
+    }
+    .r-sticky.is-visible {
+      translate: 0 0;
     }
   }
 
@@ -3749,7 +4853,9 @@ const analysisSteps = [
     .diag-bg,
     .diag-more,
     .r-foot,
-    .next-actions,
+    .r-sticky,
+    .g-cta,
+    .bilan-book,
     .lock,
     [data-cookie-banner] {
       display: none !important;
@@ -3769,15 +4875,16 @@ const analysisSteps = [
     .kpi {
       break-inside: avoid;
     }
-    .next-card {
+    .bilan,
+    .stakes {
+      display: block;
       color: #000;
       background: #fff;
       border: 1px solid #ccc;
     }
-    .next-card h3,
-    .next-card p,
-    .next-card p strong {
-      color: #000;
+    .bilan *,
+    .stakes * {
+      color: #000 !important;
     }
   }
 </style>

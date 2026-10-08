@@ -95,17 +95,32 @@ avec un objet clair (nom, activité, besoins).
 
 ## Diagnostic de gestion (génération de contacts)
 
-La page `/diagnostic-gestion.html` propose un diagnostic gratuit en 3 minutes : profil (activité, effectif), puis
-12 questions sur 4 domaines (trésorerie, facturation & relances, organisation administrative, pilotage & personnel).
+La page `/diagnostic-gestion.html` propose un diagnostic gratuit en 3 minutes : profil (activité, effectif, tranche
+de chiffre d’affaires), puis 12 questions sur 4 domaines (trésorerie, facturation & relances, organisation
+administrative, pilotage & personnel).
 
 - **Parcours** : accueil animé → questions avec un « Bon à savoir » après chaque réponse → écran d’analyse animé →
-  résultats (score sur 100 en jauge, radar des 12 réponses, chiffres clés, détail par domaine, points forts).
-- **Récupération des contacts** : le score est visible librement ; la 1re recommandation du plan d’action aussi. Les
-  suivantes se débloquent en laissant nom + e-mail (téléphone et entreprise facultatifs). Nadège reçoit par Formspree
-  un e-mail « Diagnostic — Nom — score/100 » avec l’activité, les scores par domaine, les 3 priorités, toutes les
-  réponses et si la personne souhaite un **bilan offert de 30 minutes**.
-- **Modifier les questions, conseils, recommandations, niveaux** : `src/data/diagnostic.ts` (chaque réponse vaut de
-  0 à 3 points ; `null` = « non concerné », exclu du calcul).
+  résultats (score sur 100 en jauge, radar des 12 réponses, enjeux chiffrés, détail par domaine, points forts).
+- **Enjeux chiffrés** : trésorerie qui dort chez les clients (chiffre d’affaires ÷ 365 × jours au-delà d’une facture
+  envoyée tout de suite et payée à 30 jours) et temps administratif en jours de travail par an. Les hypothèses
+  (milieux de tranche, délais par réponse, 47 semaines, journées de 7 h) sont en bas de `src/data/diagnostic.ts`.
+- **Plan d’action** : la 1re recommandation est visible librement, les suivantes se débloquent avec nom + e-mail.
+  Case « être rappelé(e) pour un bilan offert » : le téléphone et un créneau deviennent obligatoires.
+- **Bilan offert, directement dans les résultats** : accroche adaptée au domaine le plus faible, déroulé des 30 minutes,
+  cas client du même métier, puis deux onglets :
+  - **Agenda** : Calendly intégré (après accord des cookies), avec nom, e-mail et résumé du diagnostic pré-remplis.
+    ⚠️ Pour que le résumé apparaisse dans Calendly, ajouter à l’évènement une **1re question personnalisée** (par
+    exemple « Votre résultat de diagnostic »). Quand un rendez-vous est réservé, Nadège reçoit aussi un e-mail
+    « 📅 Bilan réservé » avec le diagnostic complet (si la personne avait déjà laissé ses coordonnées).
+  - **Être rappelé(e)** : téléphone + créneau (matin, midi, après-midi, fin de journée).
+  - Un bouton flottant « Réserver mon bilan offert » reste visible tant que la section n’est pas à l’écran.
+- **E-mails reçus par Nadège (Formspree)** : l’objet signale les contacts à traiter en priorité
+  (« 🔥 À rappeler (l’après-midi) — Nom — 41/100 », « 🔥 Contact à relancer vite » si le score est sous 50,
+  sinon « Diagnostic — … »). En tête de l’e-mail, une **fiche d’appel** : téléphone et créneau, phrase d’accroche toute
+  prête, enjeu chiffré, points forts à valoriser et 3 priorités. Suivent les scores et toutes les réponses.
+- **Modifier les questions, conseils, recommandations, niveaux, accroches du bilan, créneaux** : `src/data/diagnostic.ts`
+  (chaque réponse vaut de 0 à 3 points ; `null` = « non concerné », exclu du calcul). Cas clients : `cases` dans
+  `src/data/site.ts` (`focus` = domaine illustré).
 - **Accès** : menu principal, bandeau sur l’accueil (`src/components/DiagnosticTeaser.astro`), lien « Gratuit » dans
   l’en-tête de l’accueil, pied de page, fin des pages métiers/villes et des articles.
 - Les réponses sont conservées pendant la visite (on peut recharger la page et reprendre) ; le résultat s’imprime ou
