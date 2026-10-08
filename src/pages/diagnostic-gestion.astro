@@ -67,6 +67,7 @@ const jsonLd = {
   ogTitle="Votre gestion est-elle sous contrôle ? Diagnostic gratuit en 3 minutes"
   jsonLd={jsonLd}
   mobileBar={false}
+  cookieAutoShow={false}
 >
   <Diagnostic />
 
@@ -90,6 +91,11 @@ const jsonLd = {
           ))
         }
       </ol>
+      <div class="more-cta" data-reveal>
+        <a href="#diagnostic" class="btn" data-start-link>
+          C’est parti : 3 minutes <Icon name="arrowRight" size={18} class="i-arrow" />
+        </a>
+      </div>
     </div>
   </section>
 
@@ -113,8 +119,8 @@ const jsonLd = {
         }
       </ul>
       <div class="more-cta" data-reveal>
-        <a href="#diagnostic" class="btn">
-          Faire mon diagnostic <Icon name="arrowRight" size={18} class="i-arrow" />
+        <a href="#diagnostic" class="btn" data-start-link>
+          Lancer mon diagnostic gratuit <Icon name="arrowRight" size={18} class="i-arrow" />
         </a>
       </div>
     </div>
@@ -138,6 +144,11 @@ const jsonLd = {
             </details>
           ))
         }
+      </div>
+      <div class="more-cta" data-reveal>
+        <a href="#diagnostic" class="btn" data-start-link>
+          Lancer mon diagnostic gratuit <Icon name="arrowRight" size={18} class="i-arrow" />
+        </a>
       </div>
     </div>
   </section>

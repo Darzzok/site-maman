@@ -58,20 +58,20 @@ const analysisSteps = [
           votre <strong>organisation</strong> et votre <strong>pilotage</strong>. Obtenez immédiatement votre score de gestion
           et un plan d’action personnalisé.
         </p>
-        <ul class="intro-facts">
-          <li><Icon name="clock" size={17} /> 3 minutes</li>
-          <li><Icon name="list" size={17} /> 12 questions</li>
-          <li><Icon name="zap" size={17} /> Résultat immédiat</li>
-          <li><Icon name="lock" size={17} /> Confidentiel</li>
-        </ul>
         <div class="intro-actions">
-          <button type="button" class="btn btn--lg" data-start>
-            <span data-start-label>Commencer mon diagnostic</span>
-            <Icon name="arrowRight" size={19} class="i-arrow" />
+          <button type="button" class="btn start-btn" data-start>
+            <span class="start-play" aria-hidden="true"><Icon name="play" size={18} /></span>
+            <span data-start-label>Lancer mon diagnostic gratuit</span>
+            <Icon name="arrowRight" size={20} class="i-arrow" />
           </button>
           <button type="button" class="btn btn--ghost" data-restart-intro hidden>Recommencer à zéro</button>
         </div>
-        <p class="intro-note">Gratuit et sans inscription pour découvrir votre score.</p>
+        <ul class="intro-facts">
+          <li><Icon name="clock" size={16} /> 3 minutes</li>
+          <li><Icon name="list" size={16} /> 12 questions</li>
+          <li><Icon name="zap" size={16} /> Résultat immédiat</li>
+          <li><Icon name="lock" size={16} /> Gratuit et confidentiel</li>
+        </ul>
         <noscript>
           <p class="intro-noscript">
             Le diagnostic nécessite JavaScript. Vous pouvez aussi
@@ -80,8 +80,8 @@ const analysisSteps = [
         </noscript>
       </div>
 
-      <div class="intro-visual" aria-hidden="true">
-        <div class="iv-dial">
+      <div class="intro-visual">
+        <div class="iv-dial" aria-hidden="true" data-start-link>
           <svg viewBox="0 0 200 200">
             <defs>
               <linearGradient id="iv-grad" gradientUnits="userSpaceOnUse" x1="16" y1="0" x2="184" y2="0" gradientTransform="rotate(-135 100 100)">
@@ -100,7 +100,7 @@ const analysisSteps = [
         </div>
         {
           domains.map((d, i) => (
-            <span class={`iv-chip c${i}`}>
+            <span class={`iv-chip c${i}`} aria-hidden="true">
               <span class="iv-chip-ic">
                 <Icon name={d.icon} size={16} />
               </span>
@@ -108,9 +108,9 @@ const analysisSteps = [
             </span>
           ))
         }
-        <span class="iv-plan">
-          <Icon name="sparkles" size={16} /> Plan d’action personnalisé
-        </span>
+        <button type="button" class="iv-plan" data-start-link tabindex="-1">
+          <Icon name="play" size={15} /> Démarrer · 3 min
+        </button>
       </div>
     </div>
 
@@ -688,6 +688,12 @@ const analysisSteps = [
 
     </div>
 
+    <!-- Raccourci de lancement, visible sur l'accueil quand le bouton principal n'est plus à l'écran -->
+    <button type="button" class="start-sticky" data-start-sticky data-start-link aria-hidden="true" tabindex="-1">
+      <span class="start-play"><Icon name="play" size={16} /></span>
+      Lancer mon diagnostic gratuit <small>3 min</small>
+    </button>
+
     <!-- Raccourci vers le bilan (hors des écrans animés, pour rester fixé en bas de la fenêtre) -->
     <a href="#bilan" class="r-sticky" data-r-sticky aria-hidden="true" tabindex="-1">
       <Icon name="calendar" size={18} /> Réserver mon bilan offert
@@ -790,6 +796,7 @@ const analysisSteps = [
       });
       root.dataset.view = name;
       updateSticky();
+      updateStartSticky();
       const top = root.getBoundingClientRect().top + window.scrollY - 110;
       if (Math.abs(window.scrollY - top) > 40 && window.scrollY > top - 400) {
         window.scrollTo({ top: Math.max(0, top), behavior: reduce ? 'auto' : 'smooth' });
@@ -807,12 +814,20 @@ const analysisSteps = [
       restartIntro.hidden = !started;
       if (state.done) label.textContent = 'Voir mes résultats';
       else if (started) label.textContent = `Reprendre (question ${Math.max(1, state.index)} sur ${total})`;
-      else label.textContent = 'Commencer mon diagnostic';
+      else label.textContent = 'Lancer mon diagnostic gratuit';
     }
-    startBtn.addEventListener('click', () => {
+    function start() {
       if (state.done) return showResults(false);
       go('quiz');
       showStep(state.index, 'next');
+    }
+    startBtn.addEventListener('click', start);
+    // Autres boutons de lancement (cadran, barre fixe, sections du bas de page)
+    document.addEventListener('click', (e) => {
+      const link = (e.target as HTMLElement).closest('[data-start-link]');
+      if (!link) return;
+      e.preventDefault();
+      start();
     });
     restartIntro.addEventListener('click', () => reset(true));
 
@@ -933,8 +948,8 @@ const analysisSteps = [
     // Clavier : A-E ou 1-5 pour répondre, Entrée pour continuer
     document.addEventListener('keydown', (e) => {
       if (root.dataset.view !== 'quiz' || e.ctrlKey || e.metaKey || e.altKey) return;
-      const t = e.target as HTMLElement;
-      if (t.matches('input[type="text"], input[type="email"], input[type="tel"], textarea')) return;
+      const t = e.target;
+      if (t instanceof Element && t.matches('input[type="text"], input[type="email"], input[type="tel"], textarea, [contenteditable]')) return;
       const k = e.key.toLowerCase();
       const idx = 'abcde'.indexOf(k) >= 0 ? 'abcde'.indexOf(k) : '12345'.indexOf(k);
       if (idx < 0 || state.index === 0) return;
@@ -1097,6 +1112,11 @@ const analysisSteps = [
     }
 
     function animateGauge(to: number) {
+      if (document.hidden) {
+        setGauge(to);
+        results.classList.add('gauge-done');
+        return;
+      }
       const t0 = performance.now();
       const ms = 1900;
       const ease = (k: number) => 1 - Math.pow(1 - k, 4);
@@ -1190,6 +1210,10 @@ const analysisSteps = [
 
     /* ================= Enjeux chiffrés ================= */
     function countUp(el: HTMLElement, to: number, format: (v: number) => string, delay: number) {
+      if (document.hidden) {
+        el.textContent = format(to);
+        return;
+      }
       const t0 = performance.now() + delay;
       const ms = 1600;
       const tick = (now: number) => {
@@ -1206,16 +1230,16 @@ const analysisSteps = [
       const cashLabel = $('[data-stake-label="cash"]');
       const cashSub = $('[data-stake-sub="cash"]');
       cashBox.classList.remove('is-good', 'is-unknown');
-      if (r.cash === null) {
-        cashBox.classList.add('is-unknown');
-        cashNum.textContent = `${r.totalDays} jours`;
-        cashLabel.textContent = 'entre la fin de votre prestation et le paiement';
-        cashSub.textContent = 'Indiquez votre chiffre d’affaires pour estimer le montant en euros.';
-      } else if (r.cash === 0) {
+      if (r.totalDays <= targetDays) {
         cashBox.classList.add('is-good');
         cashNum.textContent = `${r.totalDays} jours`;
         cashLabel.textContent = 'entre la fin de votre prestation et le paiement';
         cashSub.textContent = 'Bravo : vous êtes payé(e) rapidement, votre trésorerie n’est pas freinée.';
+      } else if (r.cash === null) {
+        cashBox.classList.add('is-unknown');
+        cashNum.textContent = `${r.totalDays} jours`;
+        cashLabel.textContent = 'entre la fin de votre prestation et le paiement';
+        cashSub.textContent = `Au-delà de ${targetDays} jours, c’est de la trésorerie immobilisée : le montant dépend de votre chiffre d’affaires.`;
       } else {
         cashLabel.textContent = 'de trésorerie qui dort chez vos clients';
         cashSub.textContent = `Environ ${r.totalDays} jours entre la fin de votre prestation et le paiement : ramenés à ${targetDays} jours, c’est autant d’argent disponible.`;
@@ -1381,7 +1405,7 @@ const analysisSteps = [
       const data = new FormData();
       data.set('_subject', `${prefix} — ${contact.nom} — ${r.global}/100`);
       data.set('_gotcha', opts.gotcha ?? '');
-      data.set('rapport_pdf', `📄 Rapport à remettre au client (ouvrir, compléter le tarif, enregistrer en PDF) : ${reportUrl()}`);
+      data.set('rapport_pdf', `📄 Rapport à remettre au client (ouvrir, saisir son nom, enregistrer en PDF) : ${reportUrl()}`);
       data.set('fiche_appel', callSheet(r, contact, opts.rappel));
       data.set('nom', contact.nom);
       data.set('email', contact.email);
@@ -1693,10 +1717,33 @@ const analysisSteps = [
 
     $('[data-redo]').addEventListener('click', () => reset(true));
 
+    /* ================= Barre fixe « Lancer mon diagnostic » ================= */
+    const startSticky = $('[data-start-sticky]');
+    function updateStartSticky() {
+      const r = startBtn.getBoundingClientRect();
+      const footer = document.querySelector('footer')?.getBoundingClientRect();
+      const nearFooter = !!footer && footer.top < window.innerHeight;
+      startSticky.classList.toggle('is-visible', root.dataset.view === 'intro' && r.bottom < 80 && !nearFooter);
+    }
+    let startTick = 0;
+    window.addEventListener(
+      'scroll',
+      () => {
+        cancelAnimationFrame(startTick);
+        startTick = requestAnimationFrame(updateStartSticky);
+      },
+      { passive: true },
+    );
+
     /* ================= Démarrage ================= */
     restoreInputs();
     refreshIntro();
     root.dataset.view = 'intro';
+    // Lien direct /diagnostic-gestion.html#commencer : le questionnaire s'ouvre tout de suite
+    if (location.hash === '#commencer') {
+      history.replaceState(null, '', location.pathname + location.search);
+      start();
+    }
   }
 </script>
 
@@ -1864,21 +1911,16 @@ const analysisSteps = [
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 0.5rem;
-    margin-top: 1.6rem;
+    gap: 0.4rem 1.2rem;
+    margin-top: 1.3rem;
   }
   .intro-facts li {
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
-    padding: 0.5rem 0.95rem;
-    border-radius: 999px;
+    gap: 0.35rem;
     font-size: 0.86rem;
     font-weight: 700;
     color: var(--ink);
-    background: rgb(255 255 255 / 0.8);
-    border: 1px solid var(--line);
-    box-shadow: var(--shadow-xs);
   }
   .intro-facts svg {
     color: var(--terra-600);
@@ -1888,13 +1930,36 @@ const analysisSteps = [
     flex-wrap: wrap;
     justify-content: center;
     gap: 0.75rem;
-    margin-top: 2rem;
+    margin-top: 1.9rem;
+  }
+  .start-btn {
+    gap: 0.8rem;
+    padding: 0.7rem 1.9rem 0.7rem 0.7rem;
+    font-size: 1.12rem;
+  }
+  .start-play {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    color: var(--ink);
+    background: var(--apricot);
+    transition: transform 0.5s var(--ease-spring);
+  }
+  .start-play svg {
+    margin-left: 3px;
+    fill: currentColor;
+  }
+  .start-btn:hover .start-play {
+    transform: scale(1.1) rotate(-8deg);
   }
   .intro-actions [hidden] {
     display: none;
   }
   .intro-actions [data-start] {
-    animation: diag-glow 2.8s ease-in-out infinite;
+    animation: diag-glow 2.4s ease-in-out infinite;
   }
   @keyframes diag-glow {
     50% {
@@ -2085,14 +2150,63 @@ const analysisSteps = [
     right: 0;
     width: max-content;
     margin-inline: auto;
-    padding: 0.55rem 0.9rem;
-    color: #fff;
-    background: linear-gradient(135deg, var(--blue-700), var(--blue-900));
+    padding: 0.7rem 1.2rem;
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--ink);
+    background: var(--apricot);
     border: 0;
+    cursor: pointer;
     animation-delay: -2.2s;
+    transition: background 0.3s;
+  }
+  .iv-plan:hover {
+    background: var(--terra-300);
   }
   .iv-plan svg {
-    color: var(--apricot);
+    fill: currentColor;
+  }
+  .iv-dial {
+    cursor: pointer;
+  }
+
+  /* Barre fixe de lancement */
+  .start-sticky {
+    position: fixed;
+    left: 50%;
+    bottom: calc(1rem + env(safe-area-inset-bottom));
+    z-index: 55;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.45rem 1.4rem 0.45rem 0.45rem;
+    border-radius: 999px;
+    font-size: 1rem;
+    font-weight: 800;
+    color: #fff;
+    background: linear-gradient(135deg, var(--blue-600), var(--blue-900));
+    box-shadow: 0 18px 36px -14px rgb(42 9 22 / 0.6);
+    translate: -50% 160%;
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      translate 0.5s var(--ease-out),
+      opacity 0.3s;
+  }
+  .start-sticky.is-visible {
+    translate: -50% 0;
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .start-sticky .start-play {
+    width: 38px;
+    height: 38px;
+  }
+  .start-sticky small {
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    background: rgb(255 255 255 / 0.15);
   }
   @keyframes iv-float {
     50% {
@@ -4533,7 +4647,7 @@ const analysisSteps = [
      ================================================================ */
   @media (max-width: 1023px) {
     .s-intro {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
     }
     .intro-visual {
       max-width: 380px;
@@ -4598,7 +4712,30 @@ const analysisSteps = [
       height: 13px;
     }
     .iv-plan {
+      font-size: 0.85rem;
+      padding: 0.55rem 1rem;
+    }
+    .start-btn {
+      justify-content: center;
+      gap: 0.6rem;
+      padding-right: 1.1rem;
+      font-size: 0.98rem;
+      line-height: 1.25;
+      white-space: normal;
+      text-align: left;
+    }
+    .start-btn .i-arrow {
       display: none;
+    }
+    .start-sticky {
+      left: 0.75rem;
+      right: 4.6rem;
+      justify-content: center;
+      translate: 0 160%;
+      font-size: 0.92rem;
+    }
+    .start-sticky.is-visible {
+      translate: 0 0;
     }
     .s-intro h1 {
       font-size: clamp(2rem, 8.4vw, 2.6rem);
@@ -4607,6 +4744,7 @@ const analysisSteps = [
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       width: 100%;
+      font-size: 0.82rem;
     }
     .intro-facts li {
       justify-content: center;
@@ -4814,6 +4952,7 @@ const analysisSteps = [
     .diag-more,
     .r-foot,
     .r-sticky,
+    .start-sticky,
     .g-cta,
     .bilan-book,
     .lock,

@@ -124,12 +124,12 @@ administrative, pilotage & personnel).
   1. couverture (nom du client à saisir, profil, score, niveau) ;
   2. synthèse (4 domaines, enjeux chiffrés, points forts) ;
   3. plan sur 90 jours (une priorité par mois, avec la prestation correspondante), actions à consolider, notes d’entretien ;
-  4. proposition d’accompagnement (formule recommandée, prestations concernées, **tarif / volume / démarrage à
-     compléter**, prochaines étapes, « Bon pour accord » à signer).
+  4. proposition d’accompagnement (formule recommandée, prestations concernées, gains attendus, prochaines étapes et
+     coordonnées). Pas de tarif dans le rapport : Nadège envoie son devis séparément.
 
-  Les zones en pointillés se complètent en cliquant dessus (mémorisées sur l’ordinateur utilisé) ; « Enregistrer en PDF »
-  ouvre l’impression (choisir « Enregistrer au format PDF »). Les zones laissées vides s’impriment comme des lignes à
-  compléter à la main. Page non indexée par Google. Le lien fonctionne sur le site en ligne (il reprend l’adresse du
+  Le nom du client, l’entreprise et les notes d’entretien se complètent en cliquant sur les zones en pointillés
+  (mémorisées sur l’ordinateur utilisé) ; « Enregistrer en PDF » ouvre l’impression (choisir « Enregistrer au format
+  PDF »). Les zones laissées vides s’impriment comme des lignes à compléter à la main. Page non indexée par Google. Le lien fonctionne sur le site en ligne (il reprend l’adresse du
   site sur lequel le diagnostic a été fait). Formule recommandée : `recommendFormula` dans `src/utils/diagnostic.ts` ;
   prestation par question : `serviceByQuestion` dans `src/data/diagnostic.ts`.
   (Une vraie pièce jointe PDF dans l’e-mail demanderait une formule Formspree payante ou un outil d’e-mailing.)
@@ -138,6 +138,9 @@ administrative, pilotage & personnel).
   `src/data/site.ts` (`focus` = domaine illustré).
 - **Accès** : menu principal, bandeau sur l’accueil (`src/components/DiagnosticTeaser.astro`), lien « Gratuit » dans
   l’en-tête de l’accueil, pied de page, fin des pages métiers/villes et des articles.
+- **Lancement direct** : un lien vers `/diagnostic-gestion.html#commencer` ouvre directement la 1re question (utilisé
+  par le bandeau de l’accueil, le lien « Gratuit » de l’en-tête, les pages métiers/villes et les articles). Sur la page,
+  un bouton fixe « Lancer mon diagnostic gratuit » apparaît dès que le bouton principal sort de l’écran.
 - Les réponses sont conservées pendant la visite (on peut recharger la page et reprendre) ; le résultat s’imprime ou
   s’enregistre en PDF.
 

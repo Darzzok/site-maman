@@ -22,9 +22,11 @@ interface Props {
   ogType?: string;
   /** Barre d'actions en bas d'écran sur mobile (désactivée sur les articles, pour lire tranquillement) */
   mobileBar?: boolean;
+  /** Bandeau cookies ouvert automatiquement à la première visite (désactivé sur le diagnostic) */
+  cookieAutoShow?: boolean;
 }
 
-const { home = false, noindex = false, ogTitle, ogDescription, jsonLd, image, ogType = 'website', mobileBar = true } = Astro.props;
+const { home = false, noindex = false, ogTitle, ogDescription, jsonLd, image, ogType = 'website', mobileBar = true, cookieAutoShow = true } = Astro.props;
 // Google affiche environ 60 caractères de titre et 155 de description :
 // au-delà, on retire le nom du site du titre et on coupe proprement la description.
 const brandSuffix = ` | ${site.name}`;
@@ -86,7 +88,7 @@ const ogImage = new URL(image ?? '/images/og-image.jpg', site.url).href;
 
     <Footer home={home} />
 
-    <CookieBanner />
+    <CookieBanner autoShow={cookieAutoShow} />
 
     <!-- Mobile : actions principales toujours à portée de pouce -->
     {mobileBar && (

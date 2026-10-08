@@ -29,7 +29,7 @@ const formulaList = formulas.items.map((f) => ({ ...f, text: f.text.replace(/<[^
       <img src="/images/logo-mark.png" alt="" class="rp-tb-logo" width="34" height="34" />
       <div class="rp-tb-text">
         <strong>Rapport de diagnostic</strong>
-        <span>Complétez les zones en pointillés (nom du client, tarif, notes…), puis enregistrez en PDF.</span>
+        <span>Complétez le nom du client et vos notes (zones en pointillés), puis enregistrez en PDF.</span>
       </div>
       <button type="button" class="rp-tb-reset" data-reset>Effacer mes saisies</button>
       <button type="button" class="btn btn--sm" data-print><Icon name="printer" size={16} /> Enregistrer en PDF</button>
@@ -163,41 +163,30 @@ const formulaList = formulas.items.map((f) => ({ ...f, text: f.text.replace(/<[^
             <p class="block-title">Prestations concernées</p>
             <ul data-services></ul>
           </div>
-          <div class="offer-price">
-            <p class="block-title">Votre investissement</p>
-            <dl class="price-list">
-              <div><dt>Formule</dt><dd class="fill" contenteditable="plaintext-only" data-field="formule" data-ph="Formule retenue"></dd></div>
-              <div><dt>Volume</dt><dd class="fill" contenteditable="plaintext-only" data-field="volume" data-ph="ex. 8 h par mois"></dd></div>
-              <div><dt>Tarif</dt><dd class="fill" contenteditable="plaintext-only" data-field="tarif" data-ph="ex. … € HT par mois"></dd></div>
-              <div><dt>Démarrage</dt><dd class="fill" contenteditable="plaintext-only" data-field="demarrage" data-ph="ex. 1er novembre"></dd></div>
-            </dl>
-            <p class="price-gain" data-gain></p>
+          <div class="offer-gain">
+            <p class="block-title">Ce que vous y gagnez</p>
+            <ul class="gain-list" data-gains></ul>
           </div>
         </div>
 
         <div class="next-steps">
           <p class="block-title">Prochaines étapes</p>
           <ol>
-            <li><span>1</span>Validation de la proposition</li>
+            <li><span>1</span>Je vous adresse votre devis personnalisé</li>
             <li><span>2</span>Réunion de lancement et accès aux documents</li>
             <li><span>3</span>Premiers résultats dès le 1er mois</li>
           </ol>
         </div>
 
-        <div class="agree">
-          <div class="agree-text">
-            <p class="block-title">Bon pour accord</p>
-            <p>Sans engagement de durée · Présentiel, distanciel ou les deux · Devis détaillé sur demande</p>
+        <div class="contact-card">
+          <img src="/images/nadege.jpg" alt="" class="cc-photo" />
+          <div>
+            <p class="cc-name">{site.owner}</p>
+            <p class="cc-role">Consultante en gestion administrative et financière</p>
+            <p class="cc-line">{site.emailLabel}{site.phoneIsSet && ` · ${site.phoneLabel}`}</p>
           </div>
-          <div class="agree-sign">
-            <p>Date : <span class="fill fill--line" contenteditable="plaintext-only" data-field="date" data-ph=" "></span></p>
-            <p>Signature du client :</p>
-            <div class="sign-box"></div>
-          </div>
+          <p class="cc-terms">Sans engagement de durée<br />Sur site, à distance ou les deux<br />Eure (27) et Seine-Maritime (76)</p>
         </div>
-        <footer class="sheet-foot">
-          {site.owner} · {site.name} · {site.emailLabel}
-        </footer>
         <p class="sheet-num">4</p>
       </section>
     </main>
@@ -292,13 +281,13 @@ const formulaList = formulas.items.map((f) => ({ ...f, text: f.text.replace(/<[^
           s.append(el('span', 'stake-num', num), el('span', 'stake-label', label), el('span', 'stake-sub', sub));
           return s;
         };
-        if (r.cash)
+        if (r.cash && r.totalDays > 30)
           stakes.push(
             stake('wallet', `≈ ${money(r.cash)}`, 'de trésorerie qui dort chez vos clients', `Environ ${r.totalDays} jours entre la fin de la prestation et le paiement.`),
           );
         else
           stakes.push(
-            stake('wallet', `${r.totalDays} jours`, 'entre la fin de la prestation et le paiement', r.cash === 0 ? 'Des délais déjà courts : un vrai atout.' : 'Montant non estimé (chiffre d’affaires non communiqué).'),
+            stake('wallet', `${r.totalDays} jours`, 'entre la fin de la prestation et le paiement', r.totalDays <= 30 ? 'Des délais déjà courts : un vrai atout.' : 'Montant non estimé (chiffre d’affaires non communiqué).'),
           );
         if (r.daysYear !== null)
           stakes.push(stake('clock', `≈ ${r.daysYear} jours`, 'de travail par an consacrés à l’administratif', `Soit environ ${r.hours} heures par mois.`));
@@ -370,10 +359,12 @@ const formulaList = formulas.items.map((f) => ({ ...f, text: f.text.replace(/<[^
           }),
         );
         const gains = [
-          r.cash ? `≈ ${money(r.cash)} de trésorerie à récupérer` : '',
-          r.daysYear ? `jusqu’à ${r.daysYear} jours par an de temps libéré` : '',
+          r.cash ? `≈ ${money(r.cash)} de trésorerie à récupérer en étant payé(e) plus vite` : '',
+          r.daysYear ? `Jusqu’à ${r.daysYear} jours par an de temps libéré pour votre activité` : '',
+          'Des échéances tenues, sans pénalités ni urgences de dernière minute',
+          'Une interlocutrice unique, qui connaît votre entreprise',
         ].filter(Boolean);
-        $('[data-gain]').textContent = gains.length ? `À mettre en regard de vos enjeux : ${gains.join(' et ')}.` : '';
+        $('[data-gains]').replaceChildren(...gains.map((t) => el('li', '', t)));
 
         /* ---------- Zones à compléter : mémorisées sur cet appareil ---------- */
         const KEY = `sgc_rapport_${code}`;
@@ -383,7 +374,6 @@ const formulaList = formulas.items.map((f) => ({ ...f, text: f.text.replace(/<[^
         } catch {
           saved = {};
         }
-        if (!saved.formule) saved.formule = rec.title;
         document.querySelectorAll<HTMLElement>('[data-field]').forEach((f) => {
           const k = f.dataset.field!;
           if (saved[k]) f.textContent = saved[k];
@@ -581,9 +571,6 @@ const formulaList = formulas.items.map((f) => ({ ...f, text: f.text.replace(/<[^
         border-radius: 8px;
         white-space: pre-wrap;
         background-image: repeating-linear-gradient(transparent 0 7mm, var(--line) 7mm 7.2mm);
-      }
-      .fill--line {
-        min-width: 50mm;
       }
 
       /* ================= 1. Couverture ================= */
@@ -1207,9 +1194,74 @@ const formulaList = formulas.items.map((f) => ({ ...f, text: f.text.replace(/<[^
         border-radius: 14px;
         border: 1px solid var(--line);
       }
-      .offer-price {
+      .offer-gain {
         background: var(--rose-100);
         border-color: var(--rose-200);
+      }
+      .gain-list {
+        display: grid;
+        gap: 2.5mm;
+      }
+      .gain-list li {
+        position: relative;
+        padding-left: 6mm;
+        font-size: 11.5px;
+        font-weight: 700;
+        line-height: 1.4;
+        color: var(--blue-700);
+      }
+      .gain-list li::before {
+        content: '✓';
+        position: absolute;
+        left: 0;
+        top: 0;
+        display: grid;
+        place-items: center;
+        width: 4.5mm;
+        height: 4.5mm;
+        border-radius: 50%;
+        font-size: 9px;
+        color: #fff;
+        background: var(--terra-500);
+      }
+      .contact-card {
+        display: flex;
+        align-items: center;
+        gap: 5mm;
+        margin-top: 6mm;
+        padding: 5mm 6mm;
+        border-radius: 16px;
+        color: #fff;
+        background: linear-gradient(135deg, var(--blue-700), var(--blue-950));
+      }
+      .cc-photo {
+        flex: none;
+        width: 18mm;
+        height: 18mm;
+        border-radius: 50%;
+        object-fit: cover;
+        object-position: 51% 28%;
+        border: 2px solid var(--apricot);
+      }
+      .cc-name {
+        font-family: var(--font-display);
+        font-size: 17px;
+      }
+      .cc-role {
+        font-size: 10.5px;
+        color: var(--apricot);
+      }
+      .cc-line {
+        margin-top: 1mm;
+        font-size: 11px;
+        font-weight: 700;
+      }
+      .cc-terms {
+        margin-left: auto;
+        font-size: 10px;
+        line-height: 1.6;
+        text-align: right;
+        color: rgb(255 255 255 / 0.85);
       }
       .svc + .svc {
         margin-top: 3mm;
@@ -1226,34 +1278,6 @@ const formulaList = formulas.items.map((f) => ({ ...f, text: f.text.replace(/<[^
         margin-top: 0.5mm;
         font-size: 10px;
         color: var(--muted);
-      }
-      .price-list {
-        display: grid;
-        gap: 2.5mm;
-      }
-      .price-list div {
-        display: grid;
-        grid-template-columns: 22mm 1fr;
-        align-items: baseline;
-      }
-      .price-list dt {
-        font-size: 10px;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        color: var(--muted);
-      }
-      .price-list dd {
-        min-width: 0;
-        font-weight: 700;
-        color: var(--blue-700);
-      }
-      .price-gain {
-        margin-top: 4mm;
-        font-size: 10.5px;
-        font-weight: 700;
-        line-height: 1.45;
-        color: var(--terra-700);
       }
       .next-steps {
         margin-top: 5mm;
@@ -1284,33 +1308,6 @@ const formulaList = formulas.items.map((f) => ({ ...f, text: f.text.replace(/<[^
         font-size: 10px;
         color: #fff;
         background: var(--blue-700);
-      }
-      .agree {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 5mm;
-        margin-top: 5mm;
-        padding: 5mm;
-        border-radius: 14px;
-        border: 1.5px solid var(--blue-700);
-      }
-      .agree-text p:last-child {
-        font-size: 10.5px;
-        line-height: 1.5;
-        color: var(--muted);
-      }
-      .agree-sign {
-        font-size: 11px;
-        font-weight: 700;
-      }
-      .agree-sign p + p {
-        margin-top: 2mm;
-      }
-      .sign-box {
-        height: 15mm;
-        margin-top: 1.5mm;
-        border-radius: 8px;
-        border: 1px dashed var(--blue-300);
       }
 
       /* ================= Impression ================= */
