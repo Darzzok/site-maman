@@ -211,6 +211,12 @@ const ogImage = new URL(image ?? '/images/og-image.jpg', site.url).href;
       visibility: visible;
       translate: none;
     }
+    /* Menu mobile ouvert : la barre s'efface pour ne pas masquer ses derniers boutons */
+    :global(body:has(.mobile-menu.is-open)) .mobile-bar {
+      opacity: 0;
+      visibility: hidden;
+      translate: 0 120%;
+    }
     .mb-btn {
       display: inline-flex;
       align-items: center;

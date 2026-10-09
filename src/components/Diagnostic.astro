@@ -1762,6 +1762,8 @@ const analysisSteps = [
      ================================================================ */
   .diag-stage {
     position: relative;
+    /* Contexte d'empilement au-dessus des sections suivantes : les barres fixes (lancement, bilan) restent visibles */
+    z-index: 2;
     isolation: isolate;
     /* clip (et non hidden) : la scène ne doit jamais défiler toute seule quand un élément reçoit le focus */
     overflow: hidden;

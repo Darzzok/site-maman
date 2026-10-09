@@ -32,7 +32,7 @@ const isCurrent = (item: { href?: string }) => {
         <ul>
           {
             nav.map((item) => (
-              <li>
+              <li class:list={{ 'nav-home': item.id === 'accueil' }}>
                 <a
                   href={linkFor(item)}
                   class:list={['nav-link', { 'is-active': isCurrent(item) }]}
@@ -48,6 +48,10 @@ const isCurrent = (item: { href?: string }) => {
       </nav>
 
       <div class="bar-actions">
+        <!-- Ouvre directement le questionnaire (data-start-link : sans rechargement sur la page du diagnostic) -->
+        <a href="/diagnostic-gestion.html#commencer" class="btn btn--sm btn--soft header-diag" data-start-link>
+          <Icon name="chart" size={16} /> Diagnostic<span class="hd-long">&nbsp;gratuit</span>
+        </a>
         <a href={`${base}#rendez-vous`} class="btn btn--sm header-cta">
           Prendre rendez-vous
         </a>
@@ -87,6 +91,9 @@ const isCurrent = (item: { href?: string }) => {
     <div class="mobile-foot" style={`--i:${nav.length + 1}`}>
       <a href={`${base}#rendez-vous`} class="btn" data-mobile-link>
         Prendre rendez-vous <Icon name="arrowRight" size={18} class="i-arrow" />
+      </a>
+      <a href="/diagnostic-gestion.html#commencer" class="btn btn--soft" data-mobile-link data-start-link>
+        <Icon name="chart" size={18} /> Diagnostic gratuit en 3 min
       </a>
       <a href={`mailto:${site.email}`} class="mobile-mail">
         <Icon name="mail" size={18} />
@@ -342,7 +349,19 @@ const isCurrent = (item: { href?: string }) => {
     color: var(--blue-700);
   }
 
-  /* Menu complet : espacements resserrés pour que les 8 liens et le bouton tiennent dans la barre */
+  .header-diag {
+    gap: 0.4rem;
+  }
+  /* Sur ordinateur, le logo ramène à l'accueil : le lien « Accueil » ne reste que dans le menu mobile */
+  .nav-home {
+    display: none;
+  }
+  @media (max-width: 1359px) {
+    .hd-long {
+      display: none;
+    }
+  }
+  /* Menu complet : espacements resserrés pour que les liens et les deux boutons tiennent dans la barre */
   @media (min-width: 1200px) {
     .bar {
       gap: 0.75rem;
@@ -362,6 +381,12 @@ const isCurrent = (item: { href?: string }) => {
     }
     .burger {
       display: block;
+    }
+  }
+  /* Petites tablettes : seul « Prendre rendez-vous » reste dans la barre (le diagnostic est dans le menu) */
+  @media (max-width: 760px) {
+    .header-diag {
+      display: none;
     }
   }
   @media (max-width: 560px) {

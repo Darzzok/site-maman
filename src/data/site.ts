@@ -53,7 +53,6 @@ export const zone = {
 export const nav: { label: string; id?: string; href?: string }[] = [
   { label: 'Accueil', id: 'accueil' },
   { label: 'Services', id: 'services' },
-  { label: 'Diagnostic', href: '/diagnostic-gestion.html' },
   { label: 'Métiers', href: '/metiers.html' },
   { label: 'À propos', id: 'a-propos' },
   { label: 'Cas clients', id: 'cas-clients' },
@@ -270,6 +269,15 @@ export const cases = [
     metier: 'artisans-btp',
     problem: 'Sous-traitance mal suivie et situations de travaux transmises en retard, avec un impact direct sur la trésorerie.',
     result: 'Chantiers et sous-traitance sous contrôle',
+  },
+  {
+    icon: 'wheat',
+    tag: 'Exploitation agricole',
+    title: 'Exploitation laitière en GAEC',
+    focus: 'organisation',
+    metier: 'exploitations-agricoles',
+    problem: 'Factures, déclarations MSA et contrats des saisonniers traités le soir après la traite, avec des échéances sans cesse repoussées.',
+    result: 'Administratif à jour, soirées libérées',
   },
 ];
 
