@@ -94,7 +94,10 @@ La page `/diagnostic-gestion.html` propose un diagnostic gratuit en 3 minutes : 
 de chiffre d’affaires), puis 12 questions sur 4 domaines (trésorerie, facturation & relances, organisation
 administrative, pilotage & personnel).
 
-- **Parcours** : accueil animé → questions avec un « Bon à savoir » après chaque réponse → écran d’analyse animé →
+- **Parcours** : accueil animé → 3 questions sur l’entreprise puis 12 questions en 4 parties (chaque partie s’ouvre par
+  une courte animation ; une réponse fait passer automatiquement à la suivante ; barre de progression en 5 segments ;
+  « Bon à savoir » de Nadège dans une bulle après chaque réponse) → analyse animée (les 4 domaines se remplissent un
+  par un, le score se calcule sous vos yeux) →
   résultats (score sur 100 en jauge, radar des 12 réponses, enjeux chiffrés, détail par domaine, points forts).
 - **Enjeux chiffrés** : trésorerie qui dort chez les clients (chiffre d’affaires ÷ 365 × jours au-delà d’une facture
   envoyée tout de suite et payée à 30 jours) et temps administratif en jours de travail par an. Les hypothèses

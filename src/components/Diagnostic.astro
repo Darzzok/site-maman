@@ -125,7 +125,7 @@ const analysisSteps = [
               <Icon name="building" size={17} />
               <span class="side-done"><Icon name="check" size={12} strokeWidth={3.2} /></span>
             </span>
-            <span class="side-txt">Votre entreprise<small data-side-count>0 / 1</small></span>
+            <span class="side-txt">Votre entreprise<small data-side-count>0 / 3</small></span>
           </li>
           {
             domains.map((d) => (
@@ -157,23 +157,46 @@ const analysisSteps = [
           <button type="button" class="link-btn" data-prev><Icon name="arrowLeft" size={16} /> Retour</button>
           <span class="quiz-count" data-count></span>
         </div>
-        <div class="quiz-bar" aria-hidden="true"><span data-bar></span></div>
+
+        <!-- Progression en 5 parties : chaque segment se remplit au fil des réponses -->
+        <ol class="segs" aria-hidden="true">
+          <li class="seg" data-seg="profil"><span class="seg-bar"><span class="seg-fill"></span></span><span class="seg-label">Entreprise</span></li>
+          {
+            domains.map((d) => (
+              <li class="seg" data-seg={d.id}>
+                <span class="seg-bar">
+                  <span class="seg-fill" />
+                </span>
+                <span class="seg-label">{d.short}</span>
+              </li>
+            ))
+          }
+        </ol>
+        <p class="sr-only" aria-live="polite" data-announce></p>
 
         <form class="quiz-form" data-quiz-form novalidate>
-          <!-- Profil -->
-          <fieldset class="q-step" data-qstep="profil">
+          <!-- Ouverture animée de chaque partie -->
+          <div class="chapter" data-chapter aria-hidden="true">
+            <span class="chapter-ic" data-chapter-ic></span>
+            <span class="chapter-kicker" data-chapter-kicker></span>
+            <span class="chapter-title" data-chapter-title></span>
+            <span class="chapter-sub" data-chapter-sub></span>
+          </div>
+
+          <!-- Votre entreprise : 3 questions rapides -->
+          <fieldset class="q-step" data-qstep="activite" data-domain="profil">
             <legend class="q-title" tabindex="-1">
-              <span class="q-domain"><Icon name="building" size={15} /> Pour commencer</span>
+              <span class="q-domain"><Icon name="building" size={15} /> Votre entreprise</span>
               Quelle est votre activité ?
             </legend>
             <div class="act-grid">
               {
-                activites.map((a) => (
-                  <label class="act">
+                activites.map((a, j) => (
+                  <label class="act" style={`--j:${j}`}>
                     <input type="radio" name="activite" value={a.value} />
                     <span class="act-box">
                       <span class="act-ic">
-                        <Icon name={a.icon} size={22} />
+                        <Icon name={a.icon} size={24} />
                       </span>
                       <span class="act-label">{a.label}</span>
                     </span>
@@ -181,24 +204,48 @@ const analysisSteps = [
                 ))
               }
             </div>
-            <p class="q-sub">Combien de personnes travaillent dans l’entreprise ?</p>
-            <div class="pills">
+          </fieldset>
+
+          <fieldset class="q-step" data-qstep="effectif" data-domain="profil">
+            <legend class="q-title" tabindex="-1">
+              <span class="q-domain"><Icon name="users" size={15} /> Votre entreprise</span>
+              Combien de personnes travaillent dans l’entreprise ?
+            </legend>
+            <div class="answers answers--grid">
               {
-                effectifs.map((e) => (
-                  <label class="pill">
+                effectifs.map((e, j) => (
+                  <label class="ans" style={`--j:${j}`}>
                     <input type="radio" name="effectif" value={e} />
-                    <span>{e}</span>
+                    <span class="ans-box">
+                      <span class="ans-key">{keys[j]}</span>
+                      <span class="ans-label">{e === 'Seul(e)' ? 'Seul(e) aux commandes' : `${e} personnes`}</span>
+                      <span class="ans-check">
+                        <Icon name="check" size={13} strokeWidth={3.2} />
+                      </span>
+                    </span>
                   </label>
                 ))
               }
             </div>
-            <p class="q-sub">Votre chiffre d’affaires annuel</p>
-            <div class="pills">
+          </fieldset>
+
+          <fieldset class="q-step" data-qstep="ca" data-domain="profil">
+            <legend class="q-title" tabindex="-1">
+              <span class="q-domain"><Icon name="wallet" size={15} /> Votre entreprise</span>
+              Quel est votre chiffre d’affaires annuel ?
+            </legend>
+            <div class="answers answers--grid">
               {
-                chiffresAffaires.map((c, i) => (
-                  <label class="pill">
-                    <input type="radio" name="ca" value={i} />
-                    <span>{c.label}</span>
+                chiffresAffaires.map((c, j) => (
+                  <label class:list={['ans', { 'ans--na': c.value === null }]} style={`--j:${j}`}>
+                    <input type="radio" name="ca" value={j} />
+                    <span class="ans-box">
+                      <span class="ans-key">{keys[j]}</span>
+                      <span class="ans-label">{c.label}</span>
+                      <span class="ans-check">
+                        <Icon name="check" size={13} strokeWidth={3.2} />
+                      </span>
+                    </span>
                   </label>
                 ))
               }
@@ -211,6 +258,9 @@ const analysisSteps = [
               const d = domainOf(q.domain);
               return (
                 <fieldset class="q-step" data-qstep={q.id} data-domain={q.domain}>
+                  <span class="q-mark" aria-hidden="true">
+                    <Icon name={d.icon} size={190} strokeWidth={0.9} />
+                  </span>
                   <legend class="q-title" tabindex="-1">
                     <span class="q-domain">
                       <Icon name={d.icon} size={15} /> {d.label}
@@ -231,20 +281,6 @@ const analysisSteps = [
                       </label>
                     ))}
                   </div>
-                  <div class="tip" data-tip>
-                    <Image src={nadege} alt="" width={88} height={88} class="tip-avatar" loading="lazy" />
-                    <div class="tip-bubble">
-                      <span class="tip-typing" aria-hidden="true">
-                        <i />
-                        <i />
-                        <i />
-                      </span>
-                      <p class="tip-text">
-                        <strong>Bon à savoir</strong>
-                        {q.tip}
-                      </p>
-                    </div>
-                  </div>
                   <span class="sr-only">Question {i + 1} sur {total}</span>
                 </fieldset>
               );
@@ -253,9 +289,10 @@ const analysisSteps = [
 
           <div class="quiz-nav">
             <span class="quiz-keys"><kbd>A</kbd><kbd>B</kbd><kbd>C</kbd><kbd>D</kbd> pour répondre au clavier</span>
-            <button type="submit" class="btn" data-next disabled>
-              <span data-next-label>Question suivante</span>
-              <Icon name="arrowRight" size={18} class="i-arrow" />
+            <span class="quiz-auto" data-auto><Icon name="zap" size={14} /> Cliquez sur une réponse : la suite s’affiche toute seule</span>
+            <button type="submit" class="btn btn--sm" data-next disabled>
+              <span data-next-label>Suivant</span>
+              <Icon name="arrowRight" size={17} class="i-arrow" />
             </button>
           </div>
         </form>
@@ -264,51 +301,84 @@ const analysisSteps = [
 
     <!-- ============ 3. Analyse ============ -->
     <div class="screen s-analysis" data-screen="analysis" hidden>
-      <div class="an-orb" aria-hidden="true">
-        <span class="an-wave"></span><span class="an-wave"></span><span class="an-wave"></span>
-        <span class="an-spin"></span>
-        <span class="an-dash"></span>
-        <span class="an-orbit o1"><i></i></span><span class="an-orbit o2"><i></i></span><span class="an-orbit o3"><i></i></span>
-        <span class="an-core">
-          {
-            analysisSteps.map((s, i) => (
-              <span class="an-ic" data-an-ic={i}>
-                <Icon name={s.icon} size={34} />
+      <div class="an-card">
+        <div class="an-left">
+          <div class="an-orb" aria-hidden="true">
+            <span class="an-wave"></span><span class="an-wave"></span><span class="an-wave"></span>
+            <span class="an-spin"></span>
+            <span class="an-dash"></span>
+            <span class="an-orbit o1"><i></i></span><span class="an-orbit o2"><i></i></span><span class="an-orbit o3"><i></i></span>
+            <span class="an-core">
+              {
+                analysisSteps.map((s, i) => (
+                  <span class="an-ic" data-an-ic={i}>
+                    <Icon name={s.icon} size={34} />
+                  </span>
+                ))
+              }
+              <span class="an-ic an-ic--done" data-an-ic="done">
+                <Icon name="check" size={40} strokeWidth={2.6} />
               </span>
+            </span>
+            <span class="an-burst">{Array.from({ length: 12 }, (_, i) => <i style={`--a:${i * 30}deg`} />)}</span>
+          </div>
+
+          <p class="an-kicker" data-an-kicker>Analyse en cours</p>
+          <h2 class="an-title" tabindex="-1">Je passe votre gestion <em>au crible</em></h2>
+          <p class="an-thought" aria-hidden="true"><span data-thought></span><span class="caret"></span></p>
+
+          <div class="an-progress" aria-hidden="true">
+            <span class="an-track"><span data-an-bar></span></span>
+            <span class="an-pct" data-an-pct>0 %</span>
+          </div>
+        </div>
+
+        <ol class="an-steps" aria-live="polite">
+          <li class="an-step" data-an-step="read">
+            <span class="st-ic"><span class="st-spin"></span><svg viewBox="0 0 24 24" class="st-check"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
+            <span class="st-body">
+              <span class="st-row"><span class="st-label">Lecture de vos réponses</span><span class="st-note" data-an-note></span></span>
+            </span>
+          </li>
+          {
+            domains.map((d) => (
+              <li class="an-step an-step--dom" data-an-step={d.id}>
+                <span class="st-ic">
+                  <span class="st-spin" />
+                  <svg viewBox="0 0 24 24" class="st-check">
+                    <path d="M5 12.5l4.5 4.5L19 7.5" />
+                  </svg>
+                </span>
+                <span class="st-body">
+                  <span class="st-row">
+                    <span class="st-label">
+                      <span class="lbl-long">{d.label}</span>
+                      <span class="lbl-short">{d.short}</span>
+                    </span>
+                    <span class="st-val" data-an-val>–</span>
+                  </span>
+                  <span class="st-bar">
+                    <span data-an-fill />
+                  </span>
+                  <span class="st-note" data-an-note />
+                </span>
+              </li>
             ))
           }
-          <span class="an-ic an-ic--done" data-an-ic="done">
-            <Icon name="check" size={40} strokeWidth={2.6} />
-          </span>
-        </span>
-        <span class="an-burst">{Array.from({ length: 12 }, (_, i) => <i style={`--a:${i * 30}deg`} />)}</span>
+          <li class="an-step" data-an-step="score">
+            <span class="st-ic"><span class="st-spin"></span><svg viewBox="0 0 24 24" class="st-check"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
+            <span class="st-body">
+              <span class="st-row"><span class="st-label">Calcul de votre score global</span><span class="st-val st-val--score" data-an-score>– /100</span></span>
+            </span>
+          </li>
+          <li class="an-step" data-an-step="plan">
+            <span class="st-ic"><span class="st-spin"></span><svg viewBox="0 0 24 24" class="st-check"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
+            <span class="st-body">
+              <span class="st-row"><span class="st-label">Préparation de votre plan d’action</span><span class="st-note" data-an-note></span></span>
+            </span>
+          </li>
+        </ol>
       </div>
-
-      <p class="an-kicker" data-an-kicker>Analyse en cours</p>
-      <h2 class="an-title" tabindex="-1">Je passe votre gestion <em>au crible</em></h2>
-      <p class="an-thought" aria-hidden="true"><span data-thought></span><span class="caret"></span></p>
-
-      <div class="an-progress" aria-hidden="true">
-        <span class="an-track"><span data-an-bar></span></span>
-        <span class="an-pct" data-an-pct>0 %</span>
-      </div>
-
-      <ol class="an-steps" aria-live="polite">
-        {
-          analysisSteps.map((s) => (
-            <li class="an-step" data-an-step>
-              <span class="st-ic">
-                <span class="st-spin" />
-                <svg viewBox="0 0 24 24" class="st-check">
-                  <path d="M5 12.5l4.5 4.5L19 7.5" />
-                </svg>
-              </span>
-              <span class="st-label">{s.label}</span>
-              <span class="st-note" data-an-note />
-            </li>
-          ))
-        }
-      </ol>
     </div>
 
     <!-- ============ 4. Résultats ============ -->
@@ -616,7 +686,13 @@ const analysisSteps = [
               </a>
             </div>
             <div class="cal-loading" data-cal-loading hidden>
-              <span class="spinner"></span> Chargement de l’agenda…
+              <div class="cal-skel" aria-hidden="true">
+                <span class="sk sk-title"></span>
+                <span class="sk sk-line"></span>
+                <span class="sk-grid">{Array.from({ length: 35 }, () => <i />)}</span>
+                <span class="sk sk-line sk-line--short"></span>
+              </div>
+              <p class="cal-loading-text"><span class="spinner"></span> Chargement de l’agenda…</p>
             </div>
             <div class="cal-widget" data-cal-widget></div>
             <div class="book-done" data-cal-done hidden>
@@ -686,6 +762,16 @@ const analysisSteps = [
         <button type="button" class="link-btn" data-redo><Icon name="arrowLeft" size={16} /> Refaire le diagnostic</button>
       </div>
 
+    </div>
+
+    <!-- « Bon à savoir » : bulle de Nadège après chaque réponse -->
+    <div class="tip-toast" data-tip-toast role="status" aria-live="polite">
+      <Image src={nadege} alt="" width={88} height={88} class="tip-avatar" loading="lazy" />
+      <div class="tip-bubble">
+        <span class="tip-typing" aria-hidden="true"><i></i><i></i><i></i></span>
+        <p class="tip-text"><strong>Bon à savoir</strong><span data-tip-text></span></p>
+      </div>
+      <button type="button" class="tip-close" data-tip-close aria-label="Fermer le conseil"><Icon name="x" size={14} strokeWidth={2.4} /></button>
     </div>
 
     <!-- Raccourci de lancement, visible sur l'accueil quand le bouton principal n'est plus à l'écran -->
@@ -796,6 +882,7 @@ const analysisSteps = [
         s.classList.toggle('is-active', on);
       });
       root.dataset.view = name;
+      if (name !== 'quiz') hideTip();
       updateSticky();
       updateStartSticky();
       const top = root.getBoundingClientRect().top + window.scrollY - 110;
@@ -814,7 +901,8 @@ const analysisSteps = [
       const started = state.index > 0 || answeredCount() > 0;
       restartIntro.hidden = !started;
       if (state.done) label.textContent = 'Voir mes résultats';
-      else if (started) label.textContent = `Reprendre (question ${Math.max(1, state.index)} sur ${total})`;
+      else if (started)
+        label.textContent = state.index < 3 ? 'Reprendre mon diagnostic' : `Reprendre (question ${state.index - 2} sur ${total})`;
       else label.textContent = 'Lancer mon diagnostic gratuit';
     }
     function start() {
@@ -838,7 +926,7 @@ const analysisSteps = [
       const { unlocked, name, lead } = state;
       state = { answers: {}, index: 0, unlocked, name, lead };
       quizForm.reset();
-      steps.forEach((s) => s.querySelector('[data-tip]')?.classList.remove('is-typing', 'is-shown'));
+      hideTip();
       save();
       refreshIntro();
       if (start) {
@@ -848,63 +936,110 @@ const analysisSteps = [
     }
 
     /* ================= Questions ================= */
-    const bar = $('[data-bar]');
     const count = $('[data-count]');
     const prev = $<HTMLButtonElement>('[data-prev]');
     const remaining = $('[data-remaining]');
+    const announce = $('[data-announce]');
     const sideItems = $$('[data-side]');
+    const segs = $$('[data-seg]');
+    const chapter = $('[data-chapter]');
+    // Les 3 premières étapes décrivent l'entreprise, les suivantes sont les 12 questions notées
+    const PROFILE = ['activite', 'effectif', 'ca'];
+    const stepId = (i: number) => steps[i].dataset.qstep!;
+    const stepGroup = (i: number) => steps[i].dataset.domain!;
+    let autoTimer = 0;
 
     function isAnswered(i: number) {
-      if (i === 0) return !!state.activite && !!state.effectif && state.ca !== undefined;
-      return state.answers[questions[i - 1].id] !== undefined;
+      const id = stepId(i);
+      if (id === 'activite') return !!state.activite;
+      if (id === 'effectif') return !!state.effectif;
+      if (id === 'ca') return state.ca !== undefined;
+      return state.answers[id] !== undefined;
+    }
+
+    function progressOf(group: string) {
+      if (group === 'profil') return { done: PROFILE.filter((_, k) => isAnswered(k)).length, max: PROFILE.length };
+      const qs = questions.filter((q) => q.domain === group);
+      return { done: qs.filter((q) => state.answers[q.id] !== undefined).length, max: qs.length };
+    }
+
+    function counterHtml(i: number) {
+      if (i < PROFILE.length) return `Votre entreprise · <b>${i + 1}</b> / ${PROFILE.length}`;
+      const n = i - PROFILE.length + 1;
+      const rest = total - n + 1;
+      const hint = rest === 1 ? 'Dernière question !' : rest <= 3 ? `Plus que ${rest} questions` : '';
+      return `Question <b>${n}</b> sur ${total}${hint ? ` <span class="quiz-hint">${hint}</span>` : ''}`;
+    }
+
+    /** Ouverture animée d'une partie : icône, « Partie 2 sur 4 », nom du domaine */
+    function playChapter(group: string) {
+      const d = domains.find((x) => x.id === group)!;
+      const n = domains.indexOf(d) + 1;
+      $('[data-chapter-ic]').innerHTML = icon(d.id);
+      $('[data-chapter-kicker]').textContent = `Partie ${n} sur ${domains.length}`;
+      $('[data-chapter-title]').textContent = d.label;
+      const nb = questions.filter((q) => q.domain === group).length;
+      $('[data-chapter-sub]').textContent = `${nb} questions`;
+      chapter.classList.remove('is-on');
+      void chapter.offsetWidth;
+      chapter.classList.add('is-on');
+      window.setTimeout(() => chapter.classList.remove('is-on'), 1500);
     }
 
     function showStep(i: number, dir: 'next' | 'prev') {
+      window.clearTimeout(autoTimer);
+      i = Math.max(0, Math.min(i, steps.length - 1));
+      const group = stepGroup(i);
+      const opening = dir === 'next' && !reduce && group !== 'profil' && (i === 0 || stepGroup(i - 1) !== group);
       state.index = i;
       save();
       steps.forEach((s, k) => {
         s.classList.toggle('is-current', k === i);
-        s.classList.remove('enter-next', 'enter-prev');
+        s.classList.remove('enter-next', 'enter-prev', 'enter-chapter');
       });
       const step = steps[i];
       if (!reduce) {
         void step.offsetWidth;
-        step.classList.add(`enter-${dir}`);
+        step.classList.add(opening ? 'enter-chapter' : `enter-${dir}`);
       }
-      // Le conseil déjà lu reste affiché quand on revient sur une question
-      const tip = step.querySelector('[data-tip]');
-      if (tip && isAnswered(i)) tip.classList.add('is-shown');
+      if (opening) playChapter(group);
 
-      root.dataset.step = i === 0 ? 'profil' : 'question';
-      count.innerHTML = i === 0 ? 'Pour commencer' : `Question <b>${i}</b> sur ${total}`;
-      bar.style.transform = `scaleX(${i / total})`;
+      root.dataset.step = group === 'profil' ? 'profil' : 'question';
+      root.classList.toggle('is-answered', isAnswered(i));
+      count.innerHTML = counterHtml(i);
+      announce.textContent = count.textContent ?? '';
       next.disabled = !isAnswered(i);
-      next.classList.remove('is-ready');
-      $('[data-next-label]').textContent = i === total ? 'Découvrir mon résultat' : i === 0 ? 'Commencer' : 'Question suivante';
-      const left = Math.round(((total - i + 1) * 13) / 60);
+      $('[data-next-label]').textContent = i === steps.length - 1 ? 'Voir mon résultat' : 'Suivant';
+      const left = Math.round(((steps.length - i) * 12) / 60);
       remaining.textContent = left <= 1 ? 'Moins d’une minute' : `Encore environ ${left} minutes`;
-      updateSide(i);
+      updateProgress(i);
       step.querySelector<HTMLElement>('.q-title')?.focus({ preventScroll: true });
     }
 
-    function updateSide(i: number) {
-      const current = i === 0 ? 'profil' : questions[i - 1].domain;
+    /** Barre en 5 parties et colonne de progression */
+    function updateProgress(i: number) {
+      const current = stepGroup(i);
+      segs.forEach((seg) => {
+        const { done, max } = progressOf(seg.dataset.seg!);
+        seg.style.setProperty('--p', String(done / max));
+        seg.classList.toggle('is-current', seg.dataset.seg === current);
+        seg.classList.toggle('is-complete', done === max);
+      });
       sideItems.forEach((item) => {
         const id = item.dataset.side!;
-        let done = 0;
-        let max = 1;
-        if (id === 'profil') done = isAnswered(0) ? 1 : 0;
-        else {
-          const qs = questions.filter((q) => q.domain === id);
-          max = qs.length;
-          done = qs.filter((q) => state.answers[q.id] !== undefined).length;
-        }
+        const { done, max } = progressOf(id);
         item.style.setProperty('--p', String((done / max) * 100));
         item.classList.toggle('is-current', id === current);
         item.classList.toggle('is-complete', done === max);
         item.classList.toggle('has-progress', done > 0);
         item.querySelector('[data-side-count]')!.textContent = `${done} / ${max}`;
       });
+    }
+
+    function advance() {
+      if (!isAnswered(state.index)) return;
+      if (state.index < steps.length - 1) showStep(state.index + 1, 'next');
+      else startAnalysis();
     }
 
     quizForm.addEventListener('change', (e) => {
@@ -914,52 +1049,75 @@ const analysisSteps = [
       else if (input.name === 'effectif') state.effectif = input.value;
       else if (input.name === 'ca') state.ca = Number(input.value);
       else {
-        const first = state.answers[input.name] === undefined;
         state.answers[input.name] = Number(input.value);
-        const tip = steps[i].querySelector('[data-tip]');
-        if (tip && first && !reduce) {
-          tip.classList.add('is-typing');
-          window.setTimeout(() => {
-            tip.classList.remove('is-typing');
-            tip.classList.add('is-shown');
-          }, 750);
-        } else tip?.classList.add('is-shown');
+        const q = questions.find((x) => x.id === input.name);
+        if (q) showTip(q.tip);
       }
       save();
-      updateSide(i);
-      if (isAnswered(i) && next.disabled) {
-        next.disabled = false;
-        next.classList.add('is-ready');
-      }
+      updateProgress(i);
+      root.classList.add('is-answered');
+      next.disabled = false;
+      // Passage automatique à l'étape suivante, le temps de voir la réponse cochée
+      window.clearTimeout(autoTimer);
+      autoTimer = window.setTimeout(() => {
+        if (state.index === i && root.dataset.view === 'quiz') advance();
+      }, reduce ? 150 : 560);
     });
 
     quizForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      if (!isAnswered(state.index)) return;
-      if (state.index < total) showStep(state.index + 1, 'next');
-      else startAnalysis();
+      advance();
     });
     prev.addEventListener('click', () => {
+      window.clearTimeout(autoTimer);
       if (state.index === 0) {
         refreshIntro();
         go('intro');
       } else showStep(state.index - 1, 'prev');
     });
 
-    // Clavier : A-E ou 1-5 pour répondre, Entrée pour continuer
+    // Clavier : A-E ou 1-5 pour répondre
     document.addEventListener('keydown', (e) => {
       if (root.dataset.view !== 'quiz' || e.ctrlKey || e.metaKey || e.altKey) return;
       const t = e.target;
       if (t instanceof Element && t.matches('input[type="text"], input[type="email"], input[type="tel"], textarea, [contenteditable]')) return;
       const k = e.key.toLowerCase();
       const idx = 'abcde'.indexOf(k) >= 0 ? 'abcde'.indexOf(k) : '12345'.indexOf(k);
-      if (idx < 0 || state.index === 0) return;
+      if (idx < 0) return;
       const input = steps[state.index].querySelectorAll<HTMLInputElement>('input[type="radio"]')[idx];
       if (input) {
         e.preventDefault();
         input.click();
         input.focus({ preventScroll: true });
       }
+    });
+
+    /* ---------- « Bon à savoir » : bulle de Nadège ---------- */
+    const toast = $('[data-tip-toast]');
+    let tipTimer = 0;
+    function showTip(text: string) {
+      if (root.dataset.view !== 'quiz') return;
+      window.clearTimeout(tipTimer);
+      $('[data-tip-text]').textContent = text;
+      toast.classList.remove('is-shown', 'is-typing', 'is-open');
+      void toast.offsetWidth;
+      toast.classList.add('is-shown');
+      if (!reduce) {
+        toast.classList.add('is-typing');
+        window.setTimeout(() => toast.classList.remove('is-typing'), 750);
+      }
+      tipTimer = window.setTimeout(hideTip, 9000);
+    }
+    function hideTip() {
+      window.clearTimeout(tipTimer);
+      toast.classList.remove('is-shown', 'is-typing');
+    }
+    $('[data-tip-close]').addEventListener('click', hideTip);
+    // Mobile : la bulle compacte s'ouvre d'un toucher (et reste un peu plus longtemps)
+    $('.tip-bubble', toast).addEventListener('click', () => {
+      toast.classList.add('is-open');
+      window.clearTimeout(tipTimer);
+      tipTimer = window.setTimeout(hideTip, 12000);
     });
 
     function restoreInputs() {
@@ -994,6 +1152,7 @@ const analysisSteps = [
     const anIcons = $$('[data-an-ic]');
     const anBar = $('[data-an-bar]');
     const anPct = $('[data-an-pct]');
+    const anScore = $('[data-an-score]');
     const thought = $('[data-thought]');
     const analysis = $('[data-screen="analysis"]');
 
@@ -1044,6 +1203,7 @@ const analysisSteps = [
 
     async function startAnalysis() {
       const id = ++run;
+      hideTip();
       const r = compute();
       go('analysis');
       analysis.classList.remove('is-done');
@@ -1051,32 +1211,52 @@ const analysisSteps = [
       anPct.dataset.v = '0';
       anBar.style.transform = 'scaleX(0)';
       anPct.textContent = '0 %';
+      anScore.textContent = '– /100';
       anSteps.forEach((s) => {
         s.classList.remove('is-active', 'is-done');
-        s.querySelector('[data-an-note]')!.textContent = '';
+        delete s.dataset.anLevel;
+        s.querySelectorAll('[data-an-note]').forEach((n) => (n.textContent = ''));
+        const fill = s.querySelector<HTMLElement>('[data-an-fill]');
+        if (fill) fill.style.width = '0%';
+        const val = s.querySelector('[data-an-val]');
+        if (val) val.textContent = '–';
       });
       $('.an-title', analysis).focus({ preventScroll: true });
 
-      const notes = [
-        `${answeredCount()} réponses`,
-        ...r.dom.map((x) => (x.todo === 0 ? 'Point fort' : `${x.todo} point${x.todo > 1 ? 's' : ''} à améliorer`)),
-        'Score calculé',
-        r.todo.length ? `${r.todo.length} recommandation${r.todo.length > 1 ? 's' : ''}` : 'Aucune urgence',
-      ];
-      const dur = reduce ? 160 : 900;
+      const dur = reduce ? 160 : 950;
       if (!reduce) typeThoughts(thoughtsFor(r), id);
       else thought.textContent = 'Je prépare votre résultat…';
 
       for (let k = 0; k < anSteps.length; k++) {
         if (id !== run) return;
-        anSteps[k].classList.add('is-active');
+        const step = anSteps[k];
+        const key = step.dataset.anStep!;
+        step.classList.add('is-active');
+        if (window.innerWidth < 761) step.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'nearest' });
         anIcons.forEach((ic) => ic.classList.toggle('is-on', ic.dataset.anIc === String(k)));
         setPct(Math.round(((k + 0.6) / anSteps.length) * 100), dur);
+        // Score : les chiffres défilent pendant le calcul
+        const scramble =
+          key === 'score' && !reduce
+            ? window.setInterval(() => (anScore.textContent = `${12 + Math.floor(Math.random() * 86)} /100`), 70)
+            : 0;
         await wait(dur);
+        window.clearInterval(scramble);
         if (id !== run) return;
-        anSteps[k].classList.remove('is-active');
-        anSteps[k].classList.add('is-done');
-        anSteps[k].querySelector('[data-an-note]')!.textContent = notes[k];
+        step.classList.remove('is-active');
+        step.classList.add('is-done');
+        const note = step.querySelector('[data-an-note]');
+        const dom = r.dom.find((x) => x.d.id === key);
+        if (key === 'read') note!.textContent = `${answeredCount()} réponses`;
+        else if (dom) {
+          // Domaine : la barre se remplit jusqu'au pourcentage obtenu
+          step.dataset.anLevel = dom.level;
+          step.querySelector<HTMLElement>('[data-an-fill]')!.style.width = `${dom.pct}%`;
+          countUp(step.querySelector<HTMLElement>('[data-an-val]')!, dom.pct, (v) => `${Math.round(v)} %`, 0);
+          note!.textContent = dom.todo === 0 ? 'Point fort' : `${dom.todo} point${dom.todo > 1 ? 's' : ''} à améliorer`;
+        } else if (key === 'score') anScore.textContent = `${r.global} /100`;
+        else if (key === 'plan')
+          note!.textContent = r.todo.length ? `${r.todo.length} recommandation${r.todo.length > 1 ? 's' : ''}` : 'Aucune urgence';
       }
       setPct(100, reduce ? 100 : 400);
       await wait(reduce ? 100 : 450);
@@ -1085,7 +1265,7 @@ const analysisSteps = [
       analysis.classList.add('is-done');
       $('[data-an-kicker]').textContent = 'Analyse terminée';
       thought.textContent = 'Votre résultat est prêt.';
-      await wait(reduce ? 200 : 1300);
+      await wait(reduce ? 200 : 1400);
       if (id !== run) return;
       state.done = true;
       state.code = encodeDiagnostic(state);
@@ -1136,8 +1316,8 @@ const analysisSteps = [
       results.classList.remove('is-animated', 'gauge-done');
 
       // Score global et niveau
-      $('[data-level]').textContent = r.level.label;
-      $('[data-level]').dataset.level = levelOf(r.global);
+      $('.g-level').textContent = r.level.label;
+      $('.g-level').dataset.level = levelOf(r.global);
       $('[data-level-text]').textContent = r.level.text;
       const act = activites.find((a) => a.value === state.activite);
       $('[data-activity-hint]').textContent = act?.hint ?? '';
@@ -2339,24 +2519,6 @@ const analysisSteps = [
     font-size: 1.05rem;
     color: var(--blue-700);
   }
-  .quiz-bar {
-    position: relative;
-    height: 6px;
-    margin-top: 0.8rem;
-    border-radius: 6px;
-    overflow: hidden;
-    background: var(--blue-50);
-  }
-  .quiz-bar span {
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: linear-gradient(90deg, var(--terra-500), var(--apricot) 55%, var(--blue-700));
-    background-size: 100vw 100%;
-    transform-origin: left;
-    transform: scaleX(0);
-    transition: transform 0.7s var(--ease-out);
-  }
   .quiz-form {
     margin-top: 1.8rem;
   }
@@ -2681,19 +2843,6 @@ const analysisSteps = [
     animation: ans-pop 0.4s var(--ease-spring);
   }
 
-  /* Bon à savoir */
-  .tip {
-    display: none;
-    align-items: flex-end;
-    gap: 0.7rem;
-    max-width: 40rem;
-    margin: 1.3rem auto 0;
-  }
-  .tip.is-typing,
-  .tip.is-shown {
-    display: flex;
-    animation: tip-in 0.45s var(--ease-out) both;
-  }
   @keyframes tip-in {
     from {
       opacity: 0;
@@ -2722,12 +2871,6 @@ const analysisSteps = [
     display: none;
     gap: 5px;
     padding: 0.35rem 0.2rem;
-  }
-  .tip.is-typing .tip-typing {
-    display: inline-flex;
-  }
-  .tip.is-typing .tip-text {
-    display: none;
   }
   .tip-typing i {
     width: 8px;
@@ -2785,9 +2928,6 @@ const analysisSteps = [
     font-size: 0.8rem;
     color: var(--muted);
   }
-  .diag[data-step='profil'] .quiz-keys {
-    visibility: hidden;
-  }
   .quiz-keys kbd {
     display: inline-grid;
     place-items: center;
@@ -2814,6 +2954,279 @@ const analysisSteps = [
   }
   .quiz-nav .btn.is-ready {
     animation: diag-glow 1.6s ease-in-out 2;
+  }
+
+  /* ---------- Progression en 5 parties ---------- */
+  .segs {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0.4rem;
+    margin-top: 0.9rem;
+  }
+  .seg {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    min-width: 0;
+  }
+  .seg-bar {
+    position: relative;
+    height: 7px;
+    border-radius: 7px;
+    overflow: hidden;
+    background: var(--blue-50);
+  }
+  .seg-fill {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--terra-500), var(--apricot));
+    transform-origin: left;
+    transform: scaleX(var(--p, 0));
+    transition: transform 0.7s var(--ease-out);
+  }
+  .seg.is-complete .seg-fill {
+    background: var(--blue-700);
+  }
+  .seg.is-current .seg-bar {
+    box-shadow: 0 0 0 2px rgb(246 181 91 / 0.45);
+  }
+  .seg-label {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-align: center;
+    text-transform: uppercase;
+    color: var(--muted);
+    opacity: 0.55;
+    transition:
+      opacity 0.3s,
+      color 0.3s;
+  }
+  .seg.is-current .seg-label,
+  .seg.is-complete .seg-label {
+    opacity: 1;
+    color: var(--blue-700);
+  }
+  .quiz-hint {
+    margin-left: 0.4rem;
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.74rem;
+    font-weight: 800;
+    color: var(--terra-700);
+    background: var(--terra-100);
+    animation: tip-in 0.4s var(--ease-out) both;
+  }
+
+  /* ---------- Étapes ---------- */
+  .quiz-form {
+    position: relative;
+  }
+  .q-step {
+    position: relative;
+  }
+  .q-step.enter-chapter {
+    animation: q-in-next 0.55s var(--ease-out) 1.05s both;
+  }
+  /* Grand pictogramme du domaine en filigrane */
+  .q-mark {
+    position: absolute;
+    top: -1.2rem;
+    right: -1rem;
+    z-index: 0;
+    color: var(--blue-700);
+    opacity: 0.05;
+    pointer-events: none;
+    rotate: -8deg;
+  }
+  .q-step.is-current .q-mark {
+    animation: q-mark-in 1.2s var(--ease-out) both;
+  }
+  @keyframes q-mark-in {
+    from {
+      opacity: 0;
+      rotate: 6deg;
+      scale: 0.8;
+    }
+  }
+  .q-title,
+  .answers,
+  .act-grid {
+    position: relative;
+    z-index: 1;
+  }
+  .answers--grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: 44rem;
+  }
+  .q-step.is-current .act {
+    animation: ans-in 0.5s var(--ease-out) both;
+    animation-delay: calc(0.06s + var(--j) * 0.05s);
+  }
+
+  /* ---------- Ouverture d'une partie ---------- */
+  .chapter {
+    position: absolute;
+    inset: -0.5rem;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    border-radius: 24px;
+    text-align: center;
+    background: radial-gradient(70% 70% at 50% 40%, #fff, rgb(255 255 255 / 0.96));
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .chapter.is-on {
+    visibility: visible;
+    animation: chapter 1.5s var(--ease-out) both;
+  }
+  @keyframes chapter {
+    0% {
+      opacity: 0;
+    }
+    12%,
+    72% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+  .chapter-ic {
+    display: grid;
+    place-items: center;
+    width: 76px;
+    height: 76px;
+    border-radius: 24px;
+    color: #fff;
+    background: linear-gradient(135deg, var(--blue-700), var(--blue-950));
+    box-shadow:
+      0 0 0 8px rgb(246 181 91 / 0.25),
+      0 20px 40px -18px rgb(97 25 58 / 0.7);
+  }
+  .chapter-ic svg {
+    width: 34px;
+    height: 34px;
+  }
+  .chapter.is-on .chapter-ic {
+    animation: chapter-ic 0.7s var(--ease-spring) both;
+  }
+  @keyframes chapter-ic {
+    from {
+      scale: 0.4;
+      rotate: -20deg;
+    }
+  }
+  .chapter-kicker {
+    margin-top: 0.8rem;
+    font-size: 0.74rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--terra-700);
+  }
+  .chapter-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.7rem, 3vw, 2.2rem);
+    color: var(--blue-700);
+  }
+  .chapter.is-on .chapter-kicker,
+  .chapter.is-on .chapter-title,
+  .chapter.is-on .chapter-sub {
+    animation: tip-in 0.5s var(--ease-out) 0.15s both;
+  }
+  .chapter-sub {
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+
+  /* ---------- « Bon à savoir » : bulle flottante ---------- */
+  .tip-toast {
+    position: fixed;
+    right: 1.25rem;
+    bottom: 1.25rem;
+    z-index: 56;
+    display: flex;
+    align-items: flex-end;
+    gap: 0.7rem;
+    width: min(380px, calc(100vw - 2.5rem));
+    opacity: 0;
+    visibility: hidden;
+    translate: 0 24px;
+    pointer-events: none;
+    transition:
+      opacity 0.35s,
+      translate 0.5s var(--ease-out),
+      visibility 0s linear 0.5s;
+  }
+  .tip-toast.is-shown {
+    opacity: 1;
+    visibility: visible;
+    translate: none;
+    pointer-events: auto;
+    transition-delay: 0s;
+  }
+  .tip-toast .tip-bubble {
+    flex: 1;
+    padding-right: 2rem;
+    background: #fff;
+    border-color: var(--rose-200);
+    box-shadow: 0 22px 44px -22px rgb(42 9 22 / 0.5);
+  }
+  .tip-toast.is-typing .tip-typing {
+    display: inline-flex;
+  }
+  .tip-toast.is-typing .tip-text {
+    display: none;
+  }
+  .tip-close {
+    position: absolute;
+    top: 0.45rem;
+    right: 0.45rem;
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    color: var(--muted);
+    transition: background 0.3s;
+  }
+  .tip-close:hover {
+    background: var(--blue-50);
+  }
+  /* Le bouton « retour en haut » laisse la place à la bulle */
+  body:has(.tip-toast.is-shown) .to-top {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  /* ---------- Navigation ---------- */
+  .quiz-nav {
+    margin-top: 1.5rem;
+    padding-top: 1.1rem;
+  }
+  .quiz-auto {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  .quiz-auto svg {
+    color: var(--terra-500);
+  }
+  .diag.is-answered .quiz-auto,
+  .diag:not(.is-answered) .quiz-keys {
+    display: none;
   }
 
   /* ================================================================
@@ -3177,6 +3590,240 @@ const analysisSteps = [
   }
   .st-note:not(:empty) {
     animation: tip-in 0.4s var(--ease-out) both;
+  }
+
+  /* ---------- Analyse : carte en deux colonnes ---------- */
+  .s-analysis {
+    display: block;
+    max-width: 1000px;
+    padding-block: 0.5rem;
+  }
+  .an-card {
+    display: grid;
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+    align-items: center;
+    gap: clamp(1.5rem, 4vw, 3rem);
+    padding: clamp(1.5rem, 4vw, 2.6rem);
+    border-radius: var(--radius-xl);
+    background: rgb(255 255 255 / 0.82);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-lg);
+    backdrop-filter: blur(10px);
+  }
+  .an-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .an-left .an-progress {
+    width: 100%;
+  }
+  .an-card .an-steps {
+    width: 100%;
+    margin-top: 0;
+    gap: 0.45rem;
+  }
+  .an-step {
+    align-items: flex-start;
+    padding: 0.7rem 0.9rem;
+    border: 1px solid transparent;
+  }
+  .an-step.is-active {
+    border-color: var(--rose-200);
+  }
+  .an-step.is-done {
+    background: rgb(255 255 255 / 0.6);
+  }
+  .st-ic {
+    margin-top: 0.1rem;
+  }
+  .st-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    min-width: 0;
+  }
+  .st-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+  .st-val {
+    flex: none;
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--blue-700);
+  }
+  .st-val--score {
+    font-size: 1.25rem;
+  }
+  .an-step[data-an-step='score'].is-active .st-val {
+    color: var(--terra-600);
+  }
+  .an-step[data-an-step='score'].is-done .st-val {
+    animation: ans-pop 0.5s var(--ease-spring);
+  }
+  /* Barre de domaine : effet de balayage pendant l'analyse, puis remplissage jusqu'au résultat */
+  .st-bar {
+    position: relative;
+    display: block;
+    height: 7px;
+    border-radius: 7px;
+    overflow: hidden;
+    background: var(--blue-50);
+  }
+  .st-bar span {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 0;
+    border-radius: inherit;
+    background: var(--blue-700);
+    transition: width 0.9s var(--ease-out);
+  }
+  .an-step.is-active .st-bar::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgb(246 181 91 / 0.85), transparent);
+    animation: an-shine 0.9s linear infinite;
+  }
+  .an-step[data-an-level='mid'] .st-bar span {
+    background: linear-gradient(90deg, var(--terra-400), var(--apricot));
+  }
+  .an-step[data-an-level='low'] .st-bar span {
+    background: var(--terra-500);
+  }
+  .an-step--dom .st-note {
+    font-size: 0.76rem;
+    white-space: normal;
+  }
+  .an-step--dom .st-note:empty {
+    display: none;
+  }
+  .an-step[data-an-level='high'] .st-note {
+    color: var(--blue-700);
+  }
+
+  /* ---------- Agenda : squelette de chargement ---------- */
+  .cal-loading {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .cal-skel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.7rem;
+    width: min(100%, 340px);
+  }
+  .sk,
+  .sk-grid i {
+    position: relative;
+    overflow: hidden;
+    display: block;
+    border-radius: 8px;
+    background: var(--blue-50);
+  }
+  .sk::after,
+  .sk-grid i::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.9), transparent);
+    animation: an-shine 1.3s linear infinite;
+  }
+  .sk-title {
+    width: 60%;
+    height: 18px;
+  }
+  .sk-line {
+    width: 85%;
+    height: 12px;
+  }
+  .sk-line--short {
+    width: 45%;
+  }
+  .sk-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.45rem;
+    width: 100%;
+  }
+  .sk-grid i {
+    aspect-ratio: 1;
+    border-radius: 50%;
+  }
+  .sk-grid i:nth-child(5n + 3) {
+    background: var(--rose-200);
+  }
+  .cal-loading-text {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 1023px) {
+    .an-card {
+      grid-template-columns: 1fr;
+    }
+  }
+  .lbl-short {
+    display: none;
+  }
+  /* Mobile : l'analyse tient sur un écran */
+  @media (max-width: 760px) {
+    .an-card {
+      gap: 1rem;
+      padding: 1.2rem 1rem;
+      border-radius: 26px;
+    }
+    .an-card .an-orb {
+      width: 130px;
+      height: 130px;
+    }
+    .an-card .an-core {
+      width: 64px;
+      height: 64px;
+    }
+    .an-card .an-core svg {
+      width: 26px;
+      height: 26px;
+    }
+    .an-card .an-kicker {
+      margin-top: 0.8rem;
+    }
+    .an-card .an-title {
+      font-size: 1.45rem;
+    }
+    .an-card .an-thought {
+      min-height: 2.6em;
+      margin-top: 0.4rem;
+      font-size: 0.9rem;
+    }
+    .an-card .an-progress {
+      display: none;
+    }
+    .an-card .an-steps {
+      gap: 0.25rem;
+    }
+    .an-card .an-step {
+      padding: 0.45rem 0.6rem;
+      font-size: 0.86rem;
+    }
+    .an-step--dom .st-note {
+      display: none !important;
+    }
+    .lbl-long {
+      display: none;
+    }
+    .lbl-short {
+      display: inline;
+    }
   }
 
   /* ================================================================
@@ -4781,8 +5428,67 @@ const analysisSteps = [
     .q-sub {
       margin-top: 1.2rem;
     }
-    .quiz-keys {
+    .quiz-keys,
+    .quiz-auto {
+      display: none !important;
+    }
+    .answers--grid {
+      grid-template-columns: 1fr;
+    }
+    .segs {
+      gap: 0.25rem;
+    }
+    .seg-label {
       display: none;
+    }
+    .seg.is-current .seg-label {
+      display: block;
+      position: absolute;
+      left: 0;
+      right: 0;
+      margin-top: 0.9rem;
+    }
+    .segs {
+      position: relative;
+      padding-bottom: 1.1rem;
+    }
+    .q-mark svg {
+      width: 120px;
+      height: 120px;
+    }
+    /* Passage automatique : le bouton « Suivant » n'apparaît que sur une question déjà répondue */
+    .diag:not(.is-answered) .quiz-nav {
+      display: none;
+    }
+    /* Bulle compacte qui ne masque pas les réponses : elle s'ouvre d'un toucher */
+    .tip-toast {
+      left: auto;
+      right: 0.75rem;
+      width: auto;
+      max-width: calc(100vw - 1.5rem);
+      bottom: calc(0.9rem + env(safe-area-inset-bottom));
+    }
+    .tip-toast:not(.is-open) .tip-bubble {
+      cursor: pointer;
+    }
+    .tip-toast:not(.is-open) [data-tip-text] {
+      display: none;
+    }
+    .tip-toast:not(.is-open) .tip-text::after {
+      content: 'Touchez pour lire';
+      display: block;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .tip-toast:not(.is-open) .tip-text strong {
+      margin-bottom: 0;
+    }
+    .tip-toast .tip-avatar {
+      width: 38px;
+      height: 38px;
+    }
+    .tip-text {
+      font-size: 0.85rem;
     }
     /* Bouton « Question suivante » toujours à portée de pouce */
     .quiz-nav {
