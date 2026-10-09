@@ -57,7 +57,7 @@ En CDI, la durée maximale de la période d’essai dépend de la catégorie du 
 
 ### La DPAE
 
-La **déclaration préalable à l’embauche** (DPAE) est obligatoire pour toute embauche. Elle s’effectue auprès de l’URSSAF, en ligne, **au plus tôt huit jours avant** et **au plus tard au moment de l’embauche**. Elle permet notamment l’immatriculation du salarié et l’organisation de son suivi médical.
+La **déclaration préalable à l’embauche** (DPAE) est obligatoire pour toute embauche. Elle s’effectue en ligne auprès de l’URSSAF (ou de la MSA pour un salarié agricole), **au plus tôt huit jours avant** et **au plus tard au moment de l’embauche**. Elle permet notamment l’immatriculation du salarié et l’organisation de son suivi médical.
 
 > **Bon à savoir** — Lors de votre première embauche, l’URSSAF vous accompagne : la DPAE déclenche aussi plusieurs démarches liées à votre nouveau statut d’employeur. Gardez précieusement l’accusé de réception de chaque déclaration.
 

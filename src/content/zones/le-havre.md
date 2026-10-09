@@ -40,7 +40,7 @@ tasks:
     text: 'Situations de travaux, attestations et suivi des sous-traitants.'
   - title: 'Tableau de bord'
     text: 'Les indicateurs utiles pour piloter votre activité.'
-caseIndex: 5
+caseIndex: 4
 faq:
   - q: 'Intervenez-vous dans toute l’agglomération havraise ?'
     a: 'Oui : Le Havre, Montivilliers, Harfleur, Sainte-Adresse, Gonfreville-l’Orcher, Octeville-sur-Mer et les communes de la pointe de Caux jusqu’à Étretat. Les rendez-vous sur place se planifient selon vos besoins.'

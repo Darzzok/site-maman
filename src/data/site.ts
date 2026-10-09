@@ -79,7 +79,7 @@ export const sections = [
 export const hero = {
   eyebrow: 'Optimisation d’exploitation & gestion externalisée',
   lead:
-    'Je suis Nadège MONZAT-MARECHAL, consultante indépendante spécialisée en <strong>gestion de trésorerie</strong>, <strong>organisation opérationnelle</strong> et accompagnement des TPE, artisans et professions libérales. Mon objectif : vous <strong>libérer de la charge administrative</strong> et <strong>sécuriser votre organisation</strong>, pour vous permettre de vous concentrer pleinement sur le développement de votre activité.',
+    'Je suis Nadège MONZAT-MARECHAL, consultante indépendante spécialisée en <strong>gestion de trésorerie</strong>, <strong>organisation opérationnelle</strong> et accompagnement des TPE, artisans, agriculteurs et professions libérales. Mon objectif : vous <strong>libérer de la charge administrative</strong> et <strong>sécuriser votre organisation</strong>, pour vous permettre de vous concentrer pleinement sur le développement de votre activité.',
   trust: ['Échange découverte gratuit', 'Réponse sous 24h', 'Sans engagement', 'Eure (27) & Seine-Maritime (76)'],
 };
 
@@ -118,7 +118,7 @@ export const services = [
   {
     icon: 'target',
     title: 'Accompagnement sur mesure',
-    text: 'Intervention flexible en <strong>temps partagé</strong> (présentiel ou distanciel), adaptée au rythme et aux besoins réels de votre activité, qu’elle soit artisanale, libérale ou en TPE. Selon vos besoins, je peux également vous mettre en relation avec <strong>mon réseau d’experts partenaires</strong>.',
+    text: 'Intervention flexible en <strong>temps partagé</strong> (présentiel ou distanciel), adaptée au rythme et aux besoins réels de votre activité, qu’elle soit artisanale, agricole, libérale ou en TPE. Selon vos besoins, je peux également vous mettre en relation avec <strong>mon réseau d’experts partenaires</strong>.',
   },
 ];
 
@@ -167,7 +167,7 @@ export const reasons = [
   {
     icon: 'hardhat',
     title: 'Expertise terrain',
-    text: 'Une solide maîtrise des réalités de la <strong>gestion opérationnelle des TPE, artisans et professions libérales</strong>.',
+    text: 'Une solide maîtrise des réalités de la <strong>gestion opérationnelle des TPE, artisans, agriculteurs et professions libérales</strong>.',
   },
   {
     icon: 'zap',
@@ -263,15 +263,6 @@ export const cases = [
     result: 'Trésorerie suivie et sécurisée au quotidien',
   },
   {
-    icon: 'stethoscope',
-    tag: 'Profession libérale',
-    title: 'Cabinet médical',
-    focus: 'organisation',
-    metier: 'professions-de-sante',
-    problem: 'Secrétariat administratif débordé entre la prise de rendez-vous, la facturation et le suivi des dossiers.',
-    result: 'Organisation administrative fluidifiée',
-  },
-  {
     icon: 'home',
     tag: 'TPE BTP',
     title: 'Entreprise de rénovation',
@@ -360,7 +351,7 @@ export const faqs: { q: string; a: string; cat: FaqCategory }[] = [
   {
     cat: 'demarrer',
     q: 'Quels types d’entreprises accompagnez-vous ?',
-    a: 'J’accompagne les <strong>TPE, artisans et professions libérales</strong>, quel que soit leur secteur d’activité. Chaque intervention est adaptée à la réalité et aux besoins spécifiques de votre entreprise.',
+    a: 'J’accompagne les <strong>TPE, artisans, exploitations agricoles et professions libérales</strong>, quel que soit leur secteur d’activité. Chaque intervention est adaptée à la réalité et aux besoins spécifiques de votre entreprise.',
   },
   {
     cat: 'demarrer',

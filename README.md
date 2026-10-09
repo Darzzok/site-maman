@@ -89,7 +89,7 @@ format d’accompagnement, coordonnées, puis récapitulatif avant envoi. Les r�
 avec un objet clair (nom, activité, besoins).
 
 - **Modifier les choix proposés** : listes `besoins`, `activites`, `effectifs`, `rythmes`… en haut du fichier.
-- **Présélection depuis un lien** : `/?activite=btp#devis` (btp, sante, liberal, commerce, tpe) ou
+- **Présélection depuis un lien** : `/?activite=btp#devis` (btp, agri, liberal, commerce, tpe) ou
   `/?besoin=tresorerie#devis`. Les boutons « Demander un devis » des pages métiers l’utilisent déjà.
 - La saisie est conservée pendant la visite si la page est rechargée, et le formulaire reste utilisable sans JavaScript.
 

@@ -47,7 +47,7 @@ faq:
   - q: 'Peut-on travailler ensemble uniquement à distance depuis Rouen ?'
     a: 'Bien sûr. Beaucoup de dirigeants préfèrent un suivi à distance, complété par un rendez-vous sur place de temps en temps. L’important est que l’organisation vous convienne.'
   - q: 'Quels types d’entreprises accompagnez-vous à Rouen ?'
-    a: 'Des TPE, des artisans (notamment du bâtiment), des commerces de proximité et des professions libérales : consultants, cabinets de santé, indépendants. L’accompagnement s’adapte à chaque activité.'
+    a: 'Des TPE, des artisans (notamment du bâtiment), des commerces de proximité et des professions libérales : consultants, cabinets d’études, indépendants. L’accompagnement s’adapte à chaque activité.'
   - q: 'Comment démarrer ?'
     a: 'Par un échange gratuit de 30 minutes, en visioconférence ou par téléphone. Nous faisons le point sur vos besoins, puis je vous propose un devis personnalisé, sans engagement.'
 related:

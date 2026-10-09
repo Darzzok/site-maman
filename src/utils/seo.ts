@@ -15,7 +15,7 @@ export function businessEntity() {
     name: site.name,
     alternateName: `${site.name} — ${site.owner}`,
     description:
-      'Conseil et accompagnement en gestion administrative, trésorerie, recouvrement, ressources humaines et pilotage pour TPE, artisans et professions libérales en Normandie (Eure et Seine-Maritime).',
+      'Conseil et accompagnement en gestion administrative, trésorerie, recouvrement, ressources humaines et pilotage pour TPE, artisans, agriculteurs et professions libérales en Normandie (Eure et Seine-Maritime).',
     slogan: site.promise,
     url: `${site.url}/`,
     logo: `${site.url}/images/logo.png`,

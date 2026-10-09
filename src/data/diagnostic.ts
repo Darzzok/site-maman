@@ -251,7 +251,7 @@ export const questions: Question[] = [
     id: 'marges',
     strength: 'Marges suivies',
     domain: 'pilotage',
-    text: 'Connaissez-vous la rentabilité de chaque chantier, prestation ou produit ?',
+    text: 'Connaissez-vous la rentabilité de chaque chantier, prestation, produit ou culture ?',
     options: [
       { label: 'Oui, je la calcule régulièrement', score: 3 },
       { label: 'Pour les principaux seulement', score: 2 },
@@ -316,11 +316,11 @@ export const activites = [
     hint: 'Pour un artisan du BTP, les acomptes, les situations de travaux et le suivi des chantiers sont les premiers leviers de trésorerie.',
   },
   {
-    value: 'sante',
-    label: 'Profession de santé',
-    icon: 'stethoscope',
-    metier: 'professions-de-sante',
-    hint: 'En cabinet, le suivi des encaissements, des cotisations et du temps administratif pèse vite sur le temps consacré aux patients.',
+    value: 'agri',
+    label: 'Exploitation agricole',
+    icon: 'wheat',
+    metier: 'exploitations-agricoles',
+    hint: 'Pour une exploitation agricole, des recettes saisonnières, des aides versées une fois par an et les échéances MSA rendent le prévisionnel de trésorerie indispensable.',
   },
   {
     value: 'liberal',

@@ -9,7 +9,7 @@ icon: 'mapPin'
 order: 10
 kind: 'departement'
 department: '27'
-lead: 'De la vallée de la Seine au pays d’Ouche, j’accompagne les TPE, artisans et professions libérales de l’Eure dans leur gestion administrative et financière, sur place ou à distance.'
+lead: 'De la vallée de la Seine au pays d’Ouche, j’accompagne les TPE, artisans, agriculteurs et professions libérales de l’Eure dans leur gestion administrative et financière, sur place ou à distance.'
 audience: ['Évreux', 'Vernon', 'Louviers', 'Val-de-Reuil', 'Bernay', 'Pont-Audemer', 'Les Andelys', 'Gisors', 'Gaillon', 'Verneuil d’Avre et d’Iton', 'Pacy-sur-Eure', 'Brionne']
 communes: ['Évreux', 'Vernon', 'Louviers', 'Val-de-Reuil', 'Bernay', 'Pont-Audemer', 'Les Andelys', 'Gisors', 'Gaillon', 'Verneuil d’Avre et d’Iton', 'Pacy-sur-Eure', 'Brionne']
 painsTitle: 'Pourquoi externaliser votre gestion administrative'
@@ -47,7 +47,7 @@ faq:
   - q: 'Je suis près de Vernon ou de Gisors, à la limite de l’Île-de-France : pouvez-vous m’accompagner ?'
     a: 'Oui. J’accompagne les entreprises de toute l’Eure, y compris dans l’est du département. Le suivi à distance permet d’ailleurs de travailler ensemble quel que soit l’emplacement exact de votre entreprise.'
   - q: 'Quels métiers accompagnez-vous dans l’Eure ?'
-    a: 'Des artisans du bâtiment, des commerces de proximité, des professions de santé et des professions libérales, ainsi que des TPE de services. Chaque accompagnement est adapté à la réalité du métier.'
+    a: 'Des artisans du bâtiment, des commerces de proximité, des exploitations agricoles et des professions libérales, ainsi que des TPE de services. Chaque accompagnement est adapté à la réalité du métier.'
   - q: 'Comment se passe le premier contact ?'
     a: 'Par un échange gratuit de 30 minutes, en visioconférence ou par téléphone. Je vous propose ensuite un devis personnalisé, sans engagement.'
 related:
@@ -58,7 +58,7 @@ related:
 
 ## Un appui administratif pour les entreprises de l’Eure
 
-Entre la vallée de la Seine, le plateau du Neubourg, le pays d’Ouche et le Vexin normand, l’**Eure** compte un tissu dense de petites entreprises : artisans, commerces de centre-bourg, cabinets de santé, professions libérales, entreprises de services. Beaucoup de leurs dirigeants gèrent seuls une charge administrative qui ne cesse de s’alourdir.
+Entre la vallée de la Seine, le plateau du Neubourg, le pays d’Ouche et le Vexin normand, l’**Eure** compte un tissu dense de petites entreprises : artisans, commerces de centre-bourg, exploitations agricoles, professions libérales, entreprises de services. Beaucoup de leurs dirigeants gèrent seuls une charge administrative qui ne cesse de s’alourdir.
 
 Je leur propose une solution simple : **confier la gestion administrative et financière à une professionnelle indépendante**, qui intervient à la demande, sur place ou à distance.
 
@@ -68,4 +68,4 @@ Que votre entreprise soit installée à **Évreux**, **Vernon**, **Louviers**, *
 
 ## Un territoire, plusieurs métiers
 
-Dans l’Eure, j’accompagne notamment les **artisans du bâtiment**, très nombreux dans le département, les **commerçants et artisans de proximité**, les **professionnels de santé** installés en cabinet ou en maison de santé, et les **professions libérales** qui travaillent souvent pour des clients en Normandie comme en Île-de-France.
+Dans l’Eure, j’accompagne notamment les **artisans du bâtiment**, très nombreux dans le département, les **commerçants et artisans de proximité**, les **agriculteurs et éleveurs** du plateau du Neubourg, du pays d’Ouche et du Vexin normand, et les **professions libérales** qui travaillent souvent pour des clients en Normandie comme en Île-de-France.

@@ -9,7 +9,7 @@ icon: 'mapPin'
 order: 11
 kind: 'departement'
 department: '76'
-lead: 'De la métropole rouennaise à la Côte d’Albâtre, j’accompagne les TPE, artisans et professions libérales de Seine-Maritime dans leur gestion administrative et financière, en présentiel ou à distance.'
+lead: 'De la métropole rouennaise à la Côte d’Albâtre, j’accompagne les TPE, artisans, agriculteurs et professions libérales de Seine-Maritime dans leur gestion administrative et financière, en présentiel ou à distance.'
 audience: ['Rouen', 'Le Havre', 'Dieppe', 'Fécamp', 'Elbeuf', 'Yvetot', 'Barentin', 'Bolbec', 'Lillebonne', 'Montivilliers', 'Neufchâtel-en-Bray', 'Eu']
 communes: ['Rouen', 'Le Havre', 'Dieppe', 'Fécamp', 'Elbeuf', 'Yvetot', 'Barentin', 'Bolbec', 'Lillebonne', 'Montivilliers', 'Neufchâtel-en-Bray', 'Eu']
 painsTitle: 'Ce qu’un accompagnement change pour votre entreprise'
@@ -40,14 +40,14 @@ tasks:
     text: 'Retraite, prévoyance et stratégie patrimoniale avec un expert partenaire.'
   - title: 'Temps partagé'
     text: 'Une interlocutrice unique pour votre gestion, sans recruter.'
-caseIndex: 4
+caseIndex: 2
 faq:
   - q: 'Intervenez-vous sur la côte (Dieppe, Fécamp) ?'
     a: 'Oui. J’accompagne les entreprises de toute la Seine-Maritime, y compris sur la Côte d’Albâtre, dans le pays de Caux et le pays de Bray. Les rendez-vous sur place sont complétés par un suivi à distance.'
   - q: 'Avez-vous une page dédiée à ma ville ?'
     a: 'Des pages spécifiques présentent l’accompagnement à Rouen et au Havre. Pour les autres communes du département, l’accompagnement est le même : sur place ou à distance, selon vos besoins.'
   - q: 'Quels métiers accompagnez-vous en Seine-Maritime ?'
-    a: 'Artisans du bâtiment, commerces et artisans de proximité, professionnels de santé, professions libérales et TPE de services.'
+    a: 'Artisans du bâtiment, commerces et artisans de proximité, exploitations agricoles, professions libérales et TPE de services.'
   - q: 'Quel est le délai pour démarrer ?'
     a: 'Après un premier échange gratuit et la validation du devis, l’accompagnement peut démarrer rapidement, en commençant par les sujets les plus urgents.'
 related:
@@ -58,9 +58,9 @@ related:
 
 ## Un accompagnement pour les entreprises de toute la Seine-Maritime
 
-Département le plus peuplé de Normandie, la **Seine-Maritime** réunit des profils d’entreprises très variés : commerces et cabinets des grandes agglomérations de **Rouen** et du **Havre**, artisans du **pays de Caux** et du **pays de Bray**, activités touristiques de la **Côte d’Albâtre**, de **Dieppe** à **Étretat**. Toutes ont besoin d’une gestion administrative fiable pour se développer sereinement.
+Département le plus peuplé de Normandie, la **Seine-Maritime** réunit des profils d’entreprises très variés : commerces et cabinets des grandes agglomérations de **Rouen** et du **Havre**, artisans et agriculteurs du **pays de Caux** et du **pays de Bray**, activités touristiques de la **Côte d’Albâtre**, de **Dieppe** à **Étretat**. Toutes ont besoin d’une gestion administrative fiable pour se développer sereinement.
 
-Je propose aux dirigeants de TPE, aux artisans et aux professions libérales un **accompagnement externalisé**, souple et sans engagement.
+Je propose aux dirigeants de TPE, aux artisans, aux agriculteurs et aux professions libérales un **accompagnement externalisé**, souple et sans engagement.
 
 ## Des grandes villes aux bourgs du pays de Caux
 
