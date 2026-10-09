@@ -3,43 +3,60 @@
    Charte graphique SGC :
      Prune  #61193a · Orange #e97e0d · Rose #e581bc
      Abricot #f6b55b · Blanc #ffffff · Noir #000000
-   Polices : MADE Mirage (titres) · Garet (texte)
+   Polices libres (licence SIL OFL) : Playfair Display (titres) · Montserrat (texte)
    ───────────────────────────────────────────────────────────── */
 
 @layer reset, base, layout, components, utilities;
 
-/* ============ Polices de la charte ============ */
+/* ============ Polices ============
+   Polices libres sous licence SIL Open Font License (usage commercial autorisé), hébergées sur le site :
+   Playfair Display pour les titres (proche de MADE Mirage) et Montserrat pour le texte (proche de Garet).
+   Chaque fichier couvre une plage de graisses, comme le faisaient les polices d'origine. */
 @font-face {
-  font-family: 'MADE Mirage';
-  src: url('/fonts/mirage-regular.woff2') format('woff2');
-  font-weight: 100 449;
+  font-family: 'Playfair Display';
+  src: url('/fonts/playfair-display-latin-400-normal.woff2') format('woff2');
+  font-weight: 100 499;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: 'MADE Mirage';
-  src: url('/fonts/mirage-medium.woff2') format('woff2');
-  font-weight: 450 649;
+  font-family: 'Playfair Display';
+  src: url('/fonts/playfair-display-latin-500-normal.woff2') format('woff2');
+  font-weight: 500 649;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: 'MADE Mirage';
-  src: url('/fonts/mirage-bold.woff2') format('woff2');
+  font-family: 'Playfair Display';
+  src: url('/fonts/playfair-display-latin-700-normal.woff2') format('woff2');
   font-weight: 650 900;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: 'Garet';
-  src: url('/fonts/garet-book.woff2') format('woff2');
+  font-family: 'Playfair Display';
+  src: url('/fonts/playfair-display-latin-400-italic.woff2') format('woff2');
+  font-weight: 100 499;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Playfair Display';
+  src: url('/fonts/playfair-display-latin-500-italic.woff2') format('woff2');
+  font-weight: 500 900;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Montserrat';
+  src: url('/fonts/montserrat-latin-400-normal.woff2') format('woff2');
   font-weight: 100 599;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: 'Garet';
-  src: url('/fonts/garet-heavy.woff2') format('woff2');
+  font-family: 'Montserrat';
+  src: url('/fonts/montserrat-latin-700-normal.woff2') format('woff2');
   font-weight: 600 900;
   font-style: normal;
   font-display: swap;
@@ -118,8 +135,8 @@
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 
   /* Typographie */
-  --font-display: 'MADE Mirage', 'Didot', 'Bodoni 72', Georgia, serif;
-  --font-body: 'Garet', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Playfair Display', 'Didot', 'Bodoni 72', Georgia, serif;
+  --font-body: 'Montserrat', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
 
   --container: 1200px;
   --header-h: 84px;
@@ -206,7 +223,7 @@
     letter-spacing: -0.01em;
     text-wrap: balance;
   }
-  /* Petits titres : Mirage Medium, plus lisible en petite taille */
+  /* Petits titres : graisse moyenne, plus lisible en petite taille */
   h3,
   h4 {
     font-weight: 500;
@@ -317,9 +334,8 @@
   h2 em,
   .h2 em,
   .accent-italic {
-    /* Mots clés en italique : MADE Mirage n'a pas d'italique, le navigateur incline la police */
+    /* Mots clés en italique (vraie italique de Playfair Display) */
     font-style: italic;
-    font-synthesis: style;
     padding-right: 0.06em;
     font-weight: inherit;
     color: var(--accent-text);

@@ -52,9 +52,9 @@ const ogImage = new URL(image ?? '/images/og-image.jpg', site.url).href;
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <!-- Polices de la charte, préchargées pour un affichage immédiat -->
-    <link rel="preload" href="/fonts/mirage-regular.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="/fonts/garet-book.woff2" as="font" type="font/woff2" crossorigin />
+    <!-- Polices du site (libres de droits), préchargées pour un affichage immédiat -->
+    <link rel="preload" href="/fonts/playfair-display-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/montserrat-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="sitemap" href="/sitemap-index.xml" />
 
     <meta property="og:title" content={ogTitle ?? title} />

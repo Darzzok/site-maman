@@ -16,7 +16,7 @@
     "astro": "^7.3.5"
   },
   "devDependencies": {
-    "wawoff2": "^2.0.1",
-    "vercel": "^63.1.0"
+    "vercel": "^63.1.0",
+    "wawoff2": "^2.0.1"
   }
 }

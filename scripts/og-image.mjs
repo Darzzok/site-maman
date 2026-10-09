@@ -1,14 +1,24 @@
 // Génère public/images/og-image.jpg (image de partage 1200×630) aux couleurs de la charte SGC.
 // Utilisation : node scripts/og-image.mjs
 import sharp from 'sharp';
+import wawoff2 from 'wawoff2';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const file = (p) => fileURLToPath(new URL(p, import.meta.url));
 const W = 1200;
 const H = 630;
-const MIRAGE = file('./fonts/mirage-regular.otf');
-const GARET = file('./fonts/garet-book.otf');
-const GARET_HEAVY = file('./fonts/garet-heavy.otf');
+
+/** Polices libres du site (public/fonts, woff2) converties en TTF pour le rendu du texte */
+mkdirSync(file('./fonts/'), { recursive: true });
+const ttf = async (name) => {
+  const out = file(`./fonts/${name}.ttf`);
+  writeFileSync(out, await wawoff2.decompress(readFileSync(file(`../public/fonts/${name}.woff2`))));
+  return out;
+};
+const DISPLAY = await ttf('playfair-display-latin-400-normal');
+const BODY = await ttf('montserrat-latin-400-normal');
+const BODY_BOLD = await ttf('montserrat-latin-700-normal');
 
 /** Texte rendu avec une police de la charte (Pango) */
 const text = (markup, fontfile, font, width) =>
@@ -22,17 +32,17 @@ const logo = await sharp(file('../public/images/logo-full-white.png')).resize({ 
 
 const title = await text(
   '<span foreground="#ffffff">Concentrez-vous sur\nvotre métier,\n</span><span foreground="#f6b55b">je m’occupe du reste.</span>',
-  MIRAGE,
-  'MADE Mirage 58',
+  DISPLAY,
+  'Playfair Display 54',
   640,
 );
 const subtitle = await text(
-  '<span foreground="#f4dbe6">Gestion administrative · Trésorerie · RH &amp; paie\nTPE, artisans et professions libérales</span>',
-  GARET,
-  'Garet 23',
+  '<span foreground="#f4dbe6">Gestion administrative · Trésorerie · RH &amp; paie\nTPE, artisans, agriculteurs et professions libérales</span>',
+  BODY,
+  'Montserrat 22',
   640,
 );
-const badgeText = await text('<span foreground="#3d0f23">Normandie · Eure (27) · Seine-Maritime (76)</span>', GARET_HEAVY, 'Garet Heavy 19', 600);
+const badgeText = await text('<span foreground="#3d0f23">Normandie · Eure (27) · Seine-Maritime (76)</span>', BODY_BOLD, 'Montserrat Bold 18', 600);
 const badgeMeta = await sharp(badgeText).metadata();
 
 const background = Buffer.from(`

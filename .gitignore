@@ -2,8 +2,7 @@ node_modules/
 dist/
 .astro/
 
-# Polices sous licence : à ne pas publier (voir README)
-public/fonts/
+# Fichiers de polices convertis pour l’image de partage (régénérés par scripts/og-image.mjs)
 scripts/fonts/
 
 # Vercel (liaison locale du projet et site construit pour l’envoi)
