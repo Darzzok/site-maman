@@ -194,9 +194,11 @@ puis envoyé tel quel. Réglages (cache, en-têtes de sécurité, rapport non in
 1. **Une seule fois** : se connecter à son compte Vercel (le navigateur s’ouvre) puis relier le dossier au projet :
    ```bash
    npx vercel login
-   npx vercel link
+   npx vercel link --yes --project serenite-gestion-conseils
    ```
 2. **Version de test** (adresse privée, visible seulement une fois connecté à Vercel) : `npm run deploy:test`
+   (projet relié le 9 octobre 2026 : `serenite-gestion-conseils`. Attention : Vercel publie toujours le **tout premier**
+   envoi d’un nouveau projet sur l’adresse publique `serenite-gestion-conseils.vercel.app`.)
 3. **Mise en ligne officielle** : `npm run deploy`
 4. **Nom de domaine** : dans Vercel, *Settings → Domains*, ajouter `sérénitégestionconseils.fr` (et la version sans
    accents `serenitegestionconseils.fr` en redirection), puis recopier chez le registraire les enregistrements DNS indiqués.

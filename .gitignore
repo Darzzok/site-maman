@@ -8,3 +8,5 @@ scripts/fonts/
 
 # Vercel (liaison locale du projet et site construit pour l’envoi)
 .vercel/
+
+.env*

@@ -9,7 +9,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "deploy": "vercel build --prod && vercel deploy --prebuilt --prod",
-    "deploy:test": "vercel build && vercel deploy --prebuilt"
+    "deploy:test": "vercel build --target=preview && vercel deploy --prebuilt --target=preview"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",
