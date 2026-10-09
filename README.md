@@ -131,7 +131,7 @@ administrative, pilotage & personnel).
 - **Modifier les questions, conseils, recommandations, niveaux, accroches du bilan, créneaux** : `src/data/diagnostic.ts`
   (chaque réponse vaut de 0 à 3 points ; `null` = « non concerné », exclu du calcul). Cas clients : `cases` dans
   `src/data/site.ts` (`focus` = domaine illustré).
-- **Accès** : bouton « Diagnostic » dans l’en-tête (et dans le menu mobile), bandeau sur l’accueil (`src/components/DiagnosticTeaser.astro`), lien « Gratuit » dans
+- **Accès** : lien « Diagnostic » du menu principal, bandeau sur l’accueil (`src/components/DiagnosticTeaser.astro`), lien « Gratuit » dans
   l’en-tête de l’accueil, pied de page, fin des pages métiers/villes et des articles.
 - **Lancement direct** : un lien vers `/diagnostic-gestion.html#commencer` ouvre directement la 1re question (utilisé
   par le bandeau de l’accueil, le lien « Gratuit » de l’en-tête, les pages métiers/villes et les articles). Sur la page,
